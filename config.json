@@ -11,6 +11,6 @@
   },
   "server": {
     "bind_ip": "0.0.0.0",
-    "bind_port": 2333
+    "bind_port": 23333
   }
 }
