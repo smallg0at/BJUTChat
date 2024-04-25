@@ -145,16 +145,16 @@ class ChatForm(tk.Frame):
         self.input_textbox = ScrolledText(self.right_frame, bg='#63d5eb', font=("楷书", 16), height=5)
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
-        self.send_btn = tk.Button(self.input_frame, text='发送消息(Ctrl+Enter)', font=("仿宋", 16, 'bold'), fg="black",
+        self.send_btn = tk.Button(self.input_frame, text='发送消息(Ctrl+Enter)', font=("微软雅黑", 16, 'bold'), fg="black",
                                   bg="#35d1e9",activebackground="#6cdcf0", relief=GROOVE, command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
-        self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("仿宋", 16, 'bold'), fg="black", bg="#35d1e9",
+        self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
                                   activebackground="#6cdcf0", relief=GROOVE, command=self.choose_color)
         self.font_btn.pack(side=LEFT, expand=False)
-        self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("仿宋", 16, 'bold'), fg="black", bg="#35d1e9",
+        self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
                                   activebackground="#6cdcf0", relief=GROOVE, command=self.choose_font_size)
         self.font_btn.pack(side=LEFT, expand=False)
-        self.image_btn = tk.Button(self.input_frame, text='发送文件', font=("仿宋", 16, 'bold'), fg="black", bg="#35d1e9",
+        self.image_btn = tk.Button(self.input_frame, text='发送文件', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
                                    activebackground="#6cdcf0", relief=GROOVE, command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame, bg='#70d5eb')
@@ -162,10 +162,10 @@ class ChatForm(tk.Frame):
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
         self.chat_box.bind("<Key>", lambda e: "break")
-        self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("仿宋", 15))
-        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("仿宋", 15))
-        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("仿宋", 15))
-        self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("楷体", 15))
+        self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
+        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 15))
+        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 15))
+        self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("新宋体", 10))
 
         self.pack(expand=True, fill=BOTH)

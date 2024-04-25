@@ -43,7 +43,7 @@ class LoginForm(tk.Frame):
             ContactsForm(contacts)
             return
         
-        print("Something else happened...", data['type'])
+        # print("Something else happened...", data['type'])
 
     def __init__(self, master=None):
         """创建主窗口用来容纳其他组件"""
@@ -57,22 +57,22 @@ class LoginForm(tk.Frame):
         self.image_file = tk.PhotoImage(file='client/forms/images/login_bg.gif')
         self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
         # 标签 用户名密码
-        self.user_name = tk.Label(self.master, text='用户名', font=("楷体", 16), fg="black", bg="#35d1e9")
-        self.user_pwd = tk.Label(self.master, text='密  码', font=("楷体", 16), fg="black", bg="#43d5eb")
+        self.user_name = tk.Label(self.master, text='用户名', font=("微软雅黑", 16), fg="black", bg="#35d1e9")
+        self.user_pwd = tk.Label(self.master, text='密  码', font=("微软雅黑", 16), fg="black", bg="#43d5eb")
         # 用户名输入框
         self.var_user_name = tk.StringVar()
-        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("楷体", 18), fg="black",
+        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 18), fg="black",
                                         bg="#4fd8ec", relief=GROOVE)
         # 密码输入框
         self.var_user_pwd = tk.StringVar()
-        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("楷体", 18),
+        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("微软雅黑", 18),
                                        fg="black", bg="#4ed6e8", relief=GROOVE)
         # 登录 注册按钮
-        self.register_btn = tk.Button(self.master, text='注册', font=("楷体", 18), fg="black", bg="#6cdcf0",
+        self.register_btn = tk.Button(self.master, text='注册', font=("微软雅黑", 18), fg="black", bg="#6cdcf0",
                                       activebackground="#6cdcf0", relief=GROOVE, command=self.show_register)
-        self.login_btn = Button(self.master, text='登录', font=("楷体", 18), fg="black", bg="#6cdcf0",
+        self.login_btn = Button(self.master, text='登录', font=("微软雅黑", 18), fg="black", bg="#6cdcf0",
                                 activebackground="#6cdcf0", relief=GROOVE, command=self.do_login)
-        self.quit_btn = tk.Button(self.master, text='退出', font=("楷体", 18), fg="black", bg="#3fd4e7",
+        self.quit_btn = tk.Button(self.master, text='退出', font=("微软雅黑", 18), fg="black", bg="#3fd4e7",
                                   activebackground="#6cdcf0", relief=GROOVE, command=self.destroy_window)
         # 位置定位
         self.canvas.grid(row=0, column=0, rowspan=7, columnspan=8, )
@@ -85,6 +85,8 @@ class LoginForm(tk.Frame):
         self.quit_btn.grid(row=6, column=4, columnspan=1, sticky=E + N)
         self.sc = client.memory.sc
         client.util.socket_listener.add_listener(self.socket_listener)
+
+        self.master.protocol("WM_DELETE_WINDOW", self.destroy_window)
 
     """ 登陆操作 """
     def do_login(self):

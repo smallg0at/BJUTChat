@@ -37,7 +37,7 @@ def socket_listener_thread(sc, tk_root):
     while True:
         rlist, wlist, xlist = select.select([sc.socket], [sc.socket], [])
         if len(rlist):
-            print("Got Something...")
+            # print("Got Something...")
             if bytes_to_receive == 0 and bytes_received == 0:
                 # 一次新的接收
                 conn_ok = True
@@ -59,11 +59,11 @@ def socket_listener_thread(sc, tk_root):
                     bytes_to_receive = struct.unpack('!L', first_4_bytes)[0] + 16 + 1 + 32
 
             # 接收数据、拼成块
-            print("Packie!(before)",bytes_received,'/',bytes_to_receive)
+            # print("Packie!(before)",bytes_received,'/',bytes_to_receive)
             buffer = sc.socket.recv(bytes_to_receive - bytes_received)
             data_buffer += buffer
             bytes_received += len(buffer)
-            print("Packie!",bytes_received,'/',bytes_to_receive)
+            # print("Packie!",bytes_received,'/',bytes_to_receive)
             if bytes_received >= bytes_to_receive:
                 # 当一个数据包接收完毕
                 print("Receive finished.")

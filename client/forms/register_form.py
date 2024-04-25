@@ -50,24 +50,24 @@ class RegisterForm(tk.Frame):
         self.image_file = tk.PhotoImage(file='client/forms/images/register_bg.gif')
         self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
         # 标签 用户名、密码、确认密码、邮箱、性别、年龄
-        self.user_name = tk.Label(self.master, text="用户名", font=("楷体", 16), fg="black", bg="#30cfe8")
-        self.user_pwd = tk.Label(self.master, text="密  码", font=("楷体", 16), fg="black", bg="#32d0ea")
-        self.confirm_pwd = tk.Label(self.master, text="确认密码", font=("楷体", 16), fg="black", bg="#3ad2e9")
-        self.user_email = tk.Label(self.master, text="邮  箱", font=("楷体", 16), fg="black", bg="#58daec")
-        self.user_sex = tk.Label(self.master, text="性  别", font=("楷体", 16), fg="black", bg="#5bdbec")
-        self.user_age = tk.Label(self.master, text="年  龄", font=("楷体", 16), fg="black", bg="#5bdbec")
+        self.user_name = tk.Label(self.master, text="用户名", font=("微软雅黑", 16), fg="black", bg="#30cfe8")
+        self.user_pwd = tk.Label(self.master, text="密  码", font=("微软雅黑", 16), fg="black", bg="#32d0ea")
+        self.confirm_pwd = tk.Label(self.master, text="确认密码", font=("微软雅黑", 16), fg="black", bg="#3ad2e9")
+        self.user_email = tk.Label(self.master, text="邮  箱", font=("微软雅黑", 16), fg="black", bg="#58daec")
+        self.user_sex = tk.Label(self.master, text="性  别", font=("微软雅黑", 16), fg="black", bg="#5bdbec")
+        self.user_age = tk.Label(self.master, text="年  龄", font=("微软雅黑", 16), fg="black", bg="#5bdbec")
         # 输入框
         # 用户名输入框
         self.var_user_name = tk.StringVar()
-        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("楷体", 18), fg="black",
+        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 18), fg="black",
                                         bg="#4ed8eb", relief=GROOVE)
         # 密码输入框
         self.var_user_pwd = tk.StringVar()
-        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("楷体", 18),
+        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("微软雅黑", 18),
                                        fg="black", bg="#48d7ec", relief=GROOVE)
         # 确认密码输入框
         self.var_confirm_pwd = tk.StringVar()
-        self.entry_confirm_pwd = tk.Entry(self.master, textvariable=self.var_confirm_pwd, show='* ', font=("楷体", 18),
+        self.entry_confirm_pwd = tk.Entry(self.master, textvariable=self.var_confirm_pwd, show='* ', font=("微软雅黑", 18),
                                           fg="black", bg="#54d9ec", relief=GROOVE)
         # 邮箱输入框
         self.var_user_email = tk.StringVar()
@@ -75,13 +75,13 @@ class RegisterForm(tk.Frame):
                                          bg="#59d8ee", relief=GROOVE)
         # 性别输入框
         self.var_user_sex = tk.StringVar()
-        self.entry_user_sex = ttk.Combobox(self.master, textvariable=self.var_user_sex, font=("楷体", 18),
+        self.entry_user_sex = ttk.Combobox(self.master, textvariable=self.var_user_sex, font=("微软雅黑", 18),
                                            state="readonly")
         self.entry_user_sex['values'] = ("保密", "男", "女")
         self.entry_user_sex.current(0)
         # 年龄输入框
         self.var_user_age = tk.StringVar()
-        self.entry_user_age = ttk.Combobox(self.master, textvariable=self.var_user_age, font=("楷体", 18),
+        self.entry_user_age = ttk.Combobox(self.master, textvariable=self.var_user_age, font=("微软雅黑", 18),
                                            state="readonly")
         self.entry_user_age['values'] = ("保密", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
                                          21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
@@ -91,7 +91,7 @@ class RegisterForm(tk.Frame):
                                          100)
         self.entry_user_age.current(0)
         # 注册按钮
-        self.register_btn = tk.Button(self.master, text='       注     册       ', font=("楷体", 18), fg="black",
+        self.register_btn = tk.Button(self.master, text='       注     册       ', font=("微软雅黑", 18), fg="black",
                                       bg="#5edbee", activebackground="#61d8ee", relief=GROOVE, width=30,
                                       command=self.do_register)
         # 位置定位
