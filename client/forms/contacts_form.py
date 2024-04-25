@@ -33,7 +33,7 @@ class ContactsForm(tk.Frame):
 
     """监听从服务端发来的反馈"""
     def socket_listener(self, data):
-        print("Something happened...", data['type'])
+        # print("Something happened...", data['type'])
         if data['type'] == MessageType.login_bundle:
             print("Got Loginbundle!", len(data))
             bundle = data['parameters']
@@ -242,19 +242,19 @@ class ContactsForm(tk.Frame):
         self.button_frame_right = Frame(self)
         self.button_frame_right.pack(side=RIGHT, fill=BOTH, expand=YES)
         # 添加好友
-        self.add_friend = Button(self.button_frame_left, text="添加好友", font=("楷体", 16), fg="black", bg="#35d1e9",
+        self.add_friend = Button(self.button_frame_left, text="添加好友", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
                                  activebackground="#6cdcf0", relief=GROOVE, command=self.on_add_friend)
         self.add_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 添加群聊
-        self.add_room = Button(self.button_frame_left, text="添加群聊", font=("楷体", 16), fg="black", bg="#35d1e9",
+        self.add_room = Button(self.button_frame_left, text="添加群聊", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
                                activebackground="#6cdcf0", relief=GROOVE, command=self.on_add_room)
         self.add_room.pack(side=TOP, expand=True, fill=BOTH)
         # 删除好友
-        self.del_friend = Button(self.button_frame_right, text="删除好友", font=("楷体", 16), fg="black", bg="#35d1e9",
+        self.del_friend = Button(self.button_frame_right, text="删除好友", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
                                  activebackground="#6cdcf0", relief=GROOVE, command=self.on_del_friend)
         self.del_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 创建群聊
-        self.create_room = Button(self.button_frame_right, text="创建群聊", font=("楷体", 16), fg="black", bg="#35d1e9",
+        self.create_room = Button(self.button_frame_right, text="创建群聊", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
                                   activebackground="#6cdcf0", relief=GROOVE, command=self.on_create_room)
         self.create_room.pack(side=TOP, expand=True, fill=BOTH)
         # 页面定位

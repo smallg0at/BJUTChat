@@ -30,17 +30,17 @@ class ContactItem(Frame):
 
         # title
         self.title_frame.pack(side=LEFT, fill=BOTH, expand=True, anchor=W, pady=(1, 1), padx=3)
-        self.title = Label(self.title_frame, text="Title", font=("仿宋", 15, 'bold'), bg="#43d5eb")
+        self.title = Label(self.title_frame, text="Title", font=("微软雅黑", 15, 'bold'), bg="#43d5eb")
         self.title.pack(side=LEFT, fill=None, anchor=W)
 
         # 最后一条消息的时间
         self.last_message_time_frame.pack(side=TOP, expand=FALSE, fill=BOTH)
-        self.last_message_time = Label(self.last_message_time_frame, text="date", font=('仿宋', 10), fg='#575757', bg="#43d5eb")
+        self.last_message_time = Label(self.last_message_time_frame, text="date", font=('微软雅黑', 10), fg='#575757', bg="#43d5eb")
         self.last_message_time.pack(side=RIGHT, anchor=E)
 
         # 好友的ip
         self.friend_ip_frame.pack(side=TOP, expand=FALSE, fill=BOTH)
-        self.friend_ip = Label(self.friend_ip_frame, text="ip", font=('仿宋', 10), fg='#575757', bg="#43d5eb")
+        self.friend_ip = Label(self.friend_ip_frame, text="ip", font=('微软雅黑', 10), fg='#575757', bg="#43d5eb")
         self.friend_ip.pack(side=RIGHT, anchor=E)
 
         # 处理未读消息

@@ -4,6 +4,7 @@
 """运行客户端"""
 import _thread
 import tkinter as tk
+import ctypes
 from tkinter import messagebox
 import client.memory
 import client.util.socket_listener
@@ -12,8 +13,19 @@ from common.transmission.secure_channel import establish_secure_channel_to_serve
 
 """运行客户端开启一个新的线程"""
 def run():
+    
     root = tk.Tk()
     client.memory.tk_root = root
+    #告诉操作系统使用程序自身的dpi适配
+    # try:  # >= win 8.1
+    #     ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    # except:  # win 8.0 or less
+    #     ctypes.windll.user32.SetProcessDPIAware()
+    # #获取屏幕的缩放因子
+    # ScaleFactor=ctypes.windll.shcore.GetScaleFactorForDevice(0)
+    #设置程序缩放
+    # client.memory.tk_root.tk.call('tk', 'scaling', ScaleFactor/75)
+    
     try:
         client.memory.sc = establish_secure_channel_to_server()
     except ConnectionError:
