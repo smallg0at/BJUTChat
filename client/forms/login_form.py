@@ -38,9 +38,12 @@ class LoginForm(tk.Frame):
         if data['type'] == MessageType.login_successful:
             client.memory.current_user = data['parameters']
             self.remove_socket_listener_and_close()
+            print("Login Successful!")
             contacts = Toplevel(client.memory.tk_root, takefocus=True)
             ContactsForm(contacts)
             return
+        
+        print("Something else happened...", data['type'])
 
     def __init__(self, master=None):
         """创建主窗口用来容纳其他组件"""

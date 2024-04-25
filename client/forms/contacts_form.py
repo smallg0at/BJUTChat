@@ -33,7 +33,9 @@ class ContactsForm(tk.Frame):
 
     """监听从服务端发来的反馈"""
     def socket_listener(self, data):
+        print("Something happened...", data['type'])
         if data['type'] == MessageType.login_bundle:
+            print("Got Loginbundle!", len(data))
             bundle = data['parameters']
             friends = bundle['friends']
             rooms = bundle['rooms']
@@ -58,6 +60,7 @@ class ContactsForm(tk.Frame):
 
         if data['type'] == MessageType.contact_info:
             self.handle_new_contact(data['parameters'])
+            print("Handling Groups...", data['parameters'])
             return
 
         if data['type'] == MessageType.del_info:
@@ -93,6 +96,7 @@ class ContactsForm(tk.Frame):
         data['last_timestamp'] = 0
         data['last_message'] = '(没有消息)'
         self.contacts.insert(0, data)
+        print("Now has contact count: ", len(self.contacts))
         self.refresh_contacts()
 
     """处理删除好友的操作后"""
