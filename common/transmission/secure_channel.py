@@ -54,7 +54,7 @@ class SecureChannel:
             try:
                 sent = self.socket.send(message[totalsent:])
             except BlockingIOError as e:
-                sleep(0.05)
+                # sleep(0.05)
                 continue
             print('sending', msglen, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
@@ -105,8 +105,8 @@ class SecureChannel:
 def establish_secure_channel_to_server():
     config = get_config()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 16384)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 16384)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 131072)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 131072)
     s.settimeout(5)
     s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
 
