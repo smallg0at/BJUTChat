@@ -19,7 +19,7 @@ from common.message import serialize_message, deserialize_message, ByteArrayRead
 from common.util import long_to_bytes
 from pprint import pprint
 from server.util import database
-from getmac import get_mac_address as gma
+from time import sleep
 
 """建立安全信道"""
 class SecureChannel:
@@ -42,13 +42,26 @@ class SecureChannel:
         encrypted_message = encryption_suite.encrypt(data_to_encrypt)
         length_of_encrypted_message = len(encrypted_message)
 
-        # pprint([length_of_encrypted_message,
-        #         struct.pack('L', length_of_encrypted_message), bytes([padding_n]), iv1, encrypted_message])
-        # pprint(['sending', self.socket, message_type, parameters])
         mac = hashlib.md5(encrypted_message).hexdigest().encode()
 
-        self.socket.send(
-            struct.pack('!L', length_of_encrypted_message) + bytes([padding_n]) + iv1 + mac + encrypted_message)
+        message=struct.pack('!L', length_of_encrypted_message) + bytes([padding_n]) + iv1 + mac + encrypted_message
+        msglen=len(message)
+        
+        # print(['sending', self.socket, message_type, parameters])
+
+        totalsent=0
+        while totalsent < msglen:
+            try:
+                sent = self.socket.send(message[totalsent:])
+            except BlockingIOError as e:
+                sleep(0.05)
+                continue
+            print('sending', msglen, 'Bytes, this time',sent,'Bytes')
+            if sent == 0:
+                raise RuntimeError("socket connection broken")
+            totalsent = totalsent + sent
+            
+        
         return
 
     def on_data(self, data_array):
@@ -92,7 +105,9 @@ class SecureChannel:
 def establish_secure_channel_to_server():
     config = get_config()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 16384)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 16384)
+    s.settimeout(5)
     s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
 
     # 获取本机IP
@@ -149,9 +164,9 @@ def accept_client_to_secure_channel(socket):
 
     # 计算出共享密钥
     their_secret = crypt.getpk_from_cert(client_cert)
+    print("Client Incoming!",client_cert)
     shared_secert = crypt.get_shared_secret(their_secret)
     sc = SecureChannel(conn, shared_secert)
-
     return sc
 
 """获取本机IP"""
@@ -160,6 +175,3 @@ def get_ip():
     s.connect(('8.8.8.8', 80))
     ip = s.getsockname()[0]
     return ip
-
-def get_mac():
-    return gma()
