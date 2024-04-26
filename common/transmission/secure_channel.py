@@ -148,9 +148,9 @@ def accept_client_to_secure_channel(socket):
     conn, addr = socket.accept()
 
     # 首次连接，客户端会发送diffle hellman密钥
-    logging.info('User Incoming from'+addr)
     try:
         ip = conn.recv(1024)
+        logging.info('User Incoming from'+ip)
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client ip! Reason: '+e)
         return 
