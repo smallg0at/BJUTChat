@@ -24,6 +24,7 @@ import struct
 import sys
 import traceback
 from common.cryptography import crypt
+import logging
 
 """生成证书"""
 def gen_cert():
@@ -36,6 +37,7 @@ def gen_cert():
         f.close()
 
 def run():
+    logging.info('Server Launched. ')
     gen_cert()
 
     config = get_config()
@@ -45,6 +47,7 @@ def run():
     s.listen(1)
 
     print("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
+    logging.("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
 
     bytes_to_receive = {}
     bytes_received = {}
