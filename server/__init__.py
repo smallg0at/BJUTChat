@@ -47,7 +47,7 @@ def run():
     s.listen(1)
 
     print("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
-    logging.("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
+    logging.info("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
 
     bytes_to_receive = {}
     bytes_received = {}
