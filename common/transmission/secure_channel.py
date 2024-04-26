@@ -152,7 +152,7 @@ def accept_client_to_secure_channel(socket):
         ip = conn.recv(1024)
         logging.info('User Incoming from'+ip)
     except Exception as e:
-        logging.error('SecureChannel: Failed to receive client ip! Reason: '+e)
+        logging.error('SecureChannel: Failed to receive client ip!')
         return 
     
     certname = ip + "_cert.pem".encode()
@@ -167,7 +167,7 @@ def accept_client_to_secure_channel(socket):
     try:
         client_cert = conn.recv(1024)
     except Exception as e:
-        logging.error('SecureChannel: Failed to receive client cert! Reason: '+e)
+        logging.error('SecureChannel: Failed to receive client cert!')
         return 
     
     try:
