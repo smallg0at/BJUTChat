@@ -20,6 +20,7 @@ from common.util import long_to_bytes
 from pprint import pprint
 from server.util import database
 from time import sleep
+import logging
 
 """建立安全信道"""
 class SecureChannel:
@@ -58,7 +59,7 @@ class SecureChannel:
                 continue
             print('sending', msglen, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
-                raise RuntimeError("socket connection broken")
+                logging.error("socket connection broken")
             totalsent = totalsent + sent
             
         
@@ -147,7 +148,13 @@ def accept_client_to_secure_channel(socket):
     conn, addr = socket.accept()
 
     # 首次连接，客户端会发送diffle hellman密钥
-    ip = conn.recv(1024)
+    try:
+        ip = conn.recv(1024)
+        logging.info('User Incoming from'+ip)
+    except Exception as e:
+        logging.error('SecureChannel: Failed to receive client ip!')
+        return 
+    
     certname = ip + "_cert.pem".encode()
 
     # 把服务器的证书发送给客户端
@@ -157,11 +164,19 @@ def accept_client_to_secure_channel(socket):
 
     conn.send(server_cert)
 
-    client_cert = conn.recv(1024)
-    with open(certname, 'wb') as f:
-        f.write(client_cert)
-        f.close()
-
+    try:
+        client_cert = conn.recv(1024)
+    except Exception as e:
+        logging.error('SecureChannel: Failed to receive client cert!')
+        return 
+    
+    try:
+        with open(certname, 'wb') as f:
+            f.write(client_cert)
+            f.close()
+    except Exception as e:
+        print('SecureChannel: Failed to read remote key...')
+        return
     # 计算出共享密钥
     their_secret = crypt.getpk_from_cert(client_cert)
     print("Client Incoming!",client_cert)
