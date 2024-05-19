@@ -6,6 +6,9 @@ from common.cryptography import prime
 from common.config import get_config
 from common.util import long_to_bytes
 import hashlib
+import nacl.utils
+from nacl.public import PrivateKey, Box
+import nacl.encoding
 
 config = get_config()
 base = config['crypto']['base']
@@ -14,15 +17,16 @@ modulus = config['crypto']['modulus']
 """生成公私钥并保存到文件中"""
 def gen_secret():
 
-    secret = prime.generate_big_prime(20)
-    my_secret = base ** secret % modulus
-
+    private_self = PrivateKey.generate()
+    public_self = private_self.public_key
     with open("private.pem", "wb") as f:
-        f.write(str(secret).encode())
+        f.write(private_self)
         f.close()
     with open("public.pem", "wb") as f:
-        f.write(str(my_secret).encode())
+        f.write(public_self)
         f.close()
+
+    
 
 """生成共享密钥"""
 def get_shared_secret(their_secret):
