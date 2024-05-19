@@ -14,7 +14,7 @@ modulus = config['crypto']['modulus']
 """生成公私钥并保存到文件中"""
 def gen_secret():
 
-    secret = prime.generate_big_prime(12)
+    secret = prime.generate_big_prime(31)
     my_secret = base ** secret % modulus
 
     with open("private.pem", "wb") as f:
