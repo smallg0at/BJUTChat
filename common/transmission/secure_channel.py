@@ -66,7 +66,7 @@ class SecureChannel:
             except BlockingIOError as e:
                 # sleep(0.05)
                 continue
-            print('sending', msglen, 'Bytes, this time',sent,'Bytes')
+            print('sending', length_of_encrypted_message, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
                 logging.error("socket connection broken")
             totalsent = totalsent + sent
@@ -127,7 +127,7 @@ def establish_secure_channel_to_server():
     # ip = get_ip()
     # s.send(ip.encode())
     uuid = spawn_uuid()
-    s.send(uuid)
+    s.send(uuid.encode())
 
     # 接收服务器证书
     server_cert = s.recv(1024)
@@ -161,12 +161,12 @@ def accept_client_to_secure_channel(socket):
     # 首次连接，客户端会发送diffle hellman密钥
     try:
         uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {uuid}")
+        print(f"Incoming user with uuid {str(uuid)}")
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + uuid + "_cert.pem".encode()
+    certname = "cert/" + str(uuid) + "_cert.pem".encode()
 
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:
