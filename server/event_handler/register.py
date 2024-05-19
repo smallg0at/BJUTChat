@@ -36,7 +36,7 @@ def run(sc, parameters):
     #     f.close()
 
     c = database.get_cursor()
-    c.execute('INSERT into users (username, password, school_id, sex, age, role) values (?,?,?,?,?,?,?)',
+    c.execute('INSERT into users (username, password, school_id, sex, age, role) values (?,?,?,?,?,?)',
               [parameters[0], md5(parameters[1]), parameters[2], parameters[3], parameters[4], parameters[5]])
     sc.send(MessageType.register_successful, c.lastrowid)
 
