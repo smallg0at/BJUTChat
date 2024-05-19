@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 
 from random import randint
-from common.cryptography import prime
 from common.config import get_config
 from common.util import long_to_bytes
 import hashlib
