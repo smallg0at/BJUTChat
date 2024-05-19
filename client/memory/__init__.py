@@ -17,3 +17,4 @@ last_message = [{}, {}]
 # last_message_timestamp[target_type][target_id] = int
 last_message_timestamp = [{}, {}]
 tk_img_ref = []
+uuid = ""

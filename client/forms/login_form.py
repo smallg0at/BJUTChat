@@ -43,8 +43,6 @@ class LoginForm(tk.Frame):
             ContactsForm(contacts)
             return
         
-        # print("Something else happened...", data['type'])
-
     def __init__(self, master=None):
         """创建主窗口用来容纳其他组件"""
         super().__init__(master)

@@ -56,7 +56,7 @@ def socket_listener_thread(sc, tk_root):
                     tk_root.destroy()
                 else:
                     data_buffer = bytes()
-                    bytes_to_receive = struct.unpack('!L', first_4_bytes)[0] + 16 + 1 + 32
+                    bytes_to_receive = struct.unpack('!i', first_4_bytes)[0]
 
             # 接收数据、拼成块
             # print("Packie!(before)",bytes_received,'/',bytes_to_receive)
@@ -71,6 +71,7 @@ def socket_listener_thread(sc, tk_root):
                 bytes_received = 0
                 try:
                     data = sc.on_data(data_buffer)
+                    
                     # 处理general failure
                     if data['type'] == MessageType.general_failure:
                         messagebox.showerror("出错了", data['parameters'])
