@@ -177,18 +177,18 @@ class RegisterForm(tk.Frame):
         if not re.match(r'^[0-9]{0,8}$',school_id):
             messagebox.showerror("Error", "学工/号格式错误")
             return
-        self.sc.send(MessageType.register, [username, password, school_id, ip, port, sex, age, role])
+        self.sc.send(MessageType.register, [username, password, school_id, sex, age, role])
 
-        certname = ip + "_cert.pem"
-        with open(certname, 'r') as f:
-            context = f.read()
-            print('before read is', context)
-            sp = context.split(' ')
-            f.close()
-        with open(certname,'w') as f:
-            f.write((str(self.var_user_name.get()) + ' ' + str(self.var_user_school_id.get()) + " " + str(sp[2])))
-            f.close()
-        with open(certname, "r") as f:
-            a = f.read()
-            print("content_after_write!!!:is:", a)
-            f.close()
+        # certname = ip + "_cert.pem"
+        # with open(certname, 'r') as f:
+        #     context = f.read()
+        #     print('before read is', context)
+        #     sp = context.split(' ')
+        #     f.close()
+        # with open(certname,'w') as f:
+        #     f.write((str(self.var_user_name.get()) + ' ' + str(self.var_user_school_id.get()) + " " + str(sp[2])))
+        #     f.close()
+        # with open(certname, "r") as f:
+        #     a = f.read()
+        #     print("content_after_write!!!:is:", a)
+        #     f.close()
