@@ -13,6 +13,8 @@ import struct
 #from Crypto.Cipher import AES
 from Cryptodome.Cipher import AES
 import hashlib
+
+import nacl.encoding
 from common.config import get_config
 from common.cryptography import crypt
 from common.message import serialize_message, deserialize_message, ByteArrayReader
@@ -21,37 +23,44 @@ from pprint import pprint
 from server.util import database
 from time import sleep
 import logging
+import nacl.utils
+from nacl.public import PrivateKey, Box
+import nacl
+import uuid
 
 """建立安全信道"""
 class SecureChannel:
 
-    def __init__(self, socket, shared_secret):
+    def __init__(self, socket, opposite_public, self_private):
         socket.setblocking(0)
         self.socket = socket
-        self.shared_secret = shared_secret
+        # self.shared_secret = shared_secret
+        self.box = Box(self_private, opposite_public)
+    
         return
 
     def send(self, message_type, parameters=None):
         iv1 = bytes(os.urandom(16))
         data_to_encrypt = serialize_message(message_type, parameters)
-        length_of_message = len(data_to_encrypt)
-        padding_n = math.ceil(length_of_message / 16) * 16 - length_of_message
-        for i in range(0, padding_n):
-            data_to_encrypt += b'\0'
+        # length_of_message = len(data_to_encrypt)
+        # padding_n = math.ceil(length_of_message / 16) * 16 - length_of_message
+        # for i in range(0, padding_n):
+        #     data_to_encrypt += b'\0'
 
-        encryption_suite = AES.new(self.shared_secret, AES.MODE_CBC, iv1)
-        encrypted_message = encryption_suite.encrypt(data_to_encrypt)
-        length_of_encrypted_message = len(encrypted_message)
+        # encryption_suite = AES.new(self.shared_secret, AES.MODE_CBC, iv1)
+        # encrypted_message = encryption_suite.encrypt(data_to_encrypt)
+        message = self.box.encrypt(data_to_encrypt)
+        length_of_encrypted_message = len(message)
 
-        mac = hashlib.md5(encrypted_message).hexdigest().encode()
+        # mac = hashlib.md5(encrypted_message).hexdigest().encode()
 
-        message=struct.pack('!L', length_of_encrypted_message) + bytes([padding_n]) + iv1 + mac + encrypted_message
-        msglen=len(message)
+        # message=struct.pack('!L', length_of_encrypted_message) + bytes([padding_n]) + iv1 + mac + encrypted_message
+        # msglen=len(message)
         
         # print(['sending', self.socket, message_type, parameters])
 
         totalsent=0
-        while totalsent < msglen:
+        while totalsent < length_of_encrypted_message:
             try:
                 sent = self.socket.send(message[totalsent:])
             except BlockingIOError as e:
@@ -71,30 +80,32 @@ class SecureChannel:
         把 bytes([padding_n]) + iv1 + +mac + encrypted_message 传给本函数
 		"""
 
-        br = ByteArrayReader(data_array)
+        # br = ByteArrayReader(data_array)
 
         # pprint(['recv', 'first_4_bytes', first_4_bytes, length_of_encrypted_message])
-        padding_n = br.read(1)[0]
+        # padding_n = br.read(1)[0]
         # pprint(['recv', 'padding_n', padding_n])
 
-        iv = br.read(16)
+        # iv = br.read(16)
         # pprint(['recv', 'iv', iv])
         # incomplete
         bytes_received = 0
 
-        # 对比接收到的mac值和用收到的加密数据算出的mac值是否相等
-        recv_mac = br.read(32)
-        data = br.read_to_end()
-        mac = hashlib.md5(data).hexdigest().encode()
-        if mac != recv_mac:
-            pprint('Message Authentication Error')
-            exit(-1)
 
-        decryption_suite = AES.new(self.shared_secret, AES.MODE_CBC, iv)
-        decrypted_data = decryption_suite.decrypt(data)
+        decrypted_data = self.box.decrypt(data_array)
+        # # 对比接收到的mac值和用收到的加密数据算出的mac值是否相等
+        # recv_mac = br.read(32)
+        # data = br.read_to_end()
+        # mac = hashlib.md5(data).hexdigest().encode()
+        # if mac != recv_mac:
+        #     pprint('Message Authentication Error')
+        #     exit(-1)
 
-        if padding_n != 0:
-            decrypted_data = decrypted_data[0:-padding_n]
+        # decryption_suite = AES.new(self.shared_secret, AES.MODE_CBC, iv)
+        # decrypted_data = decryption_suite.decrypt(data)
+
+        # if padding_n != 0:
+        #     decrypted_data = decrypted_data[0:-padding_n]
         # pprint(['recv', 'decrypted_data', decrypted_data])
 
         return deserialize_message(decrypted_data)
@@ -111,35 +122,35 @@ def establish_secure_channel_to_server():
     s.settimeout(5)
     s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
 
+            
     # 获取本机IP
-    ip = get_ip()
-    s.send(ip.encode())
+    # ip = get_ip()
+    # s.send(ip.encode())
+    uuid = spawn_uuid()
+    s.send(uuid)
 
     # 接收服务器证书
     server_cert = s.recv(1024)
 
-    certname = ip + "_cert.pem"
-    if not os.path.exists(certname):
+    # certname = "cert/" + uuid + ".pem"
+    if not (os.path.exists('public.pem') and os.path.exists('private.pem')):
         # 生成私钥公钥和证书
         crypt.gen_secret()
-        f = open('public.pem', 'rb')
-        public = f.read()
-        f.close()
-        with open(certname, 'wb') as f:
-            f.write("aaa bbb ".encode() + public)
-            f.close()
 
     # 首次连接，给服务器发送证书
-    with open(certname, 'rb') as f:
+    with open('public.pem', 'rb') as f:
         client_cert = f.read()
         f.close()
     s.send(client_cert)
 
-    their_secret = crypt.getpk_from_cert(server_cert)
-    # 计算出共同密钥
-    shared_secret = crypt.get_shared_secret(their_secret)
+        
 
-    sc = SecureChannel(s, shared_secret)
+    # their_secret = crypt.getpk_from_cert(server_cert)
+    # # 计算出共同密钥
+    # shared_secret = crypt.get_shared_secret(their_secret)
+
+    with open('private.pem', 'rb') as f:
+        sc = SecureChannel(s, server_cert, f.read())
 
     return sc
 
@@ -149,16 +160,16 @@ def accept_client_to_secure_channel(socket):
 
     # 首次连接，客户端会发送diffle hellman密钥
     try:
-        ip = conn.recv(1024)
-        logging.info('User Incoming from'+ip)
+        uuid = conn.recv(1024)
+        print(f"Incoming user with uuid {uuid}")
     except Exception as e:
-        logging.error('SecureChannel: Failed to receive client ip!')
+        logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = ip + "_cert.pem".encode()
+    certname = "cert/" + uuid + "_cert.pem".encode()
 
     # 把服务器的证书发送给客户端
-    with open("admin_cert.pem", 'rb') as f:
+    with open("public.pem", 'rb') as f:
         server_cert = f.read()
         f.close()
 
@@ -178,15 +189,29 @@ def accept_client_to_secure_channel(socket):
         print('SecureChannel: Failed to read remote key...')
         return
     # 计算出共享密钥
-    their_secret = crypt.getpk_from_cert(client_cert)
-    print("Client Incoming!",client_cert)
-    shared_secert = crypt.get_shared_secret(their_secret)
-    sc = SecureChannel(conn, shared_secert)
+    # their_secret = crypt.getpk_from_cert(client_cert)
+    # print("Client Incoming!",client_cert)
+    # shared_secert = crypt.get_shared_secret(their_secret)
+    with open('private.pem', 'rb') as f:
+        sc = SecureChannel(conn, client_cert, f.read())
     return sc
 
-"""获取本机IP"""
+# get local ip. Problematic, abandoned.
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('8.8.8.8', 80))
     ip = s.getsockname()[0]
     return ip
+
+def spawn_uuid():
+    if os.path.exists('uuid'):
+        with open('uuid', 'r') as f:
+            temp_uuid = f.read()
+            f.close()
+            return temp_uuid
+    else:
+        temp_uuid = str(uuid.uuid4())
+        with open('uuid', 'w') as f:
+            f.write(temp_uuid)
+            f.close()
+        return temp_uuid
