@@ -55,11 +55,15 @@ def run():
             if i == s:
                 # 监听socket为readable，说明有新的客户要连入
                 sc = common.transmission.secure_channel.accept_client_to_secure_channel(s)
-                socket_to_sc[sc.socket] = sc
-                scs.append(sc)
-                bytes_to_receive[sc] = 0
-                bytes_received[sc] = 0
-                data_buffer[sc] = bytes()
+                try:
+                    socket_to_sc[sc.socket] = sc
+                    scs.append(sc)
+                    bytes_to_receive[sc] = 0
+                    bytes_received[sc] = 0
+                    data_buffer[sc] = bytes()
+                except Exception as e:
+                    logging.exception(f"A user refused to be connected.")
+                
                 continue
 
             # 如果不是监听socket，就是旧的客户发消息过来了
