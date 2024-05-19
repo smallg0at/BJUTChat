@@ -47,8 +47,6 @@ cur.execute('''CREATE TABLE "users" (
 "username"  TEXT,
 "password"  TEXT,
 "school_id"  TEXT,
-"ip"  TEXT,
-"port" TEXT,
 "sex"  TEXT,
 "age"  TEXT,
 "pk"  TEXT,

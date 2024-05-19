@@ -26,17 +26,17 @@ def run(sc, parameters):
 
     #用户ip获取，命名证书，获取信息更新证书，服务端证书也会用自己的个人信息更新
     ip =str(parameters[3])
-    certname = ip + "_cert.pem"
-    with open(certname, 'r') as f:
-        context = f.read()
-        sp = context.split(' ')
-        f.close()
-    with open(certname,'w') as f:
-        f.write((str(parameters[0]) + ' ' +str(parameters[2]) + " " + str(sp[2])))
-        f.close()
+    # certname = ip + "_cert.pem"
+    # with open(certname, 'r') as f:
+    #     context = f.read()
+    #     sp = context.split(' ')
+    #     f.close()
+    # with open(certname,'w') as f:
+    #     f.write((str(parameters[0]) + ' ' +str(parameters[2]) + " " + str(sp[2])))
+    #     f.close()
 
     c = database.get_cursor()
-    c.execute('INSERT into users (username, password, school_id, ip, port, sex, age, role) values (?,?,?,?,?,?,?)',
-              [parameters[0], md5(parameters[1]), parameters[2], parameters[3], parameters[4], parameters[5], parameters[6]])
+    c.execute('INSERT into users (username, password, school_id, sex, age, role) values (?,?,?,?,?,?)',
+              [parameters[0], md5(parameters[1]), parameters[2], parameters[3], parameters[4], parameters[5]])
     sc.send(MessageType.register_successful, c.lastrowid)
 

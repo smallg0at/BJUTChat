@@ -199,7 +199,7 @@ class ContactsForm(tk.Frame):
                 # 联系人
                 contact.title.config(text=item['username'] + (' (在线)' if item['online'] else ' (离线)'))
                 contact.title.config(fg='blue' if item['online'] else '#505050', )
-                contact.friend_ip.config(text=item['ip'] + ':' + item['port'])
+                contact.friend_ip.config(text='')
             if (item['type'] == 1):
                 # 群
                 contact.title.config(text='[群:' + str(item['id']) + '] ' + item['room_name'])
