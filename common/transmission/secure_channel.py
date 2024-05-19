@@ -24,8 +24,9 @@ from server.util import database
 from time import sleep
 import logging
 import nacl.utils
-from nacl.public import PrivateKey, Box
+from nacl.public import PrivateKey, PublicKey, Box
 import nacl
+from nacl.encoding import Base64Encoder
 import uuid
 
 """建立安全信道"""
@@ -34,7 +35,7 @@ class SecureChannel:
     def __init__(self, socket, opposite_public, self_private):
         socket.setblocking(0)
         self.socket = socket
-        # self.shared_secret = shared_secret
+        
         self.box = Box(self_private, opposite_public)
     
         return
@@ -149,8 +150,10 @@ def establish_secure_channel_to_server():
     # # 计算出共同密钥
     # shared_secret = crypt.get_shared_secret(their_secret)
 
+    server_pub = PublicKey(Base64Encoder.decode(server_cert))
+
     with open('private.pem', 'rb') as f:
-        sc = SecureChannel(s, server_cert, f.read())
+        sc = SecureChannel(s, server_pub, PrivateKey(Base64Encoder.decode(f.read())))
 
     return sc
 
@@ -161,12 +164,12 @@ def accept_client_to_secure_channel(socket):
     # 首次连接，客户端会发送diffle hellman密钥
     try:
         uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {str(uuid)}")
+        print(f"Incoming user with uuid {uuid.decode()}")
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + str(uuid) + "_cert.pem".encode()
+    certname = "cert/" + uuid.decode() + "_cert.pem"
 
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:
@@ -188,15 +191,18 @@ def accept_client_to_secure_channel(socket):
     except Exception as e:
         print('SecureChannel: Failed to read remote key...')
         return
+    
+    client_pub = PublicKey(Base64Encoder.decode(client_cert))
     # 计算出共享密钥
     # their_secret = crypt.getpk_from_cert(client_cert)
     # print("Client Incoming!",client_cert)
     # shared_secert = crypt.get_shared_secret(their_secret)
     with open('private.pem', 'rb') as f:
-        sc = SecureChannel(conn, client_cert, nacl.encoding.Base64Encoder.decode(f.read()))
+        sc = SecureChannel(conn, client_pub, PrivateKey(Base64Encoder.decode(f.read())))
     return sc
 
 # get local ip. Problematic, abandoned.
+
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('8.8.8.8', 80))
