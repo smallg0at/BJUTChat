@@ -52,6 +52,8 @@ class SecureChannel:
         # encrypted_message = encryption_suite.encrypt(data_to_encrypt)
         message = self.box.encrypt(data_to_encrypt)
         length_of_encrypted_message = len(message)
+        packet = struct.pack('!i', length_of_encrypted_message) + message
+        length_of_packet = len(packet)
 
         # mac = hashlib.md5(encrypted_message).hexdigest().encode()
 
@@ -61,13 +63,13 @@ class SecureChannel:
         # print(['sending', self.socket, message_type, parameters])
 
         totalsent=0
-        while totalsent < length_of_encrypted_message:
+        while totalsent < length_of_packet:
             try:
-                sent = self.socket.send(message[totalsent:])
+                sent = self.socket.send(packet[totalsent:])
             except BlockingIOError as e:
                 # sleep(0.05)
                 continue
-            print('sending', length_of_encrypted_message, 'Bytes, this time',sent,'Bytes')
+            print('sending', length_of_packet, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
                 logging.error("socket connection broken")
             totalsent = totalsent + sent
