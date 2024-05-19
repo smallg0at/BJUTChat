@@ -29,13 +29,6 @@ import logging
 """生成证书"""
 def gen_cert():
     crypt.gen_secret()
-    # crypt.gen_secret()
-    # with open("public.pem","rb") as f:
-    #     public = f.read()
-    #     f.close()
-    # with open("admin_cert.pem","wb") as f:
-    #     f.write("server ahahahaha@qq.com ".encode()+public)
-    #     f.close()
 
 def run():
     logging.info('Server Launched. ')
