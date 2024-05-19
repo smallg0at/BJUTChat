@@ -193,7 +193,7 @@ def accept_client_to_secure_channel(socket):
     # print("Client Incoming!",client_cert)
     # shared_secert = crypt.get_shared_secret(their_secret)
     with open('private.pem', 'rb') as f:
-        sc = SecureChannel(conn, client_cert, f.read())
+        sc = SecureChannel(conn, client_cert, nacl.encoding.Base64Encoder.decode(f.read()))
     return sc
 
 # get local ip. Problematic, abandoned.

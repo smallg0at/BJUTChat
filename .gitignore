@@ -2,3 +2,4 @@
 *.db
 __pycache__
 send_msg_log
+uuid
