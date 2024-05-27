@@ -28,7 +28,7 @@ import uuid
 class SecureChannel:
 
     def __init__(self, socket, opposite_public, self_private):
-        socket.setblocking(0)
+        # socket.setblocking(0)
         self.socket = socket
         
         self.box = Box(self_private, opposite_public)
@@ -48,7 +48,7 @@ class SecureChannel:
         totalsent=0
         while totalsent < length_of_packet:
             try:
-                sent = self.socket.send(packet[totalsent:])
+                sent = self.socket.send(packet[totalsent:totalsent+1024])
             except BlockingIOError as e:
                 # sleep(0.05)
                 continue
