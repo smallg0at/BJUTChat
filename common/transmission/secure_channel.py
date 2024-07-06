@@ -132,13 +132,13 @@ def accept_client_to_secure_channel(socket):
         logging.error('SecureChannel: Failed to receive client cert!')
         return 
     
-    try:
-        with open(certname, 'wb') as f:
-            f.write(client_cert)
-            f.close()
-    except Exception as e:
-        print('SecureChannel: Failed to read remote key...')
-        return
+    # try:
+    #     with open(certname, 'wb') as f:
+    #         f.write(client_cert)
+    #         f.close()
+    # except Exception as e:
+    #     print('SecureChannel: Failed to write remote key...')
+    #     return
     
     client_pub = PublicKey(Base64Encoder.decode(client_cert))
     with open('private.pem', 'rb') as f:
