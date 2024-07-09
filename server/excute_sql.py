@@ -48,8 +48,6 @@ cur.execute('''CREATE TABLE "users" (
 "password"  TEXT,
 "school_id"  TEXT,
 "sex"  TEXT,
-"age"  TEXT,
-"pk"  TEXT,
 "role" TEXT,
 PRIMARY KEY ("id" ASC)
 );''')
