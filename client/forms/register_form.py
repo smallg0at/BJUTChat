@@ -80,17 +80,17 @@ class RegisterForm(tk.Frame):
                                            state="readonly")
         self.entry_user_sex['values'] = ("保密", "男", "女")
         self.entry_user_sex.current(0)
-        # 年龄输入框
-        self.var_user_age = tk.StringVar()
-        self.entry_user_age = ttk.Combobox(self.master, textvariable=self.var_user_age, font=("微软雅黑", 18),
-                                           state="readonly")
-        self.entry_user_age['values'] = ("保密", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                                         21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-                                         41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-                                         61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-                                         81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
-                                         100)
-        self.entry_user_age.current(0)
+        # # 年龄输入框
+        # self.var_user_age = tk.StringVar()
+        # self.entry_user_age = ttk.Combobox(self.master, textvariable=self.var_user_age, font=("微软雅黑", 18),
+        #                                    state="readonly")
+        # self.entry_user_age['values'] = ("保密", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        #                                  21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        #                                  41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+        #                                  61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+        #                                  81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+        #                                  100)
+        # self.entry_user_age.current(0)
         # 角色输入框
         self.var_user_role = tk.StringVar()
         self.entry_user_role = ttk.Combobox(self.master, textvariable=self.var_user_role, font=("微软雅黑", 18),
@@ -109,18 +109,18 @@ class RegisterForm(tk.Frame):
         self.confirm_pwd.grid(row=10, column=1, columnspan=2, sticky=E)
         self.user_school_id.grid(row=11, column=1, columnspan=2, sticky=E)
         self.user_sex.grid(row=12, column=1, columnspan=2, sticky=E)
-        self.user_age.grid(row=13, column=1, columnspan=2, sticky=E)
-        self.user_role.grid(row=14, column=1, columnspan=2, sticky=E)
+        # self.user_age.grid(row=13, column=1, columnspan=2, sticky=E)
+        self.user_role.grid(row=13, column=1, columnspan=2, sticky=E)
         # 输入框位置定位
         self.entry_user_name.grid(row=8, column=3, columnspan=3, sticky=W, )
         self.entry_user_pwd.grid(row=9, column=3, columnspan=3, sticky=W, )
         self.entry_confirm_pwd.grid(row=10, column=3, columnspan=3, sticky=W, )
         self.entry_user_school_id.grid(row=11, column=3, columnspan=3, sticky=W, )
         self.entry_user_sex.grid(row=12, column=3, columnspan=3, sticky=W, )
-        self.entry_user_age.grid(row=13, column=3, columnspan=3, sticky=W, )
-        self.entry_user_role.grid(row=14, column=3, columnspan=3, sticky=W, )
+        # self.entry_user_age.grid(row=13, column=3, columnspan=3, sticky=W, )
+        self.entry_user_role.grid(row=13, column=3, columnspan=3, sticky=W, )
         # 注册按钮位置定位
-        self.register_btn.grid(row=15, column=2, columnspan=4, sticky=S + W)
+        self.register_btn.grid(row=14, column=2, columnspan=4, sticky=S + W)
         # 设置下拉框背景
         self.combo_style = tk.ttk.Style()
         self.combo_style.theme_create('self.combo_style', parent='alt',
@@ -153,7 +153,7 @@ class RegisterForm(tk.Frame):
         #print(type(school_id).__name__)
         sex = self.var_user_sex.get()
         #print(type(sex).__name__)
-        age = self.var_user_age.get()
+        # age = self.var_user_age.get()
         #print(type(age).__name__)
         role = self.var_user_school_id.get()
         ip = get_ip()
@@ -177,7 +177,7 @@ class RegisterForm(tk.Frame):
         if not re.match(r'^[0-9]{0,8}$',school_id):
             messagebox.showerror("Error", "学工/号格式错误")
             return
-        self.sc.send(MessageType.register, [username, password, school_id, sex, age, role])
+        self.sc.send(MessageType.register, [username, password, school_id, sex, role])
 
         # certname = ip + "_cert.pem"
         # with open(certname, 'r') as f:
