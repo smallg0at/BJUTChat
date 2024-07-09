@@ -23,6 +23,7 @@ from nacl.public import PrivateKey, PublicKey, Box
 import nacl
 from nacl.encoding import Base64Encoder
 import uuid
+import orjson
 
 """建立安全信道"""
 class SecureChannel:
@@ -35,11 +36,19 @@ class SecureChannel:
     
         return
 
-    def send(self, message_type, parameters=None):
-        iv1 = bytes(os.urandom(16))
-        data_to_encrypt = serialize_message(message_type, parameters)
+    def json_serialize_message(self,message_type, parameters):
+        msgstruct = {
+            "type": message_type,
+            "parameters": parameters
+        }
+        return bytes(orjson.dumps(msgstruct))
 
+
+    def send(self, message_type, parameters=None):
+        data_to_encrypt = self.json_serialize_message(message_type, parameters)
         message = self.box.encrypt(data_to_encrypt)
+        # print("data_to_encrypt:",data_to_encrypt)
+        # print("type of it:",type(data_to_encrypt))
         length_of_encrypted_message = len(message)
         packet = struct.pack('!i', length_of_encrypted_message) + message
         length_of_packet = len(packet)
@@ -60,10 +69,17 @@ class SecureChannel:
         
         return
 
-    def on_data(self, data_array):
+    def json_deserialize_message(self,data):
+        msgstruct = orjson.loads((data))
+        return msgstruct
 
+    def on_data(self, data_array):
         decrypted_data = self.box.decrypt(data_array)
-        return deserialize_message(decrypted_data)
+        # print("decrypted_data:",(decrypted_data))
+        # print("type of it:",type((decrypted_data)))
+        # print("type of str():",type(str(decrypted_data)))
+        # print("json_deserialize_message:",self.json_deserialize_message((decrypted_data)))
+        return self.json_deserialize_message((decrypted_data))
 
     def close(self):
         self.socket.close()
@@ -132,13 +148,13 @@ def accept_client_to_secure_channel(socket):
         logging.error('SecureChannel: Failed to receive client cert!')
         return 
     
-    try:
-        with open(certname, 'wb') as f:
-            f.write(client_cert)
-            f.close()
-    except Exception as e:
-        print('SecureChannel: Failed to read remote key...')
-        return
+    # try:
+    #     with open(certname, 'wb') as f:
+    #         f.write(client_cert)
+    #         f.close()
+    # except Exception as e:
+    #     print('SecureChannel: Failed to write remote key...')
+    #     return
     
     client_pub = PublicKey(Base64Encoder.decode(client_cert))
     with open('private.pem', 'rb') as f:
