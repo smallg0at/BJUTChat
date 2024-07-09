@@ -13,7 +13,6 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
-    # 这里可以定义允许的文件扩展名
     return True
 
 @app.route('/upload', methods=['POST'])
@@ -22,6 +21,7 @@ def upload_file():
         return jsonify({'error': 'no file'}), 400
 
     file = request.files['file']
+    user_id = request.form.get('user_id', '')
 
     if file.filename == '':
         return jsonify({'error': 'no selected file'}), 400
@@ -61,4 +61,4 @@ def insert_into_database(file_info):
     conn.close()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
