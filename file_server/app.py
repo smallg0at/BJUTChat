@@ -1,21 +1,19 @@
 from flask import Flask, request, jsonify
 import os
 import uuid
+import sqlite3
+import time
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
-MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 最多100 MB 
-
-# 配置字典
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
 # 确保上传文件夹存在
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
-    # 这里可以定义允许的文件扩展名，比如：return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+    # 这里可以定义允许的文件扩展名
     return True
 
 @app.route('/upload', methods=['POST'])
@@ -24,26 +22,25 @@ def upload_file():
         return jsonify({'error': 'no file'}), 400
 
     file = request.files['file']
-    user_id = request.form.get('user_id', '')
 
     if file.filename == '':
         return jsonify({'error': 'no selected file'}), 400
 
     if file and allowed_file(file.filename):
-        # 生成唯一的文件名
-        filename = str(uuid.uuid4())
+        # 生成唯一的文件名作为文件ID，不加扩展名
+        file_id = str(uuid.uuid4())
+        filename = file_id
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        # 生成文件ID
-        file_id = str(uuid.uuid4())
+        # 获取上传时间戳
+        upload_time = int(time.time())
 
         # 要存入数据库的信息
         file_info = {
             'id': file_id,
-            'user_id': user_id,
-            'file_name': file.filename,
-            'file_path': file_path
+            'upload_time': upload_time,
+            'is_deleted': False  # 初始值为否
         }
 
         # 存数据的函数
@@ -54,8 +51,14 @@ def upload_file():
     return jsonify({'error': 'file not allowed'}), 400
 
 def insert_into_database(file_info):
-    # 这里应该实现将 file_info 插入数据库的逻辑
-    pass
+    conn = sqlite3.connect('server/database.db')
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO files (id, upload_time, is_deleted) 
+        VALUES (?, ?, ?)
+    ''', (file_info['id'], file_info['upload_time'], file_info['is_deleted']))
+    conn.commit()
+    conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
