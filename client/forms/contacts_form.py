@@ -20,6 +20,7 @@ import datetime
 import client.util.socket_listener
 import time
 from tkinter import simpledialog
+import orjson
 
 
 class ContactsForm(tk.Frame):
@@ -46,7 +47,7 @@ class ContactsForm(tk.Frame):
                 self.handle_new_contact(room)
             for item in messages:
                 sent = item[1]
-                message = _deserialize_any(item[0])
+                message = orjson.loads(item[0])
                 client.util.socket_listener.digest_message(message, not sent)
 
             self.bundle_process_done = True
