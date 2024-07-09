@@ -226,17 +226,18 @@ class ChatForm(tk.Frame):
 
     """" 发送图片 """
     def send_image(self):
-        filename = filedialog.askopenfilename(filetypes=[("Image Files",
-                                                          ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
-                                                           "*.PNG", "*.GIF"]),
-                                                         ("All Files", ["*.*"])])
-        if filename is None or filename == '':
-            return
-        with open(filename, "rb") as imageFile:
-            f = imageFile.read()
-            b = bytearray(f)
-            print("Sendsize", len(b))
-            self.sc.send(MessageType.send_message,
-                         {'target_type': self.target['type'], 'target_id': self.target['id'],
-                          'message': {'type': 1, 'data': b}})
-            print('send image success!')
+        print("To be implemented")
+        # filename = filedialog.askopenfilename(filetypes=[("Image Files",
+        #                                                   ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
+        #                                                    "*.PNG", "*.GIF"]),
+        #                                                  ("All Files", ["*.*"])])
+        # if filename is None or filename == '':
+        #     return
+        # with open(filename, "rb") as imageFile:
+        #     f = imageFile.read()
+        #     b = bytearray(f)
+        #     print("Sendsize", len(b))
+        #     self.sc.send(MessageType.send_message,
+        #                  {'target_type': self.target['type'], 'target_id': self.target['id'],
+        #                   'message': {'type': 1, 'data': b}})
+        #     print('send image success!')
