@@ -231,9 +231,9 @@ class ContactsForm(tk.Frame):
         client.memory.contact_window.append(self)
         super().__init__(master)
         self.master = master
-        self.master.title(client.memory.current_user['username'] + "——联系人列表")
+        self.master.title(client.memory.current_user['username'] + " - 联系人")
         master.resizable(width=False, height=False)
-        master.geometry('400x640')
+        master.geometry('800x1280')
         # 滚动条＋消息列表画布
         self.scroll = VerticalScrolledFrame(self)
         self.scroll.pack(side=TOP, fill=BOTH, expand=True)
@@ -243,20 +243,16 @@ class ContactsForm(tk.Frame):
         self.button_frame_right = Frame(self)
         self.button_frame_right.pack(side=RIGHT, fill=BOTH, expand=YES)
         # 添加好友
-        self.add_friend = Button(self.button_frame_left, text="添加好友", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
-                                 activebackground="#6cdcf0", relief=GROOVE, command=self.on_add_friend)
+        self.add_friend = Button(self.button_frame_left, text="添加好友", font=("微软雅黑", 16), fg="black", relief=GROOVE, command=self.on_add_friend)
         self.add_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 添加群聊
-        self.add_room = Button(self.button_frame_left, text="添加群聊", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
-                               activebackground="#6cdcf0", relief=GROOVE, command=self.on_add_room)
+        self.add_room = Button(self.button_frame_left, text="添加群聊", font=("微软雅黑", 16), fg="black",relief=GROOVE, command=self.on_add_room)
         self.add_room.pack(side=TOP, expand=True, fill=BOTH)
         # 删除好友
-        self.del_friend = Button(self.button_frame_right, text="删除好友", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
-                                 activebackground="#6cdcf0", relief=GROOVE, command=self.on_del_friend)
+        self.del_friend = Button(self.button_frame_right, text="删除好友", font=("微软雅黑", 16), fg="black",relief=GROOVE, command=self.on_del_friend)
         self.del_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 创建群聊
-        self.create_room = Button(self.button_frame_right, text="创建群聊", font=("微软雅黑", 16), fg="black", bg="#35d1e9",
-                                  activebackground="#6cdcf0", relief=GROOVE, command=self.on_create_room)
+        self.create_room = Button(self.button_frame_right, text="创建群聊", font=("微软雅黑", 16), fg="black", relief=GROOVE, command=self.on_create_room)
         self.create_room.pack(side=TOP, expand=True, fill=BOTH)
         # 页面定位
         self.pack(side=TOP, fill=BOTH, expand=True)
