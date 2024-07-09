@@ -42,100 +42,71 @@ class RegisterForm(tk.Frame):
         self.master = master
         self.sc = client.memory.sc
 
-        self.master.title("Uchat——注册")
+        self.master.title("注册")
         master.resizable(width=False, height=False)
-        master.geometry('480x500')
+        master.geometry('960x1000')
         # 画布
-        self.canvas = tk.Canvas(self.master, width=480, height=500)
-        self.image_file = tk.PhotoImage(file='client/forms/images/register_bg.gif')
-        self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
+        self.canvas = tk.Canvas(self.master, width=960, height=1000)
         # 标签 用户名、密码、确认密码、邮箱、性别、年龄
-        self.user_name = tk.Label(self.master, text="用户名", font=("微软雅黑", 16), fg="black", bg="#30cfe8")
-        self.user_pwd = tk.Label(self.master, text="密  码", font=("微软雅黑", 16), fg="black", bg="#32d0ea")
-        self.confirm_pwd = tk.Label(self.master, text="确认密码", font=("微软雅黑", 16), fg="black", bg="#3ad2e9")
-        self.user_school_id = tk.Label(self.master, text="学/工号", font=("微软雅黑", 16), fg="black", bg="#58daec")
-        self.user_sex = tk.Label(self.master, text="性  别", font=("微软雅黑", 16), fg="black", bg="#5bdbec")
-        self.user_age = tk.Label(self.master, text="年  龄", font=("微软雅黑", 16), fg="black", bg="#5bdbec")
-        self.user_role = tk.Label(self.master, text="角  色", font=("微软雅黑", 16), fg="black", bg="#5bdbec")
+        self.user_name = tk.Label(self.master, text="用户名", font=("微软雅黑", 16), fg="black")
+        self.user_pwd = tk.Label(self.master, text="密  码", font=("微软雅黑", 16), fg="black")
+        self.confirm_pwd = tk.Label(self.master, text="确认密码", font=("微软雅黑", 16), fg="black")
+        self.user_school_id = tk.Label(self.master, text="学/工号", font=("微软雅黑", 16), fg="black")
+        self.user_sex = tk.Label(self.master, text="性  别", font=("微软雅黑", 16), fg="black")
+        self.user_age = tk.Label(self.master, text="年  龄", font=("微软雅黑", 16), fg="black")
+        self.user_role = tk.Label(self.master, text="角  色", font=("微软雅黑", 16), fg="black")
         # 输入框
         # 用户名输入框
         self.var_user_name = tk.StringVar()
-        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 18), fg="black",
-                                        bg="#4ed8eb", relief=GROOVE)
+        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 16), fg="black",
+                                         relief=GROOVE)
         # 密码输入框
         self.var_user_pwd = tk.StringVar()
-        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("微软雅黑", 18),
-                                       fg="black", bg="#48d7ec", relief=GROOVE)
+        self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("微软雅黑", 16),
+                                       fg="black", relief=GROOVE)
         # 确认密码输入框
         self.var_confirm_pwd = tk.StringVar()
-        self.entry_confirm_pwd = tk.Entry(self.master, textvariable=self.var_confirm_pwd, show='* ', font=("微软雅黑", 18),
-                                          fg="black", bg="#54d9ec", relief=GROOVE)
+        self.entry_confirm_pwd = tk.Entry(self.master, textvariable=self.var_confirm_pwd, show='* ', font=("微软雅黑", 16),
+                                          fg="black", relief=GROOVE)
         # 学/工号输入框
         self.var_user_school_id = tk.StringVar()
         self.entry_user_school_id = tk.Entry(self.master, textvariable=self.var_user_school_id, font=("Arial", 14), fg="black",
-                                         bg="#59d8ee", relief=GROOVE)
+                                         relief=GROOVE)
         # 性别输入框
         self.var_user_sex = tk.StringVar()
-        self.entry_user_sex = ttk.Combobox(self.master, textvariable=self.var_user_sex, font=("微软雅黑", 18),
+        self.entry_user_sex = ttk.Combobox(self.master, textvariable=self.var_user_sex, font=("微软雅黑", 16),
                                            state="readonly")
         self.entry_user_sex['values'] = ("保密", "男", "女")
         self.entry_user_sex.current(0)
-        # # 年龄输入框
-        # self.var_user_age = tk.StringVar()
-        # self.entry_user_age = ttk.Combobox(self.master, textvariable=self.var_user_age, font=("微软雅黑", 18),
-        #                                    state="readonly")
-        # self.entry_user_age['values'] = ("保密", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        #                                  21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-        #                                  41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-        #                                  61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-        #                                  81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
-        #                                  100)
-        # self.entry_user_age.current(0)
+
         # 角色输入框
         self.var_user_role = tk.StringVar()
-        self.entry_user_role = ttk.Combobox(self.master, textvariable=self.var_user_role, font=("微软雅黑", 18),
+        self.entry_user_role = ttk.Combobox(self.master, textvariable=self.var_user_role, font=("微软雅黑", 16),
                                            state="readonly")
         self.entry_user_role['values'] = ("学生", "教师")
         self.entry_user_role.current("0")
         # 注册按钮
-        self.register_btn = tk.Button(self.master, text='       注     册       ', font=("微软雅黑", 18), fg="black",
-                                      bg="#5edbee", activebackground="#61d8ee", relief=GROOVE, width=30,
+        self.register_btn = tk.Button(self.master, text='注册', font=("微软雅黑", 16), fg="black",
+                                      relief=GROOVE, width=30,
                                       command=self.do_register)
         # 位置定位
         # label位置定位
-        self.canvas.grid(row=0, column=0, rowspan=18, columnspan=8, )
-        self.user_name.grid(row=8, column=1, columnspan=2, sticky=E)
-        self.user_pwd.grid(row=9, column=1, columnspan=2, sticky=E)
-        self.confirm_pwd.grid(row=10, column=1, columnspan=2, sticky=E)
-        self.user_school_id.grid(row=11, column=1, columnspan=2, sticky=E)
-        self.user_sex.grid(row=12, column=1, columnspan=2, sticky=E)
-        # self.user_age.grid(row=13, column=1, columnspan=2, sticky=E)
-        self.user_role.grid(row=13, column=1, columnspan=2, sticky=E)
+        self.canvas.grid(row=0, column=0, rowspan=16, columnspan=8, )
+        self.user_name.grid(row=1, column=1, columnspan=2, sticky=E)
+        self.user_pwd.grid(row=2, column=1, columnspan=2, sticky=E)
+        self.confirm_pwd.grid(row=3, column=1, columnspan=2, sticky=E)
+        self.user_school_id.grid(row=4, column=1, columnspan=2, sticky=E)
+        self.user_sex.grid(row=5, column=1, columnspan=2, sticky=E)
+        self.user_role.grid(row=6, column=1, columnspan=2, sticky=E)
         # 输入框位置定位
-        self.entry_user_name.grid(row=8, column=3, columnspan=3, sticky=W, )
-        self.entry_user_pwd.grid(row=9, column=3, columnspan=3, sticky=W, )
-        self.entry_confirm_pwd.grid(row=10, column=3, columnspan=3, sticky=W, )
-        self.entry_user_school_id.grid(row=11, column=3, columnspan=3, sticky=W, )
-        self.entry_user_sex.grid(row=12, column=3, columnspan=3, sticky=W, )
-        # self.entry_user_age.grid(row=13, column=3, columnspan=3, sticky=W, )
-        self.entry_user_role.grid(row=13, column=3, columnspan=3, sticky=W, )
+        self.entry_user_name.grid(row=1, column=3, columnspan=3, sticky=W, )
+        self.entry_user_pwd.grid(row=2, column=3, columnspan=3, sticky=W, )
+        self.entry_confirm_pwd.grid(row=3, column=3, columnspan=3, sticky=W, )
+        self.entry_user_school_id.grid(row=4, column=3, columnspan=3, sticky=W, )
+        self.entry_user_sex.grid(row=5, column=3, columnspan=3, sticky=W, )
+        self.entry_user_role.grid(row=6, column=3, columnspan=3, sticky=W, )
         # 注册按钮位置定位
-        self.register_btn.grid(row=14, column=2, columnspan=4, sticky=S + W)
-        # 设置下拉框背景
-        self.combo_style = tk.ttk.Style()
-        self.combo_style.theme_create('self.combo_style', parent='alt',
-                                      settings={'TCombobox':
-                                                    {'configure':
-                                                         {'foreground': 'black',
-                                                          'selectbackground': '#60d8ee',
-                                                          'fieldbackground': '#60d8ee',
-                                                          'background': '#60d8ee',
-
-                                                          }
-                                                     }
-                                                }
-                                      )
-        self.combo_style.theme_use('self.combo_style')
+        self.register_btn.grid(row=7, column=2, columnspan=4, sticky=S + W)
 
         self.sc = client.memory.sc
         client.util.socket_listener.add_listener(self.socket_listener)
