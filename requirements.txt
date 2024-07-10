@@ -13,3 +13,4 @@ shellescape==3.8.1
 urllib3==1.25.9
 nacl==1.5.0
 orjson>=3.10.0
+websocket>=12.0

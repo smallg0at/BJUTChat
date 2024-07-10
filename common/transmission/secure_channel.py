@@ -25,6 +25,7 @@ from nacl.encoding import Base64Encoder
 import uuid
 import orjson
 
+
 """建立安全信道"""
 class SecureChannel:
 
@@ -85,81 +86,91 @@ class SecureChannel:
         self.socket.close()
 
 
-def establish_secure_channel_to_server():
+def establish_secure_channel_to_server(sioc):
     config = get_config()
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 131072)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 131072)
-    s.settimeout(5)
-    s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
 
-            
-    uuid = spawn_uuid()
-    s.send(uuid.encode())
+    sioc.connect(f'http://{config['client']['server_ip']}')
 
-    # 接收服务器证书
-    server_cert = s.recv(1024)
-
-    # certname = "cert/" + uuid + ".pem"
+    certname = "cert/" + uuid + ".pem"
     if not (os.path.exists('public.pem') and os.path.exists('private.pem')):
         # 生成私钥公钥和证书
         crypt.gen_secret()
 
-    # 首次连接，给服务器发送证书
     with open('public.pem', 'rb') as f:
         client_cert = f.read()
         f.close()
-    s.send(client_cert)
 
-        
+    sioc.emit('conn_ping1', client_cert)
+
+    
+
+    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 131072)
+    # s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 131072)
+    # s.settimeout(5)
+    # s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
+
+            
+    # uuid = spawn_uuid()
+    # s.send(uuid.encode())
+
+    # # 接收服务器证书
+    # server_cert = s.recv(1024)
 
 
-    server_pub = PublicKey(Base64Encoder.decode(server_cert))
 
-    with open('private.pem', 'rb') as f:
-        sc = SecureChannel(s, server_pub, PrivateKey(Base64Encoder.decode(f.read())))
+    # # 首次连接，给服务器发送证书
+    # with open('public.pem', 'rb') as f:
+    #     client_cert = f.read()
+    #     f.close()
+    # s.send(client_cert)
 
-    return sc
+    # server_pub = PublicKey(Base64Encoder.decode(server_cert))
+
+    # with open('private.pem', 'rb') as f:
+    #     sc = SecureChannel(s, server_pub, PrivateKey(Base64Encoder.decode(f.read())))
+
+    # return sc
 
 
 def accept_client_to_secure_channel(socket):
-    conn, addr = socket.accept()
+    # conn, addr = socket.accept()
 
-    # 首次连接，客户端会发送公钥
-    try:
-        uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {uuid.decode()}")
-    except Exception as e:
-        logging.error('SecureChannel: Failed to receive client uuid!')
-        return 
-    
-    certname = "cert/" + uuid.decode() + "_cert.pem"
-
-    # 把服务器的证书发送给客户端
-    with open("public.pem", 'rb') as f:
-        server_cert = f.read()
-        f.close()
-
-    conn.send(server_cert)
-
-    try:
-        client_cert = conn.recv(1024)
-    except Exception as e:
-        logging.error('SecureChannel: Failed to receive client cert!')
-        return 
-    
+    # # 首次连接，客户端会发送公钥
     # try:
-    #     with open(certname, 'wb') as f:
-    #         f.write(client_cert)
-    #         f.close()
+    #     uuid = conn.recv(1024)
+    #     print(f"Incoming user with uuid {uuid.decode()}")
     # except Exception as e:
-    #     print('SecureChannel: Failed to write remote key...')
-    #     return
+    #     logging.error('SecureChannel: Failed to receive client uuid!')
+    #     return 
     
-    client_pub = PublicKey(Base64Encoder.decode(client_cert))
-    with open('private.pem', 'rb') as f:
-        sc = SecureChannel(conn, client_pub, PrivateKey(Base64Encoder.decode(f.read())))
-    return sc
+    # certname = "cert/" + uuid.decode() + "_cert.pem"
+
+    # # 把服务器的证书发送给客户端
+    # with open("public.pem", 'rb') as f:
+    #     server_cert = f.read()
+    #     f.close()
+
+    # conn.send(server_cert)
+
+    # try:
+    #     client_cert = conn.recv(1024)
+    # except Exception as e:
+    #     logging.error('SecureChannel: Failed to receive client cert!')
+    #     return 
+    
+    # # try:
+    # #     with open(certname, 'wb') as f:
+    # #         f.write(client_cert)
+    # #         f.close()
+    # # except Exception as e:
+    # #     print('SecureChannel: Failed to write remote key...')
+    # #     return
+    
+    # client_pub = PublicKey(Base64Encoder.decode(client_cert))
+    # with open('private.pem', 'rb') as f:
+    #     sc = SecureChannel(conn, client_pub, PrivateKey(Base64Encoder.decode(f.read())))
+    # return sc
 
 # get local ip. Problematic, abandoned.
 def get_ip():

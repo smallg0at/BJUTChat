@@ -10,6 +10,7 @@ import client.memory
 import client.util.socket_listener
 from client.forms.login_form import LoginForm
 from common.transmission.secure_channel import establish_secure_channel_to_server
+import socketio
 
 """运行客户端开启一个新的线程"""
 def run():
@@ -26,8 +27,10 @@ def run():
     # 设置程序缩放
     client.memory.tk_root.tk.call('tk', 'scaling', ScaleFactor/75)
     
+    sioc = socketio.Client()
+
     try:
-        client.memory.sc = establish_secure_channel_to_server()
+        client.memory.sc = establish_secure_channel_to_server(sioc)
     except ConnectionError:
         messagebox.showerror("出错了", "无法连接到服务器")
         exit(1)
