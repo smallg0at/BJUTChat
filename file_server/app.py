@@ -25,9 +25,10 @@ def calculate_md5(file_path):
     return hash_md5.hexdigest()
 
 
-@app.route('/upload', methods=['GET'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:   #确保文件名不为空
+    
+    if len(request.files) <= 0:   #确保文件名不为空
         return jsonify({'error': 'no file'}), 400
   
     file = request.files['file']  
@@ -72,9 +73,9 @@ def insert_into_database(file_info):
 
 @app.route('/download', methods=['GET'])
 def download_file():
-    user_id = request.form.get('user_id', '')
-    file_id = request.form.get('file_id', '')
-
+    user_id = request.args.get('user_id', '')
+    file_id = request.args.get('file_id', '')
+    
     if not user_id or not file_id:
         return jsonify({'error': 'missing user_id or file_id'}), 400
 
@@ -93,7 +94,7 @@ def download_file():
 
     file_md5 = calculate_md5(file_path)
 
-    response = send_file(file_path, as_attachment=True, attachment_filename=f'{file_id}.bin', mimetype='application/octet-stream')
+    response = send_file(file_path, as_attachment=True, mimetype='application/octet-stream')
     response.headers['MD5'] = file_md5
     return response
 
