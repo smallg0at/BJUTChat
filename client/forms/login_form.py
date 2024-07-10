@@ -47,40 +47,36 @@ class LoginForm(tk.Frame):
         """创建主窗口用来容纳其他组件"""
         super().__init__(master)
         self.master = master
-        self.master.title("Uchat——登录安全即时通信系统")
+        self.master.title("登录")
         self.master.resizable(width=False, height=False)
-        self.master.geometry('480x300')
+        self.master.geometry('960x600')
         # 画布放置图片
-        self.canvas = tk.Canvas(self.master, width=480, height=300)
-        self.image_file = tk.PhotoImage(file='client/forms/images/login_bg.gif')
-        self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
+        self.canvas = tk.Canvas(self.master, width=960, height=600)
+        # self.image_file = tk.PhotoImage(file='client/forms/images/login_bg.gif')
+        # self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
         # 标签 用户名密码
-        self.user_name = tk.Label(self.master, text='用户名', font=("微软雅黑", 16), fg="black", bg="#35d1e9")
-        self.user_pwd = tk.Label(self.master, text='密  码', font=("微软雅黑", 16), fg="black", bg="#43d5eb")
+        self.user_name = tk.Label(self.master, text='用户名', font=("微软雅黑", 16), )
+        self.user_pwd = tk.Label(self.master, text='密码', font=("微软雅黑", 16), )
         # 用户名输入框
         self.var_user_name = tk.StringVar()
-        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 18), fg="black",
-                                        bg="#4fd8ec", relief=GROOVE)
+        self.entry_user_name = tk.Entry(self.master, textvariable=self.var_user_name, font=("微软雅黑", 18), relief=GROOVE)
         # 密码输入框
         self.var_user_pwd = tk.StringVar()
         self.entry_user_pwd = tk.Entry(self.master, textvariable=self.var_user_pwd, show='* ', font=("微软雅黑", 18),
-                                       fg="black", bg="#4ed6e8", relief=GROOVE)
+                                       relief=GROOVE)
         # 登录 注册按钮
-        self.register_btn = tk.Button(self.master, text='注册', font=("微软雅黑", 18), fg="black", bg="#6cdcf0",
-                                      activebackground="#6cdcf0", relief=GROOVE, command=self.show_register)
-        self.login_btn = Button(self.master, text='登录', font=("微软雅黑", 18), fg="black", bg="#6cdcf0",
-                                activebackground="#6cdcf0", relief=GROOVE, command=self.do_login)
-        self.quit_btn = tk.Button(self.master, text='退出', font=("微软雅黑", 18), fg="black", bg="#3fd4e7",
-                                  activebackground="#6cdcf0", relief=GROOVE, command=self.destroy_window)
+        self.register_btn = tk.Button(self.master, text='注册', font=("微软雅黑", 18), fg="black",  relief=GROOVE, command=self.show_register)
+        self.login_btn = Button(self.master, text='登录', font=("微软雅黑", 18), fg="black",  relief=GROOVE, command=self.do_login)
+        self.quit_btn = tk.Button(self.master, text='退出', font=("微软雅黑", 18), fg="black",  relief=GROOVE, command=self.destroy_window)
         # 位置定位
-        self.canvas.grid(row=0, column=0, rowspan=7, columnspan=8, )
-        self.user_name.grid(row=4, column=2, sticky=E, padx=0, pady=0, )
-        self.user_pwd.grid(row=5, column=2, sticky=E + N)
-        self.entry_user_name.grid(row=4, column=3, columnspan=2, sticky=W)
-        self.entry_user_pwd.grid(row=5, column=3, columnspan=2, sticky=W + N)
-        self.register_btn.grid(row=6, column=2, columnspan=1, sticky=E + N)
-        self.login_btn.grid(row=6, column=3, columnspan=1, sticky=E + N)
-        self.quit_btn.grid(row=6, column=4, columnspan=1, sticky=E + N)
+        self.canvas.grid(row=0, column=0, rowspan=5, columnspan=8, )
+        self.user_name.grid(row=1, column=2, sticky=E, padx=0, pady=0, )
+        self.user_pwd.grid(row=2, column=2, sticky=E + N)
+        self.entry_user_name.grid(row=1, column=3, columnspan=2, sticky=W)
+        self.entry_user_pwd.grid(row=2, column=3, columnspan=2, sticky=W + N)
+        self.register_btn.grid(row=3, column=2, columnspan=1, sticky=E + N)
+        self.login_btn.grid(row=3, column=3, columnspan=1, sticky=E + N)
+        self.quit_btn.grid(row=3, column=4, columnspan=1, sticky=E + N)
         self.sc = client.memory.sc
         client.util.socket_listener.add_listener(self.socket_listener)
 
