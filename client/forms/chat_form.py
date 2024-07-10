@@ -119,12 +119,12 @@ class ChatForm(tk.Frame):
         super().__init__(master)
         self.master = master
         self.target = target
-        self.user_listbox = tk.Listbox(self, bg='#63d5eb', width=0, bd=0)
+        self.user_listbox = tk.Listbox(self, width=0, bd=0)
         client.util.socket_listener.add_listener(self.socket_listener)
         client.memory.unread_message_count[self.target['type']][self.target['id']] = 0
         client.memory.contact_window[0].refresh_contacts()
         master.resizable(width=False, height=False)
-        master.geometry('580x500')
+        master.geometry('1160x1000')
         self.sc = client.memory.sc
         # 私人聊天
         if self.target['type'] == 0:
@@ -141,23 +141,20 @@ class ChatForm(tk.Frame):
             self.user_listbox.pack(side=LEFT, expand=False, fill=BOTH)
 
         self.right_frame.pack(side=LEFT, expand=True, fill=BOTH)
-        self.input_frame = tk.Frame(self.right_frame, bg='#63d5eb')
-        self.input_textbox = ScrolledText(self.right_frame, bg='#63d5eb', font=("楷书", 16), height=5)
+        self.input_frame = tk.Frame(self.right_frame)
+        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5)
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
-        self.send_btn = tk.Button(self.input_frame, text='发送消息(Ctrl+Enter)', font=("微软雅黑", 16, 'bold'), fg="black",
-                                  bg="#35d1e9",activebackground="#6cdcf0", relief=GROOVE, command=self.send_message)
+        self.send_btn = tk.Button(self.input_frame, text='发送消息', font=("微软雅黑", 16, 'bold'), fg="black",
+                                   relief=GROOVE, command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
-        self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
-                                  activebackground="#6cdcf0", relief=GROOVE, command=self.choose_color)
-        self.font_btn.pack(side=LEFT, expand=False)
-        self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
-                                  activebackground="#6cdcf0", relief=GROOVE, command=self.choose_font_size)
-        self.font_btn.pack(side=LEFT, expand=False)
-        self.image_btn = tk.Button(self.input_frame, text='发送文件', font=("微软雅黑", 16, 'bold'), fg="black", bg="#35d1e9",
-                                   activebackground="#6cdcf0", relief=GROOVE, command=self.send_image)
-        self.image_btn.pack(side=LEFT, expand=False)
-        self.chat_box = ScrolledText(self.right_frame, bg='#70d5eb')
+        # self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_color)
+        # self.font_btn.pack(side=LEFT, expand=False)
+        # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
+        # self.font_btn.pack(side=LEFT, expand=False)
+        # self.image_btn = tk.Button(self.input_frame, text='发送文件', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.send_image)
+        # self.image_btn.pack(side=LEFT, expand=False)
+        self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
@@ -166,7 +163,7 @@ class ChatForm(tk.Frame):
         self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("微软雅黑", 15))
-        self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("新宋体", 10))
+        self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("微软雅黑", 10))
 
         self.pack(expand=True, fill=BOTH)
 
@@ -226,17 +223,18 @@ class ChatForm(tk.Frame):
 
     """" 发送图片 """
     def send_image(self):
-        filename = filedialog.askopenfilename(filetypes=[("Image Files",
-                                                          ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
-                                                           "*.PNG", "*.GIF"]),
-                                                         ("All Files", ["*.*"])])
-        if filename is None or filename == '':
-            return
-        with open(filename, "rb") as imageFile:
-            f = imageFile.read()
-            b = bytearray(f)
-            print("Sendsize", len(b))
-            self.sc.send(MessageType.send_message,
-                         {'target_type': self.target['type'], 'target_id': self.target['id'],
-                          'message': {'type': 1, 'data': b}})
-            print('send image success!')
+        print("To be implemented")
+        # filename = filedialog.askopenfilename(filetypes=[("Image Files",
+        #                                                   ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
+        #                                                    "*.PNG", "*.GIF"]),
+        #                                                  ("All Files", ["*.*"])])
+        # if filename is None or filename == '':
+        #     return
+        # with open(filename, "rb") as imageFile:
+        #     f = imageFile.read()
+        #     b = bytearray(f)
+        #     print("Sendsize", len(b))
+        #     self.sc.send(MessageType.send_message,
+        #                  {'target_type': self.target['type'], 'target_id': self.target['id'],
+        #                   'message': {'type': 1, 'data': b}})
+        #     print('send image success!')

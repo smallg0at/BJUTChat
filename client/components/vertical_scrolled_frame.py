@@ -17,8 +17,6 @@ class VerticalScrolledFrame(Frame):
 
         # 画布背景
         self.canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=self.vscrollbar.set)
-        self.image_file = tk.PhotoImage(file='client/forms/images/VerticalScrolled.png')
-        self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.image_file)
 
         # 定位画布位置
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)

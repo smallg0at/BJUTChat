@@ -128,7 +128,7 @@ def add_to_chat_history(user_id, target_id, target_type, data, sent):
 """获取某用户的历史消息"""
 def get_chat_history(user_id):
     c = get_cursor()
-    ret = list(map(lambda x: [bytearray(x[0]), x[1]],
+    ret = list(map(lambda x: [bytearray(x[0]).decode('utf-8'), x[1]],
                    c.execute('SELECT data,sent FROM chat_history WHERE user_id=?',
                              [user_id]).fetchall()))
     c = get_cursor()

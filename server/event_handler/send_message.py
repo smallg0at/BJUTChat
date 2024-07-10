@@ -15,6 +15,7 @@ from common.util import md5
 from server.util import database
 from server.memory import *
 import time
+import orjson
 
 
 # {target_type:int(0=私聊 1=群聊),target_id:int,message:str}
@@ -41,7 +42,7 @@ def run(sc, parameters):
         message['target_id'] = parameters['target_id']
         user_id_to_sc[user_id].send(MessageType.on_new_message, message)
         database.add_to_chat_history(user_id, message['target_id'], message['target_type'],
-                                     _serialize_dict(message),
+                                     orjson.dumps(message),
                                      True)
 
         # 给接收方发消息，存入聊天记录
@@ -52,7 +53,7 @@ def run(sc, parameters):
             user_id_to_sc[parameters['target_id']].send(MessageType.on_new_message, message)
 
         database.add_to_chat_history(parameters['target_id'], message['target_id'], message['target_type'],
-                                     _serialize_dict(message),
+                                     orjson.dumps(message),
                                      sent)
 
     if parameters['target_type'] == 1:
@@ -72,5 +73,5 @@ def run(sc, parameters):
                 sent = True
 
             database.add_to_chat_history(user_id, message['target_id'], message['target_type'],
-                                         _serialize_dict(message),
+                                         orjson.dumps(message),
                                          sent)
