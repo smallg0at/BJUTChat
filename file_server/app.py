@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import os
 import uuid
 import sqlite3
@@ -25,12 +25,12 @@ def calculate_md5(file_path):
     return hash_md5.hexdigest()
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['GET'])
 def upload_file():
-    if 'file' not in request.files:
+    if 'file' not in request.files:   #确保文件名不为空
         return jsonify({'error': 'no file'}), 400
-
-    file = request.files['file']
+  
+    file = request.files['file']  
     user_id = request.form.get('user_id', '')
 
     if file.filename == '':
@@ -70,7 +70,7 @@ def insert_into_database(file_info):
     conn.commit()
     conn.close()
 
-@app.route('/download', methods=['POST'])
+@app.route('/download', methods=['GET'])
 def download_file():
     user_id = request.form.get('user_id', '')
     file_id = request.form.get('file_id', '')
