@@ -14,7 +14,7 @@ cur.execute('''
 CREATE TABLE "files" (
     "id" TEXT NOT NULL,
     "upload_time" INTEGER,
-    "is_deleted" BOOLEAN,
+    "is_deleted" BOOLEAN,on
     PRIMARY KEY ("id")
 )
 ''')
