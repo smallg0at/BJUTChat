@@ -50,4 +50,5 @@ else:
 # 清理测试文件
 os.remove(TEST_FILE_PATH)
 if os.path.exists(f'downloaded_{file_id}.bin'):
-    os.remove(f'downloaded_{file_id}.bin')
+    # os.remove(f'downloaded_{file_id}.bin')
+    pass

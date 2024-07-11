@@ -12,5 +12,6 @@
   "server": {
     "bind_ip": "0.0.0.0",
     "bind_port": 23333
-  }
+  },
+  "file_server": "http://127.0.0.1:5000"
 }
