@@ -16,7 +16,6 @@ from common.cryptography import crypt
 from common.message import serialize_message, deserialize_message, ByteArrayReader
 from common.util import long_to_bytes
 from pprint import pprint
-from server.util import database
 import logging
 import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
