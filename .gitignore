@@ -5,3 +5,4 @@ send_msg_log
 uuid
 .vscode
 venv
+file_server/uploads

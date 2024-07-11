@@ -17,6 +17,12 @@ import binascii
 import time
 import filetype
 import os
+from PIL import Image
+import requests
+from common.config import get_config
+from tempfile import TemporaryFile
+import base64
+import threading
 
 """创建聊天框"""
 class ChatForm(tk.Frame):
@@ -92,14 +98,37 @@ class ChatForm(tk.Frame):
             self.tag_i += 1
             self.chat_box.tag_config('new' + str(self.tag_i),
                                      lmargin1=16,
-                                     lmargin2=16,
-                                     foreground=data['message']['fontcolor'],
-                                     font=(None, data['message']['fontsize']))
+                                     lmargin2=16)
             self.append_to_chat_box(data['message']['data'] + '\n',
                                     'new' + str(self.tag_i))
         if data['message']['type'] == 1:
-            client.memory.tk_img_ref.append(ImageTk.PhotoImage(data=data['message']['data']))
-            self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+            client.memory.tk_img_ref.append(ImageTk.PhotoImage(data=base64.b64decode(data['message']['data'])))
+            image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+            threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
+            self.append_to_chat_box('\n', '')
+
+    def load_full_size_image(self, index, file_id):
+        # Get the full-sized image URL from data['message']['data']
+        server_url = get_config()['file_server']
+        params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
+        response = requests.get(f'{server_url}/download', params=params1)
+
+        if response.status_code == 200:
+            # Load the full-sized image using Pillow or other image library
+            full_size_image = ImageTk.PhotoImage(data=response.content)
+            client.memory.tk_img_ref.append(full_size_image)
+            print(len(response.content))
+
+            # self.chat_box.image_create(index, image=None)
+                        # self.chat_box.image_create(index, image=None)
+            self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+
+            print("success")
+
+            print("success")
+            
+        else:
+            print("Error loading full-sized image")
             self.append_to_chat_box('\n', '')
 
     """ 双击聊天框 """
@@ -123,7 +152,7 @@ class ChatForm(tk.Frame):
         client.util.socket_listener.add_listener(self.socket_listener)
         client.memory.unread_message_count[self.target['type']][self.target['id']] = 0
         client.memory.contact_window[0].refresh_contacts()
-        master.resizable(width=False, height=False)
+        master.resizable(width=True, height=True)
         master.geometry('1160x1000')
         self.sc = client.memory.sc
         # 私人聊天
@@ -152,8 +181,8 @@ class ChatForm(tk.Frame):
         # self.font_btn.pack(side=LEFT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
         # self.font_btn.pack(side=LEFT, expand=False)
-        # self.image_btn = tk.Button(self.input_frame, text='发送文件', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.send_image)
-        # self.image_btn.pack(side=LEFT, expand=False)
+        self.image_btn = tk.Button(self.input_frame, text='发送图片', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.send_image)
+        self.image_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
@@ -193,8 +222,6 @@ class ChatForm(tk.Frame):
                       'message': {
                           'type': 0,
                           'data': message.strip().strip('\n'),
-                          'fontsize': self.font_size,
-                          'fontcolor': self.font_color
                       }
                       })
         self.input_textbox.delete("1.0", END)
@@ -223,18 +250,31 @@ class ChatForm(tk.Frame):
 
     """" 发送图片 """
     def send_image(self):
-        print("To be implemented")
-        # filename = filedialog.askopenfilename(filetypes=[("Image Files",
-        #                                                   ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
-        #                                                    "*.PNG", "*.GIF"]),
-        #                                                  ("All Files", ["*.*"])])
-        # if filename is None or filename == '':
-        #     return
-        # with open(filename, "rb") as imageFile:
-        #     f = imageFile.read()
-        #     b = bytearray(f)
-        #     print("Sendsize", len(b))
-        #     self.sc.send(MessageType.send_message,
-        #                  {'target_type': self.target['type'], 'target_id': self.target['id'],
-        #                   'message': {'type': 1, 'data': b}})
-        #     print('send image success!')
+        filename = filedialog.askopenfilename(filetypes=[("Image Files",
+                                                          ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
+                                                           "*.PNG", "*.GIF"]),
+                                                         ("All Files", ["*.*"])])
+        
+        if filename is None or filename == '':
+            return
+        filename.split('/')
+        image = Image.open(filename)
+        small_image = image.resize((128,128))
+        fp = TemporaryFile()
+        small_image.save(fp, 'PNG')
+        fp.seek(0)
+        with open(filename, "rb") as imageFile:
+            files = {'file': imageFile}
+            data = {'user_id': client.memory.current_user['id']}
+            server_url = get_config()['file_server']
+            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            if(response.status_code == 200):
+                file_id = response.json().get('file_id')
+
+                f = fp.read()
+                b = base64.b64encode(f).decode('ascii')
+                print("Sendsize", len(b))
+                self.sc.send(MessageType.send_message,
+                             {'target_type': self.target['type'], 'target_id': self.target['id'],
+                              'message': {'type': 1, 'data': b, 'uuid': file_id}})
+                print('send image success!')

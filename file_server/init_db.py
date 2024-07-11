@@ -1,7 +1,7 @@
 import sqlite3
 
 # 连接到数据库
-conn = sqlite3.connect('server/database.db')
+conn = sqlite3.connect('file_server/database.db')
 
 # 创建一个游标对象
 cur = conn.cursor()
