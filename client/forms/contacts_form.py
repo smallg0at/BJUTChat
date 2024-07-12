@@ -4,6 +4,7 @@
 """联系人列表"""
 import _tkinter
 import tkinter as tk
+from tkinter import ttk
 from distutils import command
 from tkinter import messagebox
 from common.message import MessageType, _deserialize_any
@@ -232,7 +233,7 @@ class ContactsForm(tk.Frame):
         super().__init__(master)
         self.master = master
         self.master.title(client.memory.current_user['username'] + " - 联系人")
-        master.resizable(width=False, height=False)
+        # master.resizable(width=False, height=False)
         master.geometry('800x1280')
         # 滚动条＋消息列表画布
         self.scroll = VerticalScrolledFrame(self)
@@ -243,16 +244,16 @@ class ContactsForm(tk.Frame):
         self.button_frame_right = Frame(self)
         self.button_frame_right.pack(side=RIGHT, fill=BOTH, expand=YES)
         # 添加好友
-        self.add_friend = Button(self.button_frame_left, text="添加好友", font=("微软雅黑", 16), fg="black", relief=GROOVE, command=self.on_add_friend)
+        self.add_friend = ttk.Button(self.button_frame_left, text="添加好友",  command=self.on_add_friend)
         self.add_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 添加群聊
-        self.add_room = Button(self.button_frame_left, text="添加群聊", font=("微软雅黑", 16), fg="black",relief=GROOVE, command=self.on_add_room)
+        self.add_room = ttk.Button(self.button_frame_left, text="添加群聊",  command=self.on_add_room)
         self.add_room.pack(side=TOP, expand=True, fill=BOTH)
         # 删除好友
-        self.del_friend = Button(self.button_frame_right, text="删除好友", font=("微软雅黑", 16), fg="black",relief=GROOVE, command=self.on_del_friend)
+        self.del_friend = ttk.Button(self.button_frame_right, text="删除好友",  command=self.on_del_friend)
         self.del_friend.pack(side=TOP, expand=True, fill=BOTH)
         # 创建群聊
-        self.create_room = Button(self.button_frame_right, text="创建群聊", font=("微软雅黑", 16), fg="black", relief=GROOVE, command=self.on_create_room)
+        self.create_room = ttk.Button(self.button_frame_right, text="创建群聊",  command=self.on_create_room)
         self.create_room.pack(side=TOP, expand=True, fill=BOTH)
         # 页面定位
         self.pack(side=TOP, fill=BOTH, expand=True)

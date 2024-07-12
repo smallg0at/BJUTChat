@@ -4,6 +4,7 @@
 """"聊天界面及处理与聊天相关的事件"""
 import tkinter as tk
 from tkinter import *
+from tkinter import ttk
 import client.memory
 from client.util.socket_listener import *
 from tkinter.scrolledtext import ScrolledText
@@ -174,14 +175,13 @@ class ChatForm(tk.Frame):
         self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5)
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
-        self.send_btn = tk.Button(self.input_frame, text='发送消息', font=("微软雅黑", 16, 'bold'), fg="black",
-                                   relief=GROOVE, command=self.send_message)
+        self.send_btn = ttk.Button(self.input_frame, text='发送消息', command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_color)
         # self.font_btn.pack(side=LEFT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
         # self.font_btn.pack(side=LEFT, expand=False)
-        self.image_btn = tk.Button(self.input_frame, text='发送图片', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.send_image)
+        self.image_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
