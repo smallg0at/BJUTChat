@@ -189,8 +189,8 @@ class ChatForm(tk.Frame):
         self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
         self.chat_box.bind("<Key>", lambda e: "break")
         self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
-        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 15))
-        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 15))
+        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 12))
+        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 12))
         self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("微软雅黑", 10))
 
