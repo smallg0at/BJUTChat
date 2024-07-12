@@ -245,18 +245,13 @@ class LoginForm(tk.Frame):
             return
         self.sc.send(MessageType.login, [username, password])
 
-    """ 转到注册界面 """
-
-    def show_register(self):
-        register_form = Toplevel()
-        RegisterForm(register_form)
 
     """" 注册操作 """
     def do_register(self):
 
-        username = self.var_login_user_name.get()
+        username = self.var_reg_user_name.get()
        # print(type(username).__name__)
-        password = self.login_var_user_pwd.get()
+        password = self.reg_var_user_pwd.get()
         #print(type(password).__name__)
         password_confirmation = self.var_confirm_pwd.get()
         school_id = self.var_user_school_id.get()
