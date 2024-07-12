@@ -64,6 +64,7 @@ class MessageType(enum.IntEnum):
     login_bundle = 113
     del_friend_result = 114
     del_info = 115
+    user_is_banned = 116
     # === Failure 201-300
     login_failed = 201
     username_taken = 202
