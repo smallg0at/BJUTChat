@@ -22,7 +22,7 @@ cur.execute('''DROP TABLE IF EXISTS "main"."friends"''')
 cur.execute('''CREATE TABLE "friends" (
 "from_user_id"  INTEGER NOT NULL,
 "to_user_id"  INTEGER NOT NULL,
-"accepted"  TEXT,
+"accepted"  TEXT,            
 PRIMARY KEY ("from_user_id" ASC, "to_user_id")
 )''')
 conn.commit() 
@@ -30,6 +30,8 @@ cur.execute('''DROP TABLE IF EXISTS "main"."rooms"''')
 cur.execute('''CREATE TABLE "rooms" (
 "id"  INTEGER NOT NULL,
 "room_name"  TEXT,
+"created_time" DATE,
+"room_creator" TEXT,
 PRIMARY KEY ("id")
 )''')
 conn.commit() 
@@ -49,6 +51,8 @@ cur.execute('''CREATE TABLE "users" (
 "school_id"  TEXT,
 "sex"  TEXT,
 "role" TEXT,
+"nickname" TEXT,
+"is_banned" INTERGER,
 PRIMARY KEY ("id" ASC)
 );''')
 # cur.execute('''DROP TABLE IF EXISTS "main"."chat_history"''')

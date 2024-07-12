@@ -33,9 +33,19 @@ def run(sc, parameters):
     sc_to_user_id[sc] = user_id
     user_id_to_sc[user_id] = sc
     user = database.get_user(user_id)
-    sc.send(MessageType.login_successful, user)
-    print('UserLogin: ',user_id)
-    login_bundle = {}
+
+    #若被禁止，则不允许登录
+    r1 = c.execute('SELECT id,is_banned from users where username=?', (parameters[0]))
+    rows1 = r1.fetchall()
+    is_banned = rows1[0][1]
+    if (is_banned == 1):
+        sc_old.send(MessageType.user_is_banned)
+        sc_old.close()
+        remove_sc_from_socket_mapping(sc)
+    else:    
+        sc.send(MessageType.login_successful, user)
+        print('UserLogin: ',user_id)
+        login_bundle = {}
 
     # 发送群列表
     rms = database.get_user_rooms(user_id)
