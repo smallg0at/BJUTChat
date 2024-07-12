@@ -55,6 +55,17 @@ cur.execute('''CREATE TABLE "users" (
 "is_banned" INTERGER,
 PRIMARY KEY ("id" ASC)
 );''')
+conn.commit() 
+cur.execute('''DROP TABLE IF EXISTS "main"."announcements"''')
+cur.execute('''CREATE TABLE "announcements" (
+"id"  INTEGER NOT NULL,
+"visible_to_students"  INTEGER DEFAULT 1,
+"visible_to_teachers"  INTEGER DEFAULT 1,
+"content" TEXT,
+"send_time" DATE,
+"expiry_time" DATE,
+PRIMARY KEY ("id" ASC)
+);''')
 # cur.execute('''DROP TABLE IF EXISTS "main"."chat_history"''')
 # cur.execute('''DROP TABLE IF EXISTS "main"."chat_history"''')
 # cur.execute('''DROP TABLE IF EXISTS "main"."chat_history"''')
