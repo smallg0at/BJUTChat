@@ -134,3 +134,19 @@ def get_chat_history(user_id):
     c = get_cursor()
     c.execute('UPDATE chat_history SET sent=1 WHERE user_id=?', [user_id])
     return ret
+
+def is_teacher(user_id):
+    c = get_cursor()
+    r = c.execute('SELECT role FROM users WHERE id=?',[user_id])
+    if (r == 'teacher'): return 1
+    else: return 0
+
+def username_to_id(username):
+    c = get_cursor()
+    r = c.execute('SELECT id FROM users WHERE username=?',[username])
+    return r
+
+def roomname_to_id(roomname):
+    c = get_cursor()
+    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname])
+    return r
