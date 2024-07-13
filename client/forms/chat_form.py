@@ -10,6 +10,7 @@ from client.util.socket_listener import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import colorchooser
 from tkinter import simpledialog
+from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from io import BytesIO
@@ -214,7 +215,7 @@ class ChatForm(tk.Frame):
             return None
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
-        selected_user_username = self.user_list[len(self.user_list) - 1 - index][3]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
         if selected_user_id == client.memory.current_user['id']:
             return
         client.memory.contact_window[0].try_open_user_id(selected_user_id,
@@ -229,14 +230,14 @@ class ChatForm(tk.Frame):
         master.geometry('1160x1000')
 
         # Notebook
-        self.notebook = ttk.Notebook(self.master)
-        self.notebook.pack(expand=True, fill='both')
+        self.notebook = ttk.Notebook(self.master,height=999999,width=999999)
+        self.notebook.pack(fill=BOTH, side=TOP)
 
-        self.chat_frame = ttk.Frame(self.notebook)
-        self.user_frame = ttk.Frame(self.notebook)
+        self.chat_frame = tk.Frame(self.notebook)
+        self.user_frame = tk.Frame(self.notebook)
 
         # User Frame
-        self.user_listbox = tk.Listbox(self.user_frame, width=0, bd=0)
+        self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
         self.user_listbox.pack(side=TOP, expand=True, fill=BOTH)
         
@@ -271,9 +272,9 @@ class ChatForm(tk.Frame):
         self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
         self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.chat_frame)
-        self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
-        self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
-        self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
+        self.chat_box.pack(side=TOP, fill=BOTH, expand=True)
+        self.input_frame.pack(side=BOTTOM, fill=BOTH, expand=False)
+        self.input_textbox.pack(side=BOTTOM, fill=BOTH, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.bind("<Key>", lambda e: "break")
         self.hyperlink_mgr = HyperlinkManager(self.chat_box)
         self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
@@ -286,7 +287,7 @@ class ChatForm(tk.Frame):
         
 
         # Packup
-        self.pack(expand=True, fill=BOTH)
+        self.pack(expand=True, fill=BOTH, side=TOP)
         self.chat_frame.pack(side=TOP, expand=True, fill=BOTH)
         if self.target['type'] == 1:
             self.user_frame.pack(side=TOP, expand=True, fill=BOTH)
@@ -294,6 +295,7 @@ class ChatForm(tk.Frame):
         self.notebook.add(self.chat_frame, text="聊天")
         if self.target['type'] == 1:
             self.notebook.add(self.user_frame, text="群成员")
+            pass
 
         add_message_listener(self.target['type'], self.target['id'], self.message_listener)
         master.protocol("WM_DELETE_WINDOW", self.remove_listener_and_close)
