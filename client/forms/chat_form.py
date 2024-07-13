@@ -115,17 +115,17 @@ class ChatForm(tk.Frame):
         server_url = get_config()['file_server']
 
         if(os.path.exists(f"userdata/image_attachments/{file_id}")):
-            with open(file=f"userdata/image_attachments/{file_id}", mode='rb') as f:
-                full_size_image = ImageTk.PhotoImage(file=f)
-                client.memory.tk_img_ref.append(full_size_image)
-                self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+            full_size_image = self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}"))
+            shrunk_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(full_size_image))
+            client.memory.tk_img_ref.append(shrunk_image)
+            self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
         else: 
             params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
             response = requests.get(f'{server_url}/download', params=params1)
 
             if response.status_code == 200:
                 # Load the full-sized image using Pillow or other image library
-                full_size_image = ImageTk.PhotoImage(data=response.content)
+                full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(response.content)))
                 client.memory.tk_img_ref.append(full_size_image)
                 print(len(response.content))
                 if(not os.path.exists(f"userdata/image_attachments")):
@@ -143,7 +143,25 @@ class ChatForm(tk.Frame):
                 print("Error loading full-sized image")
                 self.append_to_chat_box('\n', '')
 
+    def shrink_image_by_ratio(self, image, longest=1600):
+        height = image.height
+        width = image.width
+        if height > width:
+            if height > longest:
+                # print((int(longest*width/height), longest))
+                return image.resize((int(longest*width/height), longest))
+            else:
+                return image
+        else: 
+            if width > longest:
+                # print(longest, int(longest*height/width))
+                return image.resize((longest, int(longest*height/width)))
+            else:
+                return image
+
     def save_specific_image(self, uuid, defaultname):
+        if not os.path.exists(f"userdata/image_attachments/{uuid}"):
+            messagebox.showerror("错误", "图片未能成功获取，无法保存")
         with filedialog.asksaveasfile(mode="wb", title="保存图片", initialfile=defaultname) as f:
             with open(f"userdata/image_attachments/{uuid}", 'rb') as ffrom:
                 f.write(ffrom.read())
