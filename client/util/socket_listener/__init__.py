@@ -87,7 +87,7 @@ def socket_listener_thread(sc, tk_root):
                         client.memory.tk_root.destroy()
                     
                     if data['type'] == MessageType.user_is_banned:
-                        messagebox.showerror('您已被封禁，请联系管理员')
+                        messagebox.showerror("错误",'您已被封禁，请联系管理员')
                         client.memory.tk_root.destroy()
 
                     if data['type'] == MessageType.server_echo:
