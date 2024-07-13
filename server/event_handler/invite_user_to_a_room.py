@@ -110,9 +110,9 @@ def run(sc, parameters):
         sc.send(MessageType.general_failure, '群不存在')
         return
     if (database.is_teacher(inviter_id)):
-        database.add_to_room(user_id, parameters)
+        database.add_to_room(user_id, room_id)
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-        sc.send(MessageType.contact_info, add_target_type(room, 1))
+        sc.send(MessageType.query_room_users_result, [database.get_room_members(room_id), room_id])
     else:
         sc.send(MessageType.general_failure, '只有老师能够邀请用户入群')
         return
