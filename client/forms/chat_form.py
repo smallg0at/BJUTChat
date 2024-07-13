@@ -125,14 +125,14 @@ class ChatForm(tk.Frame):
 
             if response.status_code == 200:
                 # Load the full-sized image using Pillow or other image library
-                full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(response.content)))
+                with open(file=f"userdata/image_attachments/{file_id}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+                full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}")))
                 client.memory.tk_img_ref.append(full_size_image)
                 print(len(response.content))
                 if(not os.path.exists(f"userdata/image_attachments")):
                     os.makedirs(f"userdata/image_attachments")
-                with open(file=f"userdata/image_attachments/{file_id}", mode='wb') as f:
-                    f.write(response.content)
-                    f.close()
                 # self.chat_box.image_create(index, image=None)
                             # self.chat_box.image_create(index, image=None)
                 self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
@@ -162,6 +162,7 @@ class ChatForm(tk.Frame):
     def save_specific_image(self, uuid, defaultname):
         if not os.path.exists(f"userdata/image_attachments/{uuid}"):
             messagebox.showerror("错误", "图片未能成功获取，无法保存")
+            return
         with filedialog.asksaveasfile(mode="wb", title="保存图片", initialfile=defaultname) as f:
             with open(f"userdata/image_attachments/{uuid}", 'rb') as ffrom:
                 f.write(ffrom.read())
@@ -315,3 +316,26 @@ class ChatForm(tk.Frame):
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
                               'message': {'type': 1, 'data': b, 'uuid': file_id, 'basename': basename}})
                 print('send image success!')
+                messagebox.showinfo("提示", "图片发送成功")
+            else:
+                messagebox.showerror("提示", f"图片发送失败。错误码：{response.status_code}")
+    def send_file(self):
+        filename = filedialog.askopenfilename()
+        
+        if filename is None or filename == '':
+            return
+        basename = os.path.basename(filename)
+        with open(filename, "rb") as imageFile:
+            files = {'file': imageFile}
+            data = {'user_id': client.memory.current_user['id']}
+            server_url = get_config()['file_server']
+            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            if(response.status_code == 200):
+                file_id = response.json().get('file_id')
+                self.sc.send(MessageType.send_message,
+                             {'target_type': self.target['type'], 'target_id': self.target['id'],
+                              'message': {'type': 2, 'uuid': file_id, 'basename': basename}})
+                print('send file success!')
+                messagebox.showinfo("提示", "文件发送成功")
+            else:
+                messagebox.showerror("提示", f"文件发送失败。错误码：{response.status_code}")
