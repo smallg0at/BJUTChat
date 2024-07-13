@@ -43,7 +43,7 @@ def run(sc, parameters):
         user_id_to_sc[user_id].send(MessageType.on_new_message, message)
         database.add_to_chat_history(user_id, message['target_id'], message['target_type'],
                                      orjson.dumps(message),
-                                     True)
+                                     True, sendtime)
 
         # 给接收方发消息，存入聊天记录
         message['target_id'] = user_id
