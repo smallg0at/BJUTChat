@@ -95,7 +95,7 @@ def run(sc, parameters):
     if (not(database.is_friend_with(inviter_id,uid))):
         sc.send(MessageType.general_failure, '您不能邀请非好友入群')
         return
-    room_name = parameters[1].strip().lower()
+    room_name = parameters['room_name'].strip().lower()
 
     user_id = database.username_to_id(username)
     room_id = database.roomname_to_id(room_name)
