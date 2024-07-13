@@ -265,7 +265,10 @@ class LoginForm(tk.Frame):
         #print(type(sex).__name__)
         # age = self.var_user_age.get()
         #print(type(age).__name__)
-        role = self.var_user_school_id.get()
+        if self.entry_user_role.get() == "学生":
+            role=0
+        else:
+            role=1
         #print(type(ip).__name__)
         config = get_config()
         port = str((config['client']['client_port']))
