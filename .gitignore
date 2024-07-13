@@ -6,3 +6,4 @@ uuid
 .vscode
 venv
 file_server/uploads
+userdata
