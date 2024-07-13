@@ -84,15 +84,6 @@ class ContactsForm(tk.Frame):
                 messagebox.showerror('删除好友失败', data['parameters'][1])
             return
 
-        if data['type'] == MessageType.friend_on_off_line:
-            friend_user_id = data['parameters'][1]
-
-            for i in range(0, len(self.contacts)):
-                if self.contacts[i]['id'] == friend_user_id and self.contacts[i]['type'] == 0:
-                    self.contacts[i]['online'] = data['parameters'][0]
-                    break
-            self.refresh_contacts()
-            return
 
     """处理新的联系人"""
     def handle_new_contact(self, data):
@@ -163,13 +154,13 @@ class ContactsForm(tk.Frame):
             self.widget = widget
 
     """ 查看用户ID """
-    def try_open_user_id(self, id, name, username):
+    def try_open_user_id(self, id, username):
         for i in range(0, len(self.pack_objs)):
             frame = self.pack_objs[i]
             if frame.item['id'] == id and frame.item['type'] == 0:
                 self.on_frame_click(self.my_event(frame))
                 return
-        result = messagebox.askyesno("是否加好友", name + "不在您的好友列表中，是否加好友？")
+        result = messagebox.askyesno("是否加好友", username + "不在您的好友列表中，是否加好友？")
         if result:
             self.sc.send(MessageType.add_friend, username)
     pack_objs = []
@@ -232,6 +223,8 @@ class ContactsForm(tk.Frame):
                 contact.unread_message_count.pack(side=RIGHT, anchor=E, fill=None, expand=False, ipadx=4)
                 contact.last_message.pack(side=LEFT, fill=X, expand=True, anchor=W)
                 contact.unread_message_count.config(text=str(unread_count))
+
+    
 
     def __init__(self, master=None):
         client.memory.contact_window.append(self)
