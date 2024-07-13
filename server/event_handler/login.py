@@ -36,8 +36,8 @@ def run(sc, parameters):
 
     #若被禁止，则不允许登录
     if (user['is_banned'] == 1):
-        sc_old.send(MessageType.user_is_banned)
-        sc_old.close()
+        sc.send(MessageType.user_is_banned)
+        sc.close()
         remove_sc_from_socket_mapping(sc)
     else:    
         sc.send(MessageType.login_successful, user)
