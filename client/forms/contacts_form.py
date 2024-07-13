@@ -22,8 +22,9 @@ import client.util.socket_listener
 import time
 from tkinter import simpledialog
 import orjson
-
-
+from client.components.announcement_entry import AnnouncementEntry
+from client.forms.announcements_form import AnnouncementApp
+from client.components.HyperlinkManager import HyperlinkManager
 class ContactsForm(tk.Frame):
     bundle_process_done = False
 
@@ -118,6 +119,11 @@ class ContactsForm(tk.Frame):
         form = Toplevel(client.memory.tk_root, takefocus=True)
         client.memory.window_instance[e.widget.item['type']][item_id] = ChatForm(e.widget.item, form)
 
+    def on_ann_click(self, e):
+        form = Toplevel(client.memory.tk_root, takefocus=True)
+        AnnouncementApp(form)
+
+
     """ 添加好友 """
     def on_add_friend(self):
         result = simpledialog.askstring('添加好友', '请输入用户名')
@@ -188,6 +194,7 @@ class ContactsForm(tk.Frame):
             pack_obj.pack_forget()
             pack_obj.destroy()
 
+
         self.pack_objs = []
         self.contacts.sort(key=lambda x: -client.memory.last_message_timestamp[x['type']].get(x['id'], 0))
 
@@ -195,30 +202,28 @@ class ContactsForm(tk.Frame):
             contact = ContactItem(self.scroll.interior, self.on_frame_click)
             contact.pack(fill=BOTH, expand=True)
             contact.item = item
-
+            
             contact.bind("<Button>", self.on_frame_click)
             if (item['type'] == 0):
                 # 联系人
                 contact.title.config(text=item['username'] + (' (在线)' if item['online'] else ' (离线)'))
                 contact.title.config(fg='blue' if item['online'] else '#505050', )
-                contact.friend_ip.config(text='')
             if (item['type'] == 1):
                 # 群
                 contact.title.config(text='[群:' + str(item['id']) + '] ' + item['room_name'])
                 contact.title.config(fg='green')
-                contact.friend_ip.config(text='')
 
             self.pack_objs.append(contact)
             time_message = datetime.datetime.fromtimestamp(
                 item['last_timestamp']
-            ).strftime('%Y-%m-%d %H:%M:%S')
+            ).strftime('%Y-%m-%d %H:%M')
 
             contact.last_message_time.config(text=time_message)
 
             contact.last_message.config(text=client.memory.last_message[item['type']].get(item['id'], '(没有消息)'))
             contact.last_message_time.config(text=datetime.datetime.fromtimestamp(
                 int(client.memory.last_message_timestamp[item['type']].get(item['id'], 0)) / 1000
-            ).strftime('%Y-%m-%d %H:%M:%S'))
+            ).strftime('%Y-%m-%d %H:%M'))
 
             unread_count = client.memory.unread_message_count[item['type']].get(item['id'], 0)
             contact.unread_message_count.pack_forget()
@@ -231,30 +236,50 @@ class ContactsForm(tk.Frame):
     def __init__(self, master=None):
         client.memory.contact_window.append(self)
         super().__init__(master)
+        master.option_add('*tearOff', FALSE)
         self.master = master
         self.master.title(client.memory.current_user['username'] + " - 联系人")
         # master.resizable(width=False, height=False)
         master.geometry('800x1280')
+
+        self.top_layout = Frame(self, relief='flat')
+        self.top_layout.pack(side=TOP, fill='both')
+        self.menuicn = PhotoImage(file = "./client/forms/assets/globnav.png").subsample(18) 
+        self.menu_btn = ttk.Menubutton(self.top_layout, image=self.menuicn, text=" 菜单", compound=LEFT, width=5)
+        self.menu = Menu(self.menu_btn, font=("微软雅黑", 12), background="#ffffff", relief=FLAT)
+        self.menu_btn['menu'] = self.menu
+
+        self.menu.add_command(label="添加好友", command=self.on_add_friend)
+        self.menu.add_command(label="删除好友", command=self.on_del_friend)
+        self.menu.add_command(label="新建群聊", command=self.on_create_room)
+        self.menu.add_command(label="添加群聊", command=self.on_add_room)
+
+
+        self.menu_btn.pack(side=LEFT)
+        
+        self.announcement_entry = AnnouncementEntry(self.top_layout, self.on_ann_click)
+        self.announcement_entry.pack(side=TOP, fill=BOTH, expand=True)
+
         # 滚动条＋消息列表画布
-        self.scroll = VerticalScrolledFrame(self)
+        self.scroll = VerticalScrolledFrame(self, bg="#d9d9d9")
         self.scroll.pack(side=TOP, fill=BOTH, expand=True)
-        # 按钮
-        self.button_frame_left = Frame(self)
-        self.button_frame_left.pack(side=LEFT, fill=BOTH, expand=YES)
-        self.button_frame_right = Frame(self)
-        self.button_frame_right.pack(side=RIGHT, fill=BOTH, expand=YES)
-        # 添加好友
-        self.add_friend = ttk.Button(self.button_frame_left, text="添加好友",  command=self.on_add_friend)
-        self.add_friend.pack(side=TOP, expand=True, fill=BOTH)
-        # 添加群聊
-        self.add_room = ttk.Button(self.button_frame_left, text="添加群聊",  command=self.on_add_room)
-        self.add_room.pack(side=TOP, expand=True, fill=BOTH)
-        # 删除好友
-        self.del_friend = ttk.Button(self.button_frame_right, text="删除好友",  command=self.on_del_friend)
-        self.del_friend.pack(side=TOP, expand=True, fill=BOTH)
-        # 创建群聊
-        self.create_room = ttk.Button(self.button_frame_right, text="创建群聊",  command=self.on_create_room)
-        self.create_room.pack(side=TOP, expand=True, fill=BOTH)
+        # # 按钮
+        # self.button_frame_left = Frame(self)
+        # self.button_frame_left.pack(side=LEFT, fill=BOTH, expand=YES)
+        # self.button_frame_right = Frame(self)
+        # self.button_frame_right.pack(side=RIGHT, fill=BOTH, expand=YES)
+        # # 添加好友
+        # self.add_friend = ttk.Button(self.button_frame_left, text="添加好友",  command=self.on_add_friend)
+        # self.add_friend.pack(side=TOP, expand=True, fill=BOTH)
+        # # 添加群聊
+        # self.add_room = ttk.Button(self.button_frame_left, text="添加群聊",  command=self.on_add_room)
+        # self.add_room.pack(side=TOP, expand=True, fill=BOTH)
+        # # 删除好友
+        # self.del_friend = ttk.Button(self.button_frame_right, text="删除好友",  command=self.on_del_friend)
+        # self.del_friend.pack(side=TOP, expand=True, fill=BOTH)
+        # # 创建群聊
+        # self.create_room = ttk.Button(self.button_frame_right, text="创建群聊",  command=self.on_create_room)
+        # self.create_room.pack(side=TOP, expand=True, fill=BOTH)
         # 页面定位
         self.pack(side=TOP, fill=BOTH, expand=True)
         self.contacts = []

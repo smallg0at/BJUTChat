@@ -25,12 +25,12 @@ def run(sc, parameters):
     user_id = sc_to_user_id[sc]
     sender = database.get_user(user_id)
 
-
+    sendtime = int(round(time.time() * 1000))
     # target_id在后面填入，对于发送方和接收方不一样
     message = {"message": parameters['message'], 'sender_id': user_id,
                'sender_name': sender['username'],
                'target_type': parameters['target_type'],
-               'time': int(round(time.time() * 1000))}
+               'time': sendtime}
 
     if parameters['target_type'] == 0:
         # 私聊
@@ -54,7 +54,7 @@ def run(sc, parameters):
 
         database.add_to_chat_history(parameters['target_id'], message['target_id'], message['target_type'],
                                      orjson.dumps(message),
-                                     sent)
+                                     sent, sendtime)
 
     if parameters['target_type'] == 1:
         # 群聊
@@ -74,4 +74,4 @@ def run(sc, parameters):
 
             database.add_to_chat_history(user_id, message['target_id'], message['target_type'],
                                          orjson.dumps(message),
-                                         sent)
+                                         sent, sendtime)
