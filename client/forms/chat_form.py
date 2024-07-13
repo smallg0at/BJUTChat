@@ -233,10 +233,12 @@ class ChatForm(tk.Frame):
         self.notebook = ttk.Notebook(self.master,height=999999,width=999999)
         self.notebook.pack(fill=BOTH, side=TOP)
 
-        self.chat_frame = tk.Frame(self.notebook)
-        self.user_frame = tk.Frame(self.notebook)
+        self.chat_frame = ttk.Frame(self.notebook)
+        self.user_frame = ttk.Frame(self.notebook)
 
         # User Frame
+        self.add_to_group_btn = ttk.Button(self.user_frame, text="添加成员")
+        self.add_to_group_btn.pack(side=TOP, fill=X)
         self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
         self.user_listbox.pack(side=TOP, expand=True, fill=BOTH)
@@ -258,10 +260,9 @@ class ChatForm(tk.Frame):
             self.sc.send(MessageType.query_room_users, self.target['id'])
 
 
-        self.input_frame = tk.Frame(self.chat_frame)
+        self.input_frame = ttk.Frame(self.chat_frame)
         self.input_textbox = ScrolledText(self.chat_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
-        self.input_textbox.bind_all('<Key>', self.apply_font_change)
         self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
         self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)

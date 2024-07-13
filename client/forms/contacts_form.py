@@ -163,13 +163,13 @@ class ContactsForm(tk.Frame):
             self.widget = widget
 
     """ 查看用户ID """
-    def try_open_user_id(self, id, name, username):
+    def try_open_user_id(self, id, username):
         for i in range(0, len(self.pack_objs)):
             frame = self.pack_objs[i]
             if frame.item['id'] == id and frame.item['type'] == 0:
                 self.on_frame_click(self.my_event(frame))
                 return
-        result = messagebox.askyesno("是否加好友", name + "不在您的好友列表中，是否加好友？")
+        result = messagebox.askyesno("是否加好友", username + "不在您的好友列表中，是否加好友？")
         if result:
             self.sc.send(MessageType.add_friend, username)
     pack_objs = []
