@@ -112,7 +112,7 @@ def get_room_members_id(room_id):
 
 def get_room_members(room_id):
     # [id,  online, username]
-    return list(map(lambda x: [x[0], x[1], x[0] in user_id_to_sc, x[2]], get_cursor().execute(
+    return list(map(lambda x: [x[0], x[1]], get_cursor().execute(
         'SELECT user_id,username FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
         [room_id]).fetchall()))
 
