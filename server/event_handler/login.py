@@ -35,12 +35,9 @@ def run(sc, parameters):
     user = database.get_user(user_id)
 
     #若被禁止，则不允许登录
-    r1 = c.execute('SELECT id,is_banned from users where username=?', (parameters[0]))
-    rows1 = r1.fetchall()
-    is_banned = rows1[0][1]
-    if (is_banned == 1):
-        sc_old.send(MessageType.user_is_banned)
-        sc_old.close()
+    if (user['is_banned'] == 1):
+        sc.send(MessageType.user_is_banned)
+        sc.close()
         remove_sc_from_socket_mapping(sc)
     else:    
         sc.send(MessageType.login_successful, user)
@@ -68,5 +65,5 @@ def run(sc, parameters):
 
 
     login_bundle['messages'] = database.get_chat_history(user_id)
-    print('Bundle sent. size', login_bundle)
+    print('Bundle sent.')
     sc.send(MessageType.login_bundle, login_bundle)

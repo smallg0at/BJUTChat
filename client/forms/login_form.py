@@ -68,7 +68,9 @@ class LoginForm(tk.Frame):
         style = ttk.Style()
         style.configure(".", font=("微软雅黑", 12))
         style.configure("Contact.TSeparator", background="#000000")
-        style.configure("Contact.TFrame", background="#f0f0f0")
+        style.configure("Contact.TFrame", background="#f0f0f0") 
+        style.configure("White.TFrame", background="#fafafa") 
+        style.configure("White.TLabel", background="#fafafa") 
         style.configure("Contact1.TFrame", background="#f0f0f0")
         
         self.master = master
@@ -79,8 +81,8 @@ class LoginForm(tk.Frame):
         self.notebook = ttk.Notebook(self.master)
         self.notebook.pack(expand=True, fill='both')
 
-        self.login_frame = ttk.Frame(self.notebook, width=600, height=800)
-        self.register_frame = ttk.Frame(self.notebook, width=600, height=800)
+        self.login_frame = ttk.Frame(self.notebook, width=600, height=800, style="White.TFrame")
+        self.register_frame = ttk.Frame(self.notebook, width=600, height=800, style="White.TFrame")
         
 
 
@@ -89,8 +91,8 @@ class LoginForm(tk.Frame):
         # Login
         # self.canvas = tk.Canvas(self.login_frame, width=600, height=400, background="#d9d9d9", highlightthickness=0)
         # 标签 用户名密码
-        self.login_user_name = ttk.Label(self.login_frame, text="用户名",justify='left', width=26)
-        self.login_user_pwd = ttk.Label(self.login_frame, text="密码",justify='left', width=26)
+        self.login_user_name = ttk.Label(self.login_frame, text="用户名",justify='left', width=26,style="White.TLabel")
+        self.login_user_pwd = ttk.Label(self.login_frame, text="密码",justify='left', width=26,style="White.TLabel")
         # 用户名输入框
         self.var_login_user_name = tk.StringVar()
         self.login_entry_user_name = ttk.Entry(
@@ -155,13 +157,13 @@ class LoginForm(tk.Frame):
         # 画布
         # self.canvas = tk.Canvas(self.register_frame, width=600, height=1000, background="#d9d9d9", highlightthickness=0)
         # 标签 用户名、密码、确认密码、邮箱、性别、年龄
-        self.reg_user_name = ttk.Label(self.register_frame, text="用户名 ")
-        self.reg_user_pwd = ttk.Label(self.register_frame, text="密码 ")
-        self.confirm_pwd = ttk.Label(self.register_frame, text="确认密码 ")
-        self.user_school_id = ttk.Label(self.register_frame, text="学工号 ")
-        self.user_sex = ttk.Label(self.register_frame, text="性别 ")
-        self.user_age = ttk.Label(self.register_frame, text="年龄 ")
-        self.user_role = ttk.Label(self.register_frame, text="角色 ")
+        self.reg_user_name = ttk.Label(self.register_frame, text="用户名 ",style="White.TLabel")
+        self.reg_user_pwd = ttk.Label(self.register_frame, text="密码 ",style="White.TLabel")
+        self.confirm_pwd = ttk.Label(self.register_frame, text="确认密码 ",style="White.TLabel")
+        self.user_school_id = ttk.Label(self.register_frame, text="学工号 ",style="White.TLabel")
+        self.user_sex = ttk.Label(self.register_frame, text="性别 ",style="White.TLabel")
+        self.user_age = ttk.Label(self.register_frame, text="年龄 ",style="White.TLabel")
+        self.user_role = ttk.Label(self.register_frame, text="角色 ",style="White.TLabel")
         # 输入框
         # 用户名输入框
         self.var_reg_user_name = tk.StringVar()

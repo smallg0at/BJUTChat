@@ -10,6 +10,7 @@ from client.util.socket_listener import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import colorchooser
 from tkinter import simpledialog
+from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from io import BytesIO
@@ -53,38 +54,20 @@ class ChatForm(tk.Frame):
         dir_flag = os.path.exists(dirname)
         if dir_flag == False:
             os.mkdir(dirname)
-        # if data['parameters']['message']['type'] == 1:
-        #     with open(dirname + '/' + filename, 'wb') as f:
-        #         contents = data['parameters']['message']['data']
-        #         f.write(contents)
-        #         f.close()
-        #     with open(dirname + '/' + filename, 'rb') as f:
-        #         file_format = filetype.guess(dirname + '/' + filename)
-        #         file_format = file_format.extension
-        #         if file_format == None:
-        #             file_format = "txt"
-        #         f.close()
-        #     os.rename(dirname + '/' + filename, (str(dirname + '/' + filename) + '_.' + file_format))
         if data['type'] == MessageType.query_room_users_result:
             if data['parameters'][1] != self.target['id']:
                 return
             self.user_list = data['parameters'][0]
             self.refresh_user_listbox()
-        if data['type'] == MessageType.room_user_on_off_line:
-            if data['parameters'][0] != self.target['id']:
-                return
-            for i in range(0, len(self.user_list)):
-                if self.user_list[i][0] == data['parameters'][1]:
-                    self.user_list[i][2] = data['parameters'][2]
-            self.refresh_user_listbox()
+
 
     """更新好友列表"""
     def refresh_user_listbox(self):
         self.user_listbox.delete(0, END)
-        self.user_list.sort(key=lambda x: x[2])
+        self.user_list.sort(key=lambda x: x[0])
         for user in self.user_list:
-            self.user_listbox.insert(0, user[1] + ("(在线)" if user[2] else "(离线)"))
-            self.user_listbox.itemconfig(0, {'fg': ("blue" if user[2] else "#505050")})
+            self.user_listbox.insert(0, user[1])
+            self.user_listbox.itemconfig(0, {'fg': "#000000"})
 
     """处理消息并将其展示出来"""
     def digest_message(self, data):
@@ -232,23 +215,74 @@ class ChatForm(tk.Frame):
             return None
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
-        selected_user_username = self.user_list[len(self.user_list) - 1 - index][3]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
         if selected_user_id == client.memory.current_user['id']:
             return
         client.memory.contact_window[0].try_open_user_id(selected_user_id,
                                                          selected_user_username)
         return
 
+    def do_userlist_popup(self, event):
+        try:
+            self.userlist_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.userlist_menu.grab_release()
+    
+    def do_adminify_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+
+    def do_remove_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+
     def __init__(self, target, master=None):
         super().__init__(master)
         self.master = master
         self.target = target
-        self.user_listbox = tk.Listbox(self, width=0, bd=0)
-        client.util.socket_listener.add_listener(self.socket_listener)
-        client.memory.unread_message_count[self.target['type']][self.target['id']] = 0
-        client.memory.contact_window[0].refresh_contacts()
         master.resizable(width=True, height=True)
         master.geometry('1160x1000')
+
+        # Notebook
+        self.notebook = ttk.Notebook(self.master,height=999999,width=999999)
+        self.notebook.pack(fill=BOTH, side=TOP)
+
+        self.chat_frame = ttk.Frame(self.notebook)
+        self.user_frame = ttk.Frame(self.notebook)
+
+        # User Frame
+        self.commands_pane = ttk.Frame(self.user_frame)
+        self.commands_pane.pack(side=TOP, fill=X)
+        self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员")
+        self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
+        self.adminify_btn = ttk.Button(self.commands_pane, text="将选定成员设置为管理员", command=self.do_adminify_user)
+        self.adminify_btn.pack(side='left', fill=X, padx=5)
+        self.remove_user_btn = ttk.Button(self.commands_pane, text="移出选定成员", command=self.do_remove_user)
+        self.remove_user_btn.pack(side=LEFT, fill=X, padx=5)
+        self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
+        self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
+        self.user_listbox.bind('<Button-3>', self.do_userlist_popup)
+        self.user_listbox.pack(side=TOP, expand=True, fill=BOTH)
+
+        self.userlist_menu = tk.Menu(self.user_listbox, tearoff=0)
+        self.userlist_menu.add_command(label="设为管理员", command=self.do_adminify_user)
+        self.userlist_menu.add_command(label="踢出群聊", command=self.do_remove_user)
+        
+        # Chat Screen
+        
+        client.util.socket_listener.add_listener(self.socket_listener)
+
+        client.memory.unread_message_count[self.target['type']][self.target['id']] = 0
+        client.memory.contact_window[0].refresh_contacts()
+        
         self.sc = client.memory.sc
         # 私人聊天
         if self.target['type'] == 0:
@@ -258,34 +292,23 @@ class ChatForm(tk.Frame):
             self.master.title("[群:" + str(self.target['id']) + "] " + self.target['room_name'])
             self.sc.send(MessageType.query_room_users, self.target['id'])
 
-        self.right_frame = tk.Frame(self)
 
-        self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
-        if self.target['type'] == 1:
-            self.user_listbox.pack(side=LEFT, expand=False, fill=BOTH)
-
-        self.right_frame.pack(side=LEFT, expand=True, fill=BOTH)
-        self.input_frame = tk.Frame(self.right_frame)
-        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
+        self.input_frame = ttk.Frame(self.chat_frame)
+        self.input_textbox = ScrolledText(self.chat_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
-        self.input_textbox.bind_all('<Key>', self.apply_font_change)
         self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
         self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
-        # self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_color)
-        # self.font_btn.pack(side=LEFT, expand=False)
-        # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
-        # self.font_btn.pack(side=LEFT, expand=False)
         self.image_btn_icon = PhotoImage(file = "./client/forms/assets/sendimage.png").subsample(24) 
         self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
         self.file_btn_icon = PhotoImage(file = "./client/forms/assets/sendfile.png").subsample(24) 
         self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
         self.file_btn.pack(side=LEFT, expand=False)
-        self.chat_box = ScrolledText(self.right_frame)
-        self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
-        self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
-        self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
+        self.chat_box = ScrolledText(self.chat_frame)
+        self.chat_box.pack(side=TOP, fill=BOTH, expand=True)
+        self.input_frame.pack(side=BOTTOM, fill=BOTH, expand=False)
+        self.input_textbox.pack(side=BOTTOM, fill=BOTH, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.bind("<Key>", lambda e: "break")
         self.hyperlink_mgr = HyperlinkManager(self.chat_box)
         self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
@@ -294,7 +317,19 @@ class ChatForm(tk.Frame):
         self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("微软雅黑", 10))
 
-        self.pack(expand=True, fill=BOTH)
+
+        
+
+        # Packup
+        self.pack(expand=True, fill=BOTH, side=TOP)
+        self.chat_frame.pack(side=TOP, expand=True, fill=BOTH)
+        if self.target['type'] == 1:
+            self.user_frame.pack(side=TOP, expand=True, fill=BOTH)
+
+        self.notebook.add(self.chat_frame, text="聊天")
+        if self.target['type'] == 1:
+            self.notebook.add(self.user_frame, text="群成员")
+            pass
 
         add_message_listener(self.target['type'], self.target['id'], self.message_listener)
         master.protocol("WM_DELETE_WINDOW", self.remove_listener_and_close)
