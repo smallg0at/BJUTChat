@@ -74,4 +74,4 @@ def run(sc, parameters):
 
             database.add_to_chat_history(user_id, message['target_id'], message['target_type'],
                                          orjson.dumps(message),
-                                         sent)
+                                         sent, sendtime)

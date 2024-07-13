@@ -107,8 +107,8 @@ class ChatForm(tk.Frame):
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
             self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
-        if data['message']['type'] == 1:
-            self.chat_box.insert(END, f"【文件】{data['message']['basename']}\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
+        if data['message']['type'] == 2:
+            self.chat_box.insert(END, f"【文件】{data['message']['basename']}\n", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -170,7 +170,39 @@ class ChatForm(tk.Frame):
                 ffrom.close()
 
     def save_specific_file(self, uuid, defaultname):
-        pass
+        server_url = get_config()['file_server']
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/image_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+            else:
+                messagebox.showerror("错误", "文件未能成功获取，无法保存")
+                return
+                
+        with filedialog.asksaveasfile(mode="wb", title="保存文件", initialfile=defaultname) as f:
+            with open(f"userdata/file_attachments/{uuid}", 'rb') as ffrom:
+                f.write(ffrom.read())
+                f.close()
+                ffrom.close()
+
+    def open_file(self, uuid):
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/image_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+            else:
+                messagebox.showerror("错误", "文件未能成功获取，无法打开")
+                return
+        
+        # with???
 
     """ 双击聊天框 """
     def user_listbox_double_click(self, _):
@@ -223,6 +255,8 @@ class ChatForm(tk.Frame):
         # self.font_btn.pack(side=LEFT, expand=False)
         self.image_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
+        self.file_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_file)
+        self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
