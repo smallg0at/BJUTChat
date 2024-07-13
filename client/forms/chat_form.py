@@ -24,7 +24,8 @@ from common.config import get_config
 from tempfile import TemporaryFile
 import base64
 import threading
-
+from client.components.HyperlinkManager import HyperlinkManager
+from functools import partial
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -107,30 +108,47 @@ class ChatForm(tk.Frame):
             image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
+            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], "image.png")))
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
         server_url = get_config()['file_server']
-        params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
-        response = requests.get(f'{server_url}/download', params=params1)
 
-        if response.status_code == 200:
-            # Load the full-sized image using Pillow or other image library
-            full_size_image = ImageTk.PhotoImage(data=response.content)
-            client.memory.tk_img_ref.append(full_size_image)
-            print(len(response.content))
+        if(os.path.exists(f"userdata/image_attachments/{file_id}")):
+            with open(file=f"userdata/image_attachments/{file_id}", mode='rb') as f:
+                full_size_image = ImageTk.PhotoImage(file=f)
+                client.memory.tk_img_ref.append(full_size_image)
+                self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+        else: 
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
+            response = requests.get(f'{server_url}/download', params=params1)
 
-            # self.chat_box.image_create(index, image=None)
-                        # self.chat_box.image_create(index, image=None)
-            self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+            if response.status_code == 200:
+                # Load the full-sized image using Pillow or other image library
+                full_size_image = ImageTk.PhotoImage(data=response.content)
+                client.memory.tk_img_ref.append(full_size_image)
+                print(len(response.content))
+                if(not os.path.exists(f"userdata/image_attachments")):
+                    os.makedirs(f"userdata/image_attachments")
+                with open(file=f"userdata/image_attachments/{file_id}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+                # self.chat_box.image_create(index, image=None)
+                            # self.chat_box.image_create(index, image=None)
+                self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
 
-            print("success")
+                print("success")
 
-            print("success")
-            
-        else:
-            print("Error loading full-sized image")
-            self.append_to_chat_box('\n', '')
+            else:
+                print("Error loading full-sized image")
+                self.append_to_chat_box('\n', '')
+
+    def save_specific_image(self, uuid, defaultname):
+        with filedialog.asksaveasfile(mode="wb", title="保存图片", initialfile=defaultname) as f:
+            with open(f"userdata/image_attachments/{uuid}", 'rb') as ffrom:
+                f.write(ffrom.read())
+                f.close()
+                ffrom.close()
 
     """ 双击聊天框 """
     def user_listbox_double_click(self, _):
@@ -172,7 +190,7 @@ class ChatForm(tk.Frame):
 
         self.right_frame.pack(side=LEFT, expand=True, fill=BOTH)
         self.input_frame = tk.Frame(self.right_frame)
-        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5)
+        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
         self.send_btn = ttk.Button(self.input_frame, text='发送消息', command=self.send_message)
@@ -188,6 +206,7 @@ class ChatForm(tk.Frame):
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
         self.chat_box.bind("<Key>", lambda e: "break")
+        self.hyperlink_mgr = HyperlinkManager(self.chat_box)
         self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
         self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 12))
         self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 12))
@@ -257,7 +276,7 @@ class ChatForm(tk.Frame):
         
         if filename is None or filename == '':
             return
-        filename.split('/')
+        basename = os.path.basename(filename)
         image = Image.open(filename)
         small_image = image.resize((128,128))
         fp = TemporaryFile()
@@ -276,5 +295,5 @@ class ChatForm(tk.Frame):
                 print("Sendsize", len(b))
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
-                              'message': {'type': 1, 'data': b, 'uuid': file_id}})
+                              'message': {'type': 1, 'data': b, 'uuid': file_id, 'basename': basename}})
                 print('send image success!')
