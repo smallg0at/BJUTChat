@@ -228,6 +228,9 @@ class ChatForm(tk.Frame):
         finally:
             self.userlist_menu.grab_release()
     
+    def do_send_group_invite(self):
+        target_username = simpledialog.askstring("提示","请输入要邀请的人的用户名")
+
     def do_adminify_user(self):
         if len(self.user_listbox.curselection()) == 0:
             return None
@@ -260,8 +263,8 @@ class ChatForm(tk.Frame):
 
         # User Frame
         self.commands_pane = ttk.Frame(self.user_frame)
-        self.commands_pane.pack(side=TOP, fill=X)
-        self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员")
+        self.commands_pane.pack(side=TOP, fill=X, pady=5)
+        self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员", command=self.do_send_group_invite)
         self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
         self.adminify_btn = ttk.Button(self.commands_pane, text="将选定成员设置为管理员", command=self.do_adminify_user)
         self.adminify_btn.pack(side='left', fill=X, padx=5)

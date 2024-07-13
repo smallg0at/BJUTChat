@@ -40,7 +40,8 @@ class MessageType(enum.IntEnum):
 
     bad = 10
     del_friend = 11
-
+    invite_user_to_a_room = 12
+    resolve_invite_request = 13
     # === Server Action 101-200
     login_successful = 100
     register_successful = 101
@@ -65,6 +66,8 @@ class MessageType(enum.IntEnum):
     del_friend_result = 114
     del_info = 115
     user_is_banned = 116
+    invite_result = 117
+    incoming_invite_request = 118
     # === Failure 201-300
     login_failed = 201
     username_taken = 202
