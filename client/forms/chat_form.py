@@ -222,6 +222,28 @@ class ChatForm(tk.Frame):
                                                          selected_user_username)
         return
 
+    def do_userlist_popup(self, event):
+        try:
+            self.userlist_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.userlist_menu.grab_release()
+    
+    def do_adminify_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+
+    def do_remove_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+
     def __init__(self, target, master=None):
         super().__init__(master)
         self.master = master
@@ -237,11 +259,22 @@ class ChatForm(tk.Frame):
         self.user_frame = ttk.Frame(self.notebook)
 
         # User Frame
-        self.add_to_group_btn = ttk.Button(self.user_frame, text="添加成员")
-        self.add_to_group_btn.pack(side=TOP, fill=X)
+        self.commands_pane = ttk.Frame(self.user_frame)
+        self.commands_pane.pack(side=TOP, fill=X)
+        self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员")
+        self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
+        self.adminify_btn = ttk.Button(self.commands_pane, text="将选定成员设置为管理员", command=self.do_adminify_user)
+        self.adminify_btn.pack(side='left', fill=X, padx=5)
+        self.remove_user_btn = ttk.Button(self.commands_pane, text="移出选定成员", command=self.do_remove_user)
+        self.remove_user_btn.pack(side=LEFT, fill=X, padx=5)
         self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
+        self.user_listbox.bind('<Button-3>', self.do_userlist_popup)
         self.user_listbox.pack(side=TOP, expand=True, fill=BOTH)
+
+        self.userlist_menu = tk.Menu(self.user_listbox, tearoff=0)
+        self.userlist_menu.add_command(label="设为管理员", command=self.do_adminify_user)
+        self.userlist_menu.add_command(label="踢出群聊", command=self.do_remove_user)
         
         # Chat Screen
         
