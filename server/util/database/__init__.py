@@ -117,7 +117,7 @@ def get_room_members(room_id):
         [room_id]).fetchall()))
 
 """将发送方向接收方发送的信息存入数据库,用于历史消息重发"""
-def add_to_chat_history(user_id, target_id, target_type, data, sendtime, sent):
+def add_to_chat_history(user_id, target_id, target_type, data, sent, sendtime):
     c = get_cursor()
     c.execute('INSERT INTO chat_history (user_id,target_id,target_type,data,send_time,sent) VALUES (?,?,?,?,?,?)',
               [user_id, target_id, target_type, data, sendtime, sent])
