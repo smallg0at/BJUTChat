@@ -48,24 +48,22 @@ class ChatForm(tk.Frame):
 
     """监听socket传来的数据"""
     def socket_listener(self, data):
-        init_time = int(time.time())
         dirname = "send_msg_log"
-        filename = str(init_time)
         dir_flag = os.path.exists(dirname)
         if dir_flag == False:
             os.mkdir(dirname)
-        if data['parameters']['message']['type'] == 1:
-            with open(dirname + '/' + filename, 'wb') as f:
-                contents = data['parameters']['message']['data']
-                f.write(contents)
-                f.close()
-            with open(dirname + '/' + filename, 'rb') as f:
-                file_format = filetype.guess(dirname + '/' + filename)
-                file_format = file_format.extension
-                if file_format == None:
-                    file_format = "txt"
-                f.close()
-            os.rename(dirname + '/' + filename, (str(dirname + '/' + filename) + '_.' + file_format))
+        # if data['parameters']['message']['type'] == 1:
+        #     with open(dirname + '/' + filename, 'wb') as f:
+        #         contents = data['parameters']['message']['data']
+        #         f.write(contents)
+        #         f.close()
+        #     with open(dirname + '/' + filename, 'rb') as f:
+        #         file_format = filetype.guess(dirname + '/' + filename)
+        #         file_format = file_format.extension
+        #         if file_format == None:
+        #             file_format = "txt"
+        #         f.close()
+        #     os.rename(dirname + '/' + filename, (str(dirname + '/' + filename) + '_.' + file_format))
         if data['type'] == MessageType.query_room_users_result:
             if data['parameters'][1] != self.target['id']:
                 return
@@ -108,7 +106,9 @@ class ChatForm(tk.Frame):
             image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
-            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], "image.png")))
+            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
+        if data['message']['type'] == 1:
+            self.chat_box.insert(END, f"【文件】{data['message']['basename']}\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -168,6 +168,9 @@ class ChatForm(tk.Frame):
                 f.write(ffrom.read())
                 f.close()
                 ffrom.close()
+
+    def save_specific_file(self, uuid, defaultname):
+        pass
 
     """ 双击聊天框 """
     def user_listbox_double_click(self, _):
