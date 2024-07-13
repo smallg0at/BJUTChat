@@ -65,5 +65,5 @@ def run(sc, parameters):
 
 
     login_bundle['messages'] = database.get_chat_history(user_id)
-    print('Bundle sent. size', login_bundle)
+    print('Bundle sent.')
     sc.send(MessageType.login_bundle, login_bundle)
