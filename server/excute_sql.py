@@ -14,6 +14,7 @@ cur.execute('''CREATE TABLE "chat_history" (
 "target_id"  INTEGER,
 "target_type"  TEXT,
 "data"  BLOB,
+"send_time" TIMESTAMP,
 "sent"  INTEGER,
 PRIMARY KEY ("id" ASC)
 )''')
