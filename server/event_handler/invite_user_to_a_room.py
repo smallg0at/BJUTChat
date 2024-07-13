@@ -86,14 +86,14 @@ def run(sc, parameters):
     username = parameters['username'].strip().lower()
     r = c.execute('SELECT id from users where username=?', [username]).fetchall()
     if len(r) == 0:
-        sc.send(MessageType.general_failure, [False, '所邀请用户名不存在'])
+        sc.send(MessageType.general_failure, '所邀请用户名不存在')
         return
     uid = r[0][0]
     if (uid == inviter_id):
-        sc.send(MessageType.general_failure, [False, '不能邀请自己进群'])
+        sc.send(MessageType.general_failure, '不能邀请自己进群')
         return
     if (not(database.is_friend_with(inviter_id,uid))):
-        sc.send(MessageType.general_failure, [False, '您不能邀请非好友入群'])
+        sc.send(MessageType.general_failure, '您不能邀请非好友入群')
         return
     room_name = parameters[1].strip().lower()
 
