@@ -230,6 +230,7 @@ class ChatForm(tk.Frame):
     
     def do_send_group_invite(self):
         target_username = simpledialog.askstring("提示","请输入要邀请的人的用户名")
+        self.sc.send(MessageType.invite_user_to_a_room, {'username': target_username, 'room_name': self.target['room_name']})
 
     def do_adminify_user(self):
         if len(self.user_listbox.curselection()) == 0:
