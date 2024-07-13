@@ -137,16 +137,16 @@ def get_chat_history(user_id):
 
 def is_teacher(user_id):
     c = get_cursor()
-    r = c.excute('SELECT role FROM users WHERE id=?',[user_id])
+    r = c.execute('SELECT role FROM users WHERE id=?',[user_id])
     if (r == 'teacher'): return 1
     else: return 0
 
 def username_to_id(username):
     c = get_cursor()
-    r = c.excute('SELECT id FROM users WHERE username=?',[username])
+    r = c.execute('SELECT id FROM users WHERE username=?',[username])
     return r
 
 def roomname_to_id(roomname):
     c = get_cursor()
-    r = c.excute('SELECT id FROM rooms WHERE room_name=?',[roomname])
+    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname])
     return r
