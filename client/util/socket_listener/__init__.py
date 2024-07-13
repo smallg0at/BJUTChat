@@ -27,6 +27,8 @@ def gen_last_message(obj):
         return prefix + obj['message']['data'].replace('\n', ' ')
     if obj['message']['type'] == 1:
         return prefix + '[图片消息]'
+    if obj['message']['type'] == 2:
+        return prefix + '[文件消息]'
 
 
 def socket_listener_thread(sc, tk_root):
