@@ -21,7 +21,7 @@ def commit():
 
 def get_user(user_id):
     c = get_cursor()
-    fields = ['id', 'username']
+    fields = ['id', 'username', 'is_banned']
     row = c.execute('SELECT ' + ','.join(fields) + ' FROM users WHERE id=?', [user_id]).fetchall()
     if len(row) == 0:
         return None
