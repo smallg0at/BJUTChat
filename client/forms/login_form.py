@@ -67,6 +67,9 @@ class LoginForm(tk.Frame):
         # sv_ttk.set_theme('dark')
         style = ttk.Style()
         style.configure(".", font=("微软雅黑", 12))
+        style.configure("Contact.TSeparator", background="#000000")
+        style.configure("Contact.TFrame", background="#f0f0f0")
+        style.configure("Contact1.TFrame", background="#f0f0f0")
         
         self.master = master
         self.master.title("BJUTChat")

@@ -24,7 +24,9 @@ from common.config import get_config
 from tempfile import TemporaryFile
 import base64
 import threading
-
+from client.components.HyperlinkManager import HyperlinkManager
+from functools import partial
+import subprocess, os, platform
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -47,24 +49,22 @@ class ChatForm(tk.Frame):
 
     """监听socket传来的数据"""
     def socket_listener(self, data):
-        init_time = int(time.time())
         dirname = "send_msg_log"
-        filename = str(init_time)
         dir_flag = os.path.exists(dirname)
         if dir_flag == False:
             os.mkdir(dirname)
-        if data['parameters']['message']['type'] == 1:
-            with open(dirname + '/' + filename, 'wb') as f:
-                contents = data['parameters']['message']['data']
-                f.write(contents)
-                f.close()
-            with open(dirname + '/' + filename, 'rb') as f:
-                file_format = filetype.guess(dirname + '/' + filename)
-                file_format = file_format.extension
-                if file_format == None:
-                    file_format = "txt"
-                f.close()
-            os.rename(dirname + '/' + filename, (str(dirname + '/' + filename) + '_.' + file_format))
+        # if data['parameters']['message']['type'] == 1:
+        #     with open(dirname + '/' + filename, 'wb') as f:
+        #         contents = data['parameters']['message']['data']
+        #         f.write(contents)
+        #         f.close()
+        #     with open(dirname + '/' + filename, 'rb') as f:
+        #         file_format = filetype.guess(dirname + '/' + filename)
+        #         file_format = file_format.extension
+        #         if file_format == None:
+        #             file_format = "txt"
+        #         f.close()
+        #     os.rename(dirname + '/' + filename, (str(dirname + '/' + filename) + '_.' + file_format))
         if data['type'] == MessageType.query_room_users_result:
             if data['parameters'][1] != self.target['id']:
                 return
@@ -107,30 +107,124 @@ class ChatForm(tk.Frame):
             image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
+            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
+        if data['message']['type'] == 2:
+            self.chat_box.insert(END, f"【文件】{data['message']['basename']} ", "message")
+            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.open_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, " ", "")
+            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "\n", "")
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
         server_url = get_config()['file_server']
-        params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
-        response = requests.get(f'{server_url}/download', params=params1)
 
-        if response.status_code == 200:
-            # Load the full-sized image using Pillow or other image library
-            full_size_image = ImageTk.PhotoImage(data=response.content)
-            client.memory.tk_img_ref.append(full_size_image)
-            print(len(response.content))
-
-            # self.chat_box.image_create(index, image=None)
-                        # self.chat_box.image_create(index, image=None)
+        if(os.path.exists(f"userdata/image_attachments/{file_id}")):
+            full_size_image = self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}"))
+            shrunk_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(full_size_image))
+            client.memory.tk_img_ref.append(shrunk_image)
             self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
+        else: 
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': file_id}
+            response = requests.get(f'{server_url}/download', params=params1)
 
-            print("success")
+            if response.status_code == 200:
+                # Load the full-sized image using Pillow or other image library
+                with open(file=f"userdata/image_attachments/{file_id}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+                full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}")))
+                client.memory.tk_img_ref.append(full_size_image)
+                print(len(response.content))
+                if(not os.path.exists(f"userdata/image_attachments")):
+                    os.makedirs(f"userdata/image_attachments")
+                # self.chat_box.image_create(index, image=None)
+                            # self.chat_box.image_create(index, image=None)
+                self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
 
-            print("success")
-            
-        else:
-            print("Error loading full-sized image")
-            self.append_to_chat_box('\n', '')
+                print("success")
+
+            else:
+                print("Error loading full-sized image")
+                self.append_to_chat_box('\n', '')
+
+    def shrink_image_by_ratio(self, image, longest=1600):
+        height = image.height
+        width = image.width
+        if height > width:
+            if height > longest:
+                # print((int(longest*width/height), longest))
+                return image.resize((int(longest*width/height), longest))
+            else:
+                return image
+        else: 
+            if width > longest:
+                # print(longest, int(longest*height/width))
+                return image.resize((longest, int(longest*height/width)))
+            else:
+                return image
+
+    def save_specific_image(self, uuid, defaultname):
+        if not os.path.exists(f"userdata/image_attachments/{uuid}"):
+            messagebox.showerror("错误", "图片未能成功获取，无法保存")
+            return
+        with filedialog.asksaveasfile(mode="wb", title="保存图片", initialfile=defaultname) as f:
+            with open(f"userdata/image_attachments/{uuid}", 'rb') as ffrom:
+                f.write(ffrom.read())
+                f.close()
+                ffrom.close()
+
+    def save_specific_file(self, uuid, defaultname):
+        server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+            else:
+                messagebox.showerror("错误", "文件未能成功获取，无法保存")
+                return
+                
+        with filedialog.asksaveasfile(mode="wb", title="保存文件", initialfile=defaultname) as f:
+            with open(f"userdata/file_attachments/{uuid}", 'rb') as ffrom:
+                f.write(ffrom.read())
+                f.close()
+                ffrom.close()
+
+    def open_file(self, uuid, defaultname):
+        server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
+        if(not os.path.exists(f"userdata/open_file")):
+            os.makedirs(f"userdata/open_file")
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+            else:
+                messagebox.showerror("错误", "文件未能成功获取，无法打开")
+                return
+        if not os.path.exists(f"userdata/open_file/{defaultname}"):
+            with open(f"userdata/open_file/{defaultname}", 'wb') as f:
+                with open(f"userdata/file_attachments/{uuid}", 'rb') as ffrom:
+                    f.write(ffrom.read())
+                    f.close()
+                    ffrom.close()
+        if platform.system() == 'Darwin':       # macOS
+            subprocess.call(('open', os.path.abspath(f"./userdata/open_file/{defaultname}")))
+        elif platform.system() == 'Windows':    # Windows
+            os.startfile(os.path.abspath(f"./userdata/open_file/{defaultname}"))
+        else:                                   # linux variants
+            subprocess.call(('xdg-open', os.path.abspath(f"./userdata/open_file/{defaultname}")))
 
     """ 双击聊天框 """
     def user_listbox_double_click(self, _):
@@ -172,25 +266,31 @@ class ChatForm(tk.Frame):
 
         self.right_frame.pack(side=LEFT, expand=True, fill=BOTH)
         self.input_frame = tk.Frame(self.right_frame)
-        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5)
+        self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
-        self.send_btn = ttk.Button(self.input_frame, text='发送消息', command=self.send_message)
+        self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
+        self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_color)
         # self.font_btn.pack(side=LEFT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
         # self.font_btn.pack(side=LEFT, expand=False)
-        self.image_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_image)
+        self.image_btn_icon = PhotoImage(file = "./client/forms/assets/sendimage.png").subsample(24) 
+        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
+        self.file_btn_icon = PhotoImage(file = "./client/forms/assets/sendfile.png").subsample(24) 
+        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
+        self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
         self.input_textbox.pack(side=BOTTOM, fill=X, expand=False, padx=(0, 0), pady=(0, 0))
         self.chat_box.pack(side=BOTTOM, fill=BOTH, expand=True)
         self.chat_box.bind("<Key>", lambda e: "break")
+        self.hyperlink_mgr = HyperlinkManager(self.chat_box)
         self.chat_box.tag_config("default", lmargin1=10, lmargin2=10, rmargin=10, font=("微软雅黑", 15))
-        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 15))
-        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 15))
+        self.chat_box.tag_config("me", foreground="green", spacing1='0', font=("微软雅黑", 12))
+        self.chat_box.tag_config("them", foreground="blue", spacing1='0', font=("微软雅黑", 12))
         self.chat_box.tag_config("message", foreground="black", spacing1='0', font=("微软雅黑", 15))
         self.chat_box.tag_config("system", foreground="#505050", spacing1='0', justify='center', font=("微软雅黑", 10))
 
@@ -257,7 +357,7 @@ class ChatForm(tk.Frame):
         
         if filename is None or filename == '':
             return
-        filename.split('/')
+        basename = os.path.basename(filename)
         image = Image.open(filename)
         small_image = image.resize((128,128))
         fp = TemporaryFile()
@@ -276,5 +376,28 @@ class ChatForm(tk.Frame):
                 print("Sendsize", len(b))
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
-                              'message': {'type': 1, 'data': b, 'uuid': file_id}})
+                              'message': {'type': 1, 'data': b, 'uuid': file_id, 'basename': basename}})
                 print('send image success!')
+                messagebox.showinfo("提示", "图片发送成功")
+            else:
+                messagebox.showerror("提示", f"图片发送失败。错误码：{response.status_code}")
+    def send_file(self):
+        filename = filedialog.askopenfilename()
+        
+        if filename is None or filename == '':
+            return
+        basename = os.path.basename(filename)
+        with open(filename, "rb") as imageFile:
+            files = {'file': imageFile}
+            data = {'user_id': client.memory.current_user['id']}
+            server_url = get_config()['file_server']
+            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            if(response.status_code == 200):
+                file_id = response.json().get('file_id')
+                self.sc.send(MessageType.send_message,
+                             {'target_type': self.target['type'], 'target_id': self.target['id'],
+                              'message': {'type': 2, 'uuid': file_id, 'basename': basename}})
+                print('send file success!')
+                messagebox.showinfo("提示", "文件发送成功")
+            else:
+                messagebox.showerror("提示", f"文件发送失败。错误码：{response.status_code}")

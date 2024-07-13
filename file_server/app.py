@@ -11,8 +11,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # 确保上传文件夹存在
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(f'file_server/{UPLOAD_FOLDER}'):
+    os.makedirs(f'file_server/{UPLOAD_FOLDER}')
 
 def allowed_file(filename):
     return True

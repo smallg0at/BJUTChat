@@ -9,9 +9,7 @@ import nacl.utils
 from nacl.public import PrivateKey, Box
 import nacl.encoding
 
-config = get_config()
-base = config['crypto']['base']
-modulus = config['crypto']['modulus']
+
 
 """生成公私钥并保存到文件中"""
 def gen_secret():
