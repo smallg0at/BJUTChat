@@ -26,6 +26,7 @@ import base64
 import threading
 from client.components.HyperlinkManager import HyperlinkManager
 from functools import partial
+import subprocess, os, platform
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -108,7 +109,11 @@ class ChatForm(tk.Frame):
             self.append_to_chat_box('\n', '')
             self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
         if data['message']['type'] == 2:
-            self.chat_box.insert(END, f"【文件】{data['message']['basename']}\n", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, f"【文件】{data['message']['basename']} ", "message")
+            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.open_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, " ", "")
+            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "\n", "")
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -171,12 +176,14 @@ class ChatForm(tk.Frame):
 
     def save_specific_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
         if not os.path.exists(f"userdata/file_attachments/{uuid}"):
             params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
             response = requests.get(f'{server_url}/download', params=params1)
 
             if response.status_code == 200:
-                with open(file=f"userdata/image_attachments/{uuid}", mode='wb') as f:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
                     f.write(response.content)
                     f.close()
             else:
@@ -189,20 +196,35 @@ class ChatForm(tk.Frame):
                 f.close()
                 ffrom.close()
 
-    def open_file(self, uuid):
+    def open_file(self, uuid, defaultname):
+        server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
+        if(not os.path.exists(f"userdata/open_file")):
+            os.makedirs(f"userdata/open_file")
         if not os.path.exists(f"userdata/file_attachments/{uuid}"):
             params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
             response = requests.get(f'{server_url}/download', params=params1)
 
             if response.status_code == 200:
-                with open(file=f"userdata/image_attachments/{uuid}", mode='wb') as f:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
                     f.write(response.content)
                     f.close()
             else:
                 messagebox.showerror("错误", "文件未能成功获取，无法打开")
                 return
-        
-        # with???
+        if not os.path.exists(f"userdata/open_file/{defaultname}"):
+            with open(f"userdata/open_file/{defaultname}", 'wb') as f:
+                with open(f"userdata/file_attachments/{uuid}", 'rb') as ffrom:
+                    f.write(ffrom.read())
+                    f.close()
+                    ffrom.close()
+        if platform.system() == 'Darwin':       # macOS
+            subprocess.call(('open', os.path.abspath(f"./userdata/open_file/{defaultname}")))
+        elif platform.system() == 'Windows':    # Windows
+            os.startfile(os.path.abspath(f"./userdata/open_file/{defaultname}"))
+        else:                                   # linux variants
+            subprocess.call(('xdg-open', os.path.abspath(f"./userdata/open_file/{defaultname}")))
 
     """ 双击聊天框 """
     def user_listbox_double_click(self, _):
@@ -247,15 +269,18 @@ class ChatForm(tk.Frame):
         self.input_textbox = ScrolledText(self.right_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
         self.input_textbox.bind_all('<Key>', self.apply_font_change)
-        self.send_btn = ttk.Button(self.input_frame, text='发送消息', command=self.send_message)
+        self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
+        self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体颜色', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_color)
         # self.font_btn.pack(side=LEFT, expand=False)
         # self.font_btn = tk.Button(self.input_frame, text='字体大小', font=("微软雅黑", 16, 'bold'), fg="black", relief=GROOVE, command=self.choose_font_size)
         # self.font_btn.pack(side=LEFT, expand=False)
-        self.image_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_image)
+        self.image_btn_icon = PhotoImage(file = "./client/forms/assets/sendimage.png").subsample(24) 
+        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
-        self.file_btn = ttk.Button(self.input_frame, text='发送图片', command=self.send_file)
+        self.file_btn_icon = PhotoImage(file = "./client/forms/assets/sendfile.png").subsample(24) 
+        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
         self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.right_frame)
         self.input_frame.pack(side=BOTTOM, fill=X, expand=False)
