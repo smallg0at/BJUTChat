@@ -56,3 +56,4 @@ def run(sc, parameters):
     sc.send(MessageType.add_friend_result, [True, ''])
     if uid in user_id_to_sc:
         user_id_to_sc[uid].send(MessageType.incoming_friend_request, database.get_user(user_id))
+        

@@ -85,6 +85,10 @@ def socket_listener_thread(sc, tk_root):
                     if data['type'] == MessageType.server_kick:
                         messagebox.showerror("出错了", '您的账户在别处登入')
                         client.memory.tk_root.destroy()
+                    
+                    if data['type'] == MessageType.user_is_banned:
+                        messagebox.showerror('您已被封禁，请联系管理员')
+                        client.memory.tk_root.destroy()
 
                     if data['type'] == MessageType.server_echo:
                         pprint(['server echo', data['parameters']])
