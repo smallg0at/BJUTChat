@@ -94,7 +94,7 @@ def get_room(room_id):
 
 def in_room(user_id, room_id):
     c = get_cursor()
-    r = c.execute('SELECT 1 FROM room_user WHERE user_id=? AND room_id=? ',
+    r = c.execute('SELECT * FROM room_user WHERE user_id=? AND room_id=? ',
                   [user_id, room_id]).fetchall()
     return len(r) > 0
 
@@ -137,16 +137,17 @@ def get_chat_history(user_id):
 
 def is_teacher(user_id):
     c = get_cursor()
-    r = c.execute('SELECT role FROM users WHERE id=?',[user_id])
-    if (r == 'teacher'): return 1
-    else: return 0
+    r = c.execute('SELECT role FROM users WHERE id=?',[user_id]).fetchone()
+    print(r[0])
+    if (r[0] == 'teacher'): return True
+    else: return False
 
 def username_to_id(username):
     c = get_cursor()
-    r = c.execute('SELECT id FROM users WHERE username=?',[username])
+    r = c.execute('SELECT id FROM users WHERE username=?',[username]).fetchone()[0]
     return r
 
 def roomname_to_id(roomname):
     c = get_cursor()
-    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname])
+    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname]).fetchone()[0]
     return r
