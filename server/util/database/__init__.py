@@ -157,3 +157,51 @@ def user_schoolid_to_id(username):
     c = get_cursor()
     r = c.execute('SELECT id FROM users WHERE school_id=?',[username]).fetchone()[0]
     return r
+
+def add_user_to_room_blacklist(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('INSERT INTO room_blacklists (user_id,room_id) VALUES (?,?) ',
+                  [user_id, room_id])
+    return r
+
+def remove_user_from_room_blacklist(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('DELETE FROM room_blacklists WHERE (user_id=?) AND (room_id=?)',
+                  [user_id, room_id])
+    return r
+
+def remove_user_from_room(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('DELETE FROM room_user WHERE (user_id=?) AND (room_id=?)',[user_id,room_id])
+    return r
+
+def add_user_to_room_manager(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('INSERT INTO rooms (id,manager) VALUES (?,?)',
+                  [room_id,user_id])
+    return r
+
+def remove_user_from_room_manager(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('DELETE FROM rooms WHERE (room_id=?) AND (user_id=?)',
+                  [room_id,user_id])
+    return r
+
+def is_room_manager(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('SELECT * FROM rooms WHERE (id=?) AND (manager=?)',[room_id,user_id]).fetchone()
+    if (len(r>0)): return True
+    else: return False
+
+def is_room_creator(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('SELECT * FROM rooms WHERE (id=?) AND (room_creator=?)',[room_id,user_id]).fetchone()
+    if (len(r>0)): return True
+    else: return False
+
+def is_in_room_blacklist(user_id,room_id):
+    c = get_cursor()
+    r = c.execute('SELECT FROM room_blacklists WHERE (user_id=?) AND (room_id=?)',
+                  [user_id, room_id])
+    if (len(r>0)): return True
+    else: return r
