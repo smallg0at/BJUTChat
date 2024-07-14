@@ -4,7 +4,6 @@
 """联系人列表 UI"""
 from tkinter import *
 from tkinter import ttk
-from pprint import pprint
 from common.util import resourcePath
 """"联系人界面"""
 class AnnouncementEntry(Frame):

@@ -13,11 +13,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
-from io import BytesIO
-from client.util import socket_listener
-import binascii
-import time
-import filetype
+import datetime
 import os
 from PIL import Image
 import requests
