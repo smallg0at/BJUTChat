@@ -29,6 +29,7 @@ def run(sc, parameters):
     # target_id在后面填入，对于发送方和接收方不一样
     message = {"message": parameters['message'], 'sender_id': user_id,
                'sender_name': sender['username'],
+               'sender_school_id': sender['school_id'],
                'target_type': parameters['target_type'],
                'time': sendtime}
 

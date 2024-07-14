@@ -14,7 +14,7 @@ from pprint import pprint
 def run(sc, parameters):
     parameters[0] = parameters[0].strip().lower()
     c = database.get_cursor()
-    r = c.execute('SELECT id,username from users where username=? and password=?', (parameters[0], md5(parameters[1])))
+    r = c.execute('SELECT id,username,school_id from users where school_id=? and password=?', (parameters[0], md5(parameters[1])))
     rows = r.fetchall()
 
     if len(rows) == 0:

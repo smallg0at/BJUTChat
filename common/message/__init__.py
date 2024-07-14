@@ -70,7 +70,7 @@ class MessageType(enum.IntEnum):
     incoming_invite_request = 118
     # === Failure 201-300
     login_failed = 201
-    username_taken = 202
+    school_id_taken = 202
     # err_msg:str
     general_failure = 203
     # msg:str

@@ -74,7 +74,7 @@ class ChatForm(tk.Frame):
         time = datetime.datetime.fromtimestamp(
             int(data['time']) / 1000
         ).strftime('%Y-%m-%d %H:%M:%S')
-        self.append_to_chat_box(data['sender_name'] + "  " + time + '\n',
+        self.append_to_chat_box(f"{data['sender_name']} ({data['sender_scholl_id']}) {time}\n",
                                 ('me' if client.memory.current_user['id'] == data[
                                     'sender_id'] else 'them'))
         # type 0 - 文字消息 1 - 图片消息
