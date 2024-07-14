@@ -12,4 +12,5 @@ from server.util import database
 
 
 def run(sc, parameters):
-    a = 1 / 0
+    # a = 1 / 0
+    print("SERVER STOP INITIATED")
