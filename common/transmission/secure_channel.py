@@ -127,13 +127,14 @@ def accept_client_to_secure_channel(socket):
 
     # 首次连接，客户端会发送公钥
     try:
-        uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {uuid.decode()}")
+        uuid_recv = conn.recv(1024)
+        print(f"Incoming user with uuid {uuid_recv.decode()}")
+        uuid.UUID(uuid_recv)
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + uuid.decode() + "_cert.pem"
+    certname = "cert/" + uuid_recv.decode() + "_cert.pem"
 
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:

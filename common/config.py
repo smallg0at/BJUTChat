@@ -5,8 +5,10 @@
 
 import json
 from pprint import pprint
+from os import path
+path_to_dat = path.abspath(path.join(path.dirname(__file__), '../config.json'))
 
-with open('config.json') as config_file:
+with open(path_to_dat) as config_file:
     config = json.load(config_file)
 
 
