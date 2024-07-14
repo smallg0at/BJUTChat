@@ -56,14 +56,13 @@ class ContactsForm(tk.Frame):
             self.refresh_contacts()
 
         if data['type'] == MessageType.incoming_friend_request:
-            result = messagebox.askyesnocancel("好友请求", data['parameters']['username'] + "请求加您为好友，是否同意？(按Cancel为下次再询问)");
+            result = messagebox.askyesnocancel("好友请求", data['parameters']['username'] + "请求加您为好友，是否同意？(按取消为下次再询问)");
             if result == None:
                 return
             self.sc.send(MessageType.resolve_friend_request, [data['parameters']['id'], result])
 
         if data['type'] == MessageType.contact_info:
             self.handle_new_contact(data['parameters'])
-            print("Handling Groups...", data['parameters'])
             return
 
         if data['type'] == MessageType.del_info:
@@ -148,6 +147,11 @@ class ContactsForm(tk.Frame):
             return
         self.sc.send(MessageType.create_room, result)
 
+    def on_alter_username(self):
+        result = simpledialog.askstring('更改用户名', '请输入新用户名')
+        if (not result):
+            return
+        self.sc.send(MessageType.alter_username, {'new_username': result})
     class my_event:
         widget = None
         def __init__(self, widget):
@@ -231,7 +235,7 @@ class ContactsForm(tk.Frame):
         super().__init__(master)
         master.option_add('*tearOff', FALSE)
         self.master = master
-        self.master.title(client.memory.current_user['username'] + " - 联系人")
+        self.master.title(f"{client.memory.current_user['username']} ({client.memory.current_user['school_id']}) - 联系人")
         # master.resizable(width=False, height=False)
         master.geometry('800x1280')
 
@@ -245,7 +249,8 @@ class ContactsForm(tk.Frame):
         self.menu.add_command(label="添加好友", command=self.on_add_friend)
         self.menu.add_command(label="删除好友", command=self.on_del_friend)
         self.menu.add_command(label="新建群聊", command=self.on_create_room)
-        self.menu.add_command(label="添加群聊", command=self.on_add_room)
+        self.menu.add_command(label="加入群聊", command=self.on_add_room)
+        self.menu.add_command(label="更改用户名", command=self.on_alter_username)
 
 
         self.menu_btn.pack(side=LEFT)
