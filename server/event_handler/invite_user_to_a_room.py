@@ -110,7 +110,7 @@ def run(sc, parameters):
     if (database.is_teacher(inviter_id)):
         database.add_to_room(user_id, room_id)
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-        sc.send(MessageType.contact_info, add_target_type(room, 1))
+        sc.send(MessageType.query_room_users_result, [database.get_room_members(room_id), room_id])
         sc.send(MessageType.general_msg, f'强制添加成功：{school_id}')
     else:
         if (not(database.is_friend_with(inviter_id,uid))):

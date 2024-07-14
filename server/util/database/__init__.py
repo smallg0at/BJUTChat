@@ -103,6 +103,7 @@ def add_to_room(user_id, room_id):
     c = get_cursor()
     r = c.execute('INSERT INTO room_user (user_id,room_id) VALUES (?,?) ',
                   [user_id, room_id])
+    commit()
 
 
 def get_room_members_id(room_id):
