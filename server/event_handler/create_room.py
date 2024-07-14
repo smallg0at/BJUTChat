@@ -15,7 +15,7 @@ from server.util import add_target_type
 def run(sc, parameters):
     user_id = server.memory.sc_to_user_id[sc]
     c = database.get_cursor()
-    c.execute("insert into rooms (room_name) values (?)", [parameters])
+    c.execute("insert into rooms (room_name,room_creator,manager) values (?,?,?)", [parameters,user_id,user_id])
     sc.send(MessageType.contact_info, add_target_type(database.get_room(c.lastrowid), 1))
     database.add_to_room(user_id, c.lastrowid)
     sc.send(MessageType.general_msg, '创建成功，群号为：' + str(c.lastrowid))

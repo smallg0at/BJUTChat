@@ -22,6 +22,11 @@ def run(sc, parameters):
     if room is None:
         sc.send(MessageType.general_failure, '群不存在')
         return
-    database.add_to_room(user_id, parameters)
-    #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-    sc.send(MessageType.contact_info, add_target_type(room, 1))
+    if (not database.is_in_room_blacklist(user_id,parameters)):
+        database.add_to_room(user_id, parameters)
+        #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
+        sc.send(MessageType.contact_info, add_target_type(room, 1))
+        return
+    else: 
+        sc.send(MessageType.general_failure, '您已被该群管理员加入黑名单，如有疑问请联系群管理员')
+        return
