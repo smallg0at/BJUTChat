@@ -33,6 +33,7 @@ cur.execute('''CREATE TABLE "rooms" (
 "room_name"  TEXT,
 "created_time" DATE,
 "room_creator" TEXT,
+"manager", TEXT,
 PRIMARY KEY ("id")
 )''')
 conn.commit() 
@@ -52,7 +53,6 @@ cur.execute('''CREATE TABLE "users" (
 "school_id"  TEXT,
 "sex"  TEXT,
 "role" TEXT,
-"nickname" TEXT,
 "is_banned" INTERGER,
 PRIMARY KEY ("id" ASC)
 );''')
@@ -66,6 +66,13 @@ cur.execute('''CREATE TABLE "announcements" (
 "content" TEXT,
 "send_time" DATE,
 "expiry_time" DATE,
+PRIMARY KEY ("id" ASC)
+);''')
+cur.execute('''DROP TABLE IF EXISTS "main"."room_blacklists"''')
+cur.execute('''CREATE TABLE "room_blacklists" (
+"id"  INTEGER NOT NULL,
+"room_id",
+"user_id",
 PRIMARY KEY ("id" ASC)
 );''')
 # cur.execute('''DROP TABLE IF EXISTS "main"."chat_history"''')

@@ -68,6 +68,16 @@ class MessageType(enum.IntEnum):
     invite_result = 117
     incoming_invite_request = 118
     rename_result = 119
+    add_user_to_room_blacklist = 120
+    remove_user_from_room_blacklist = 121
+    remove_user_from_room = 122
+    add_user_to_room_manager = 123
+    remove_user_from_room_manager = 124
+    add_user_to_room_blacklist_result = 125
+    remove_user_from_room_blacklist_result = 126
+    remove_user_from_room_result = 127
+    add_user_to_room_manager_result = 128
+    remove_user_from_room_manager_result = 129
     # === Failure 201-300
     login_failed = 201
     school_id_taken = 202
