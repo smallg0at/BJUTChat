@@ -92,12 +92,10 @@ def run(sc, parameters):
     if (uid == inviter_id):
         sc.send(MessageType.general_failure, '不能邀请自己进群')
         return
-    if (not(database.is_friend_with(inviter_id,uid))):
-        sc.send(MessageType.general_failure, '您不能邀请非好友入群')
-        return
+    
     room_name = parameters['room_name'].strip().lower()
 
-    user_id = database.username_to_id(school_id)
+    user_id = database.user_schoolid_to_id(school_id)
     room_id = database.roomname_to_id(room_name)
     
         
@@ -110,10 +108,17 @@ def run(sc, parameters):
         sc.send(MessageType.general_failure, '群不存在')
         return
     if (database.is_teacher(inviter_id)):
-        database.add_to_room(user_id, parameters)
+        database.add_to_room(user_id, room_id)
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
         sc.send(MessageType.contact_info, add_target_type(room, 1))
+        sc.send(MessageType.general_msg, f'强制添加成功：{school_id}')
     else:
-        sc.send(MessageType.general_failure, '只有老师能够邀请用户入群')
-        return
+        if (not(database.is_friend_with(inviter_id,uid))):
+            sc.send(MessageType.general_failure, '您不能邀请非好友入群')
+            return
+        else:
+            database.add_to_room(user_id, room_id)
+            #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
+            sc.send(MessageType.contact_info, add_target_type(room, 1))
+            sc.send(MessageType.general_msg, f'添加成功：{school_id}')
 
