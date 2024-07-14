@@ -139,7 +139,7 @@ def is_teacher(user_id):
     c = get_cursor()
     r = c.execute('SELECT role FROM users WHERE id=?',[user_id]).fetchone()
     print(r[0])
-    if (r[0] == 'teacher'): return True
+    if (r[0] == '1'): return True
     else: return False
 
 def username_to_id(username):
