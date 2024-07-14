@@ -117,14 +117,14 @@ class ContactsForm(tk.Frame):
 
     """ 添加好友 """
     def on_add_friend(self):
-        result = simpledialog.askstring('添加好友', '请输入用户名')
+        result = simpledialog.askstring('添加好友', '请输入学工号')
         if (not result):
             return
         self.sc.send(MessageType.add_friend, result)
 
     """ 删除好友 """
     def on_del_friend(self):
-        result = simpledialog.askstring('删除好友', '请输入用户名')
+        result = simpledialog.askstring('删除好友', '请输入学工号')
         if (not result):
             return
         self.sc.send(MessageType.del_friend, result)
@@ -197,8 +197,8 @@ class ContactsForm(tk.Frame):
             contact.bind("<Button>", self.on_frame_click)
             if (item['type'] == 0):
                 # 联系人
-                contact.title.config(text=item['username'] + (' (在线)' if item['online'] else ' (离线)'))
-                contact.title.config(fg='blue' if item['online'] else '#505050', )
+                contact.title.config(text=f"{item['username']} ({item['school_id']})")
+                contact.title.config(fg='#000000')
             if (item['type'] == 1):
                 # 群
                 contact.title.config(text='[群:' + str(item['id']) + '] ' + item['room_name'])

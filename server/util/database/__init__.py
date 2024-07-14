@@ -21,7 +21,7 @@ def commit():
 
 def get_user(user_id):
     c = get_cursor()
-    fields = ['id', 'username', 'is_banned']
+    fields = ['id', 'username', 'school_id', 'is_banned']
     row = c.execute('SELECT ' + ','.join(fields) + ' FROM users WHERE id=?', [user_id]).fetchall()
     if len(row) == 0:
         return None
@@ -113,8 +113,8 @@ def get_room_members_id(room_id):
 
 def get_room_members(room_id):
     # [id,  online, username]
-    return list(map(lambda x: [x[0], x[1]], get_cursor().execute(
-        'SELECT user_id,username FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
+    return list(map(lambda x: [x[0], x[1], x[2]], get_cursor().execute(
+        'SELECT user_id,username,school_id FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
         [room_id]).fetchall()))
 
 """将发送方向接收方发送的信息存入数据库,用于历史消息重发"""
@@ -151,4 +151,9 @@ def username_to_id(username):
 def roomname_to_id(roomname):
     c = get_cursor()
     r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname]).fetchone()[0]
+    return r
+
+def user_schoolid_to_id(username):
+    c = get_cursor()
+    r = c.execute('SELECT id FROM users WHERE school_id=?',[username]).fetchone()[0]
     return r
