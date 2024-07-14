@@ -67,6 +67,7 @@ class MessageType(enum.IntEnum):
     user_is_banned = 116
     invite_result = 117
     incoming_invite_request = 118
+    rename_result = 119
     # === Failure 201-300
     login_failed = 201
     school_id_taken = 202
