@@ -117,14 +117,14 @@ class ContactsForm(tk.Frame):
 
     """ 添加好友 """
     def on_add_friend(self):
-        result = simpledialog.askstring('添加好友', '请输入用户名')
+        result = simpledialog.askstring('添加好友', '请输入学工号')
         if (not result):
             return
         self.sc.send(MessageType.add_friend, result)
 
     """ 删除好友 """
     def on_del_friend(self):
-        result = simpledialog.askstring('删除好友', '请输入用户名')
+        result = simpledialog.askstring('删除好友', '请输入学工号')
         if (not result):
             return
         self.sc.send(MessageType.del_friend, result)

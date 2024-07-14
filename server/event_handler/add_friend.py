@@ -29,10 +29,10 @@ def run(sc, parameters):
     c = database.get_cursor()
     username = parameters.strip().lower()
 
-    r = c.execute('SELECT id from users where username=?', [username]).fetchall()
+    r = c.execute('SELECT id from users where school_id=?', [username]).fetchall()
 
     if len(r) == 0:
-        sc.send(MessageType.add_friend_result, [False, '用户名不存在'])
+        sc.send(MessageType.add_friend_result, [False, '学工号不存在'])
         return
 
     #好友被加方uid
