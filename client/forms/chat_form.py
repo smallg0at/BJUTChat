@@ -66,7 +66,7 @@ class ChatForm(tk.Frame):
         self.user_listbox.delete(0, END)
         self.user_list.sort(key=lambda x: x[0])
         for user in self.user_list:
-            self.user_listbox.insert(0, user[1])
+            self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
             self.user_listbox.itemconfig(0, {'fg': "#000000"})
 
     """处理消息并将其展示出来"""
@@ -74,7 +74,7 @@ class ChatForm(tk.Frame):
         time = datetime.datetime.fromtimestamp(
             int(data['time']) / 1000
         ).strftime('%Y-%m-%d %H:%M:%S')
-        self.append_to_chat_box(data['sender_name'] + "  " + time + '\n',
+        self.append_to_chat_box(f"{data['sender_name']} ({data['sender_school_id']}) {time}\n",
                                 ('me' if client.memory.current_user['id'] == data[
                                     'sender_id'] else 'them'))
         # type 0 - 文字消息 1 - 图片消息
@@ -229,7 +229,8 @@ class ChatForm(tk.Frame):
             self.userlist_menu.grab_release()
     
     def do_send_group_invite(self):
-        target_username = simpledialog.askstring("提示","请输入要邀请的人的用户名")
+        target_schoolid = simpledialog.askstring("提示","请输入要邀请的人的学工号")
+        self.sc.send(MessageType.invite_user_to_a_room, {'school_id': target_schoolid, 'room_name': self.target['room_name']})
 
     def do_adminify_user(self):
         if len(self.user_listbox.curselection()) == 0:

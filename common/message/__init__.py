@@ -38,10 +38,10 @@ class MessageType(enum.IntEnum):
     # id:int
     query_room_users = 9
 
-    bad = 10
     del_friend = 11
     invite_user_to_a_room = 12
     resolve_invite_request = 13
+    alter_username = 14
     # === Server Action 101-200
     login_successful = 100
     register_successful = 101
@@ -61,16 +61,16 @@ class MessageType(enum.IntEnum):
     server_kick = 110
     query_room_users_result = 111
     # [room_id, user_id, online]
-    room_user_on_off_line = 112
     login_bundle = 113
     del_friend_result = 114
     del_info = 115
     user_is_banned = 116
     invite_result = 117
     incoming_invite_request = 118
+    rename_result = 119
     # === Failure 201-300
     login_failed = 201
-    username_taken = 202
+    school_id_taken = 202
     # err_msg:str
     general_failure = 203
     # msg:str

@@ -21,7 +21,7 @@ def commit():
 
 def get_user(user_id):
     c = get_cursor()
-    fields = ['id', 'username', 'is_banned']
+    fields = ['id', 'username', 'school_id', 'is_banned']
     row = c.execute('SELECT ' + ','.join(fields) + ' FROM users WHERE id=?', [user_id]).fetchall()
     if len(row) == 0:
         return None
@@ -94,7 +94,7 @@ def get_room(room_id):
 
 def in_room(user_id, room_id):
     c = get_cursor()
-    r = c.execute('SELECT 1 FROM room_user WHERE user_id=? AND room_id=? ',
+    r = c.execute('SELECT * FROM room_user WHERE user_id=? AND room_id=? ',
                   [user_id, room_id]).fetchall()
     return len(r) > 0
 
@@ -103,6 +103,7 @@ def add_to_room(user_id, room_id):
     c = get_cursor()
     r = c.execute('INSERT INTO room_user (user_id,room_id) VALUES (?,?) ',
                   [user_id, room_id])
+    commit()
 
 
 def get_room_members_id(room_id):
@@ -112,8 +113,8 @@ def get_room_members_id(room_id):
 
 def get_room_members(room_id):
     # [id,  online, username]
-    return list(map(lambda x: [x[0], x[1]], get_cursor().execute(
-        'SELECT user_id,username FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
+    return list(map(lambda x: [x[0], x[1], x[2]], get_cursor().execute(
+        'SELECT user_id,username,school_id FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
         [room_id]).fetchall()))
 
 """将发送方向接收方发送的信息存入数据库,用于历史消息重发"""
@@ -137,16 +138,22 @@ def get_chat_history(user_id):
 
 def is_teacher(user_id):
     c = get_cursor()
-    r = c.execute('SELECT role FROM users WHERE id=?',[user_id])
-    if (r == 'teacher'): return 1
-    else: return 0
+    r = c.execute('SELECT role FROM users WHERE id=?',[user_id]).fetchone()
+    print(r[0])
+    if (r[0] == '1'): return True
+    else: return False
 
 def username_to_id(username):
     c = get_cursor()
-    r = c.execute('SELECT id FROM users WHERE username=?',[username])
+    r = c.execute('SELECT id FROM users WHERE username=?',[username]).fetchone()[0]
     return r
 
 def roomname_to_id(roomname):
     c = get_cursor()
-    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname])
+    r = c.execute('SELECT id FROM rooms WHERE room_name=?',[roomname]).fetchone()[0]
+    return r
+
+def user_schoolid_to_id(username):
+    c = get_cursor()
+    r = c.execute('SELECT id FROM users WHERE school_id=?',[username]).fetchone()[0]
     return r
