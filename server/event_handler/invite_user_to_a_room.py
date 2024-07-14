@@ -83,7 +83,7 @@ def run(sc, parameters):
     inviter_id = server.memory.sc_to_user_id[sc]
 
     c = database.get_cursor()
-    school_id = parameters['username'].strip().lower()
+    school_id = parameters['school_id'].strip().lower()
     r = c.execute('SELECT id from users where school_id=?', [school_id]).fetchall()
     if len(r) == 0:
         sc.send(MessageType.general_failure, '所邀请用户名不存在')
