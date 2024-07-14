@@ -25,6 +25,7 @@ import orjson
 from client.components.announcement_entry import AnnouncementEntry
 from client.forms.announcements_form import AnnouncementApp
 from client.components.HyperlinkManager import HyperlinkManager
+from common.util import resourcePath
 class ContactsForm(tk.Frame):
     bundle_process_done = False
 
@@ -241,7 +242,7 @@ class ContactsForm(tk.Frame):
 
         self.top_layout = Frame(self, relief='flat')
         self.top_layout.pack(side=TOP, fill='both')
-        self.menuicn = PhotoImage(file = "./client/forms/assets/globnav.png").subsample(18) 
+        self.menuicn = PhotoImage(file = resourcePath("./client/forms/assets/globnav.png")).subsample(18) 
         self.menu_btn = ttk.Menubutton(self.top_layout, image=self.menuicn, text=" 菜单", compound=LEFT, width=5)
         self.menu = Menu(self.menu_btn, font=("微软雅黑", 12), background="#ffffff", relief=FLAT)
         self.menu_btn['menu'] = self.menu
