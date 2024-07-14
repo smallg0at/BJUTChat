@@ -14,7 +14,7 @@ from common.util import md5
 from server.util import database
 
 def run(sc, parameters):
-    parameters[0] = parameters[0].strip().lower()
+    parameters[0] = parameters[0].strip()
     parameters[1] = parameters[1].strip()
     parameters[2] = parameters[2].strip().lower()
 
