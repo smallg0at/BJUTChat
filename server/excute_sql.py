@@ -62,6 +62,7 @@ cur.execute('''CREATE TABLE "announcements" (
 "id"  INTEGER NOT NULL,
 "visible_to_students"  INTEGER DEFAULT 1,
 "visible_to_teachers"  INTEGER DEFAULT 1,
+"title" TEXT,
 "content" TEXT,
 "send_time" DATE,
 "expiry_time" DATE,

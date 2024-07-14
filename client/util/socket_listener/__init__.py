@@ -90,6 +90,10 @@ def socket_listener_thread(sc, tk_root):
                         messagebox.showerror("错误",'您已被封禁，请联系管理员')
                         client.memory.tk_root.destroy()
 
+                    if data['type'] == MessageType.rename_result:
+                        messagebox.showinfo("提示",f'您已改名成功，请重新登录。')
+                        client.memory.tk_root.destroy()
+
                     if data['type'] == MessageType.server_echo:
                         pprint(['server echo', data['parameters']])
 
