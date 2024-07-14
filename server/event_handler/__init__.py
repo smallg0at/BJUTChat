@@ -21,8 +21,8 @@ import server.event_handler.del_friend
 import server.event_handler.join_room
 import server.event_handler.create_room
 import server.event_handler.query_room_users
-import server.event_handler.bad
 import server.event_handler.invite_user_to_a_room
+import server.event_handler.alter_username
 from common.message import MessageType
 
 event_handler_map = {
@@ -38,7 +38,7 @@ event_handler_map = {
     MessageType.create_room: create_room,
     MessageType.query_room_users: query_room_users,
     MessageType.invite_user_to_a_room: invite_user_to_a_room,
-    MessageType.bad: bad,
+    MessageType.alter_username: alter_username
 }
 
 
