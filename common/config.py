@@ -5,10 +5,20 @@
 
 import json
 from pprint import pprint
-from os import path
-path_to_dat = path.abspath(path.join(path.dirname(__file__), '../config.json'))
+import sys, os
 
-with open(path_to_dat) as config_file:
+
+def resourcePath(relativePath):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        basePath = sys._MEIPASS
+    except Exception:
+        basePath = os.path.abspath(".")
+
+    return os.path.join(basePath, relativePath)
+
+with open(resourcePath('config.json')) as config_file:
     config = json.load(config_file)
 
 
