@@ -52,8 +52,8 @@ class LoginForm(tk.Frame):
             ContactsForm(contacts)
             return
     
-        if data['type'] == MessageType.username_taken:
-            messagebox.showerror('Error', '用户名已被使用，请换一个')
+        if data['type'] == MessageType.school_id_taken:
+            messagebox.showerror('Error', '学工号已被使用，请联系管理员')
             return
 
         if data['type'] == MessageType.register_successful:
@@ -91,13 +91,13 @@ class LoginForm(tk.Frame):
         # Login
         # self.canvas = tk.Canvas(self.login_frame, width=600, height=400, background="#d9d9d9", highlightthickness=0)
         # 标签 用户名密码
-        self.login_user_name = ttk.Label(self.login_frame, text="用户名",justify='left', width=26,style="White.TLabel")
+        self.login_user_schoolid = ttk.Label(self.login_frame, text="学工号",justify='left', width=26,style="White.TLabel")
         self.login_user_pwd = ttk.Label(self.login_frame, text="密码",justify='left', width=26,style="White.TLabel")
         # 用户名输入框
-        self.var_login_user_name = tk.StringVar()
+        self.var_login_user_schoolid = tk.StringVar()
         self.login_entry_user_name = ttk.Entry(
             self.login_frame,
-            textvariable=self.var_login_user_name,
+            textvariable=self.var_login_user_schoolid,
             font=("微软雅黑", 12),
             width=25,
             justify="center"
@@ -137,7 +137,7 @@ class LoginForm(tk.Frame):
         self.login_frame.columnconfigure(0, weight=3)
 
 
-        self.login_user_name.grid(
+        self.login_user_schoolid.grid(
             row=1,
             column=0,
             columnspan=2,
@@ -237,9 +237,9 @@ class LoginForm(tk.Frame):
 
     def do_login(self):
         """登录操作若为空则提示用户错误"""
-        username = self.var_login_user_name.get()
+        schoolid = self.var_login_user_schoolid.get()
         password = self.login_var_user_pwd.get()
-        if not username:
+        if not schoolid:
             messagebox.showerror(
                 "Error",
                 "用户名不能为空",
@@ -248,7 +248,7 @@ class LoginForm(tk.Frame):
         if not password:
             messagebox.showerror("Error", "密码不能为空")
             return
-        self.sc.send(MessageType.login, [username, password])
+        self.sc.send(MessageType.login, [schoolid, password])
 
 
     """" 注册操作 """
@@ -265,7 +265,10 @@ class LoginForm(tk.Frame):
         #print(type(sex).__name__)
         # age = self.var_user_age.get()
         #print(type(age).__name__)
-        role = self.var_user_school_id.get()
+        if self.entry_user_role.get() == "学生":
+            role=0
+        else:
+            role=1
         #print(type(ip).__name__)
         config = get_config()
         port = str((config['client']['client_port']))

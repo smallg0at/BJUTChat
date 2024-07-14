@@ -83,21 +83,19 @@ def run(sc, parameters):
     inviter_id = server.memory.sc_to_user_id[sc]
 
     c = database.get_cursor()
-    username = parameters[0].strip().lower()
-    r = c.execute('SELECT id from users where username=?', [username]).fetchall()
+    school_id = parameters['school_id'].strip().lower()
+    r = c.execute('SELECT id from users where school_id=?', [school_id]).fetchall()
     if len(r) == 0:
-        sc.send(MessageType.general_failure, [False, '所邀请用户名不存在'])
+        sc.send(MessageType.general_failure, '所邀请用户名不存在')
         return
     uid = r[0][0]
     if (uid == inviter_id):
-        sc.send(MessageType.general_failure, [False, '不能邀请自己进群'])
+        sc.send(MessageType.general_failure, '不能邀请自己进群')
         return
-    if (not(database.is_friend_with(inviter_id,uid))):
-        sc.send(MessageType.general_failure, [False, '您不能邀请非好友入群'])
-        return
-    room_name = parameters[1].strip().lower()
+    
+    room_name = parameters['room_name'].strip().lower()
 
-    user_id = database.username_to_id(username)
+    user_id = database.user_schoolid_to_id(school_id)
     room_id = database.roomname_to_id(room_name)
     
         
@@ -110,10 +108,17 @@ def run(sc, parameters):
         sc.send(MessageType.general_failure, '群不存在')
         return
     if (database.is_teacher(inviter_id)):
-        database.add_to_room(user_id, parameters)
+        database.add_to_room(user_id, room_id)
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-        sc.send(MessageType.contact_info, add_target_type(room, 1))
+        sc.send(MessageType.query_room_users_result, [database.get_room_members(room_id), room_id])
+        sc.send(MessageType.general_msg, f'强制添加成功：{school_id}')
     else:
-        sc.send(MessageType.general_failure, '只有老师能够邀请用户入群')
-        return
+        if (not(database.is_friend_with(inviter_id,uid))):
+            sc.send(MessageType.general_failure, '您不能邀请非好友入群')
+            return
+        else:
+            database.add_to_room(user_id, room_id)
+            #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
+            sc.send(MessageType.contact_info, add_target_type(room, 1))
+            sc.send(MessageType.general_msg, f'添加成功：{school_id}')
 
