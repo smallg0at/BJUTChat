@@ -14,7 +14,6 @@ from common.config import get_config
 from common.cryptography import crypt
 import logging
 from nacl.public import PrivateKey, PublicKey, Box
-import nacl
 from nacl.encoding import Base64Encoder
 import uuid
 import orjson

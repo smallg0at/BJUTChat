@@ -2,8 +2,6 @@
 # -*- coding:utf-8 -*-
 
 """登录界面"""
-import _tkinter
-import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -11,13 +9,9 @@ from common.message import MessageType
 from pprint import pprint
 import client.memory
 from client.forms.contacts_form import ContactsForm
-import select
-import _thread
-import os
 from tkinter import *
 from tkinter import Toplevel
 import client.util.socket_listener
-import sv_ttk
 from common.config import get_config
 import re
 

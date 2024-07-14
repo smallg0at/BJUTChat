@@ -10,8 +10,6 @@ from tkinter import messagebox
 from common.message import MessageType, _deserialize_any
 from pprint import pprint
 import client.memory
-import select
-import _thread
 from tkinter import *
 from client.components.vertical_scrolled_frame import VerticalScrolledFrame
 from client.components.contact_item import ContactItem
@@ -19,7 +17,6 @@ from client.forms.chat_form import ChatForm
 from tkinter import Toplevel
 import datetime
 import client.util.socket_listener
-import time
 from tkinter import simpledialog
 import orjson
 from client.components.announcement_entry import AnnouncementEntry
