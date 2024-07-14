@@ -129,7 +129,7 @@ def accept_client_to_secure_channel(socket):
     try:
         uuid_recv = conn.recv(1024)
         print(f"Incoming user with uuid {uuid_recv.decode()}")
-        uuid.UUID(uuid_recv)
+        uuid.UUID(uuid_recv.decode())
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
