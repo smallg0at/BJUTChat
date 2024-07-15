@@ -19,6 +19,7 @@ def run(sc, parameters):
     if(database.is_room_manager(operator_id, room_id)):
         if(database.in_room(user_id, room_id)):    
             database.add_user_to_room_blacklist(user_id, room_id)
+            database.remove_user_from_room(user_id, room_id)
             sc.send(MessageType.add_user_to_room_blacklist_result, [True, user_id, room_id])
         else: sc.send(MessageType.general_failure, '该用户必须在群内才能被加入黑名单')
     else: 
