@@ -4,7 +4,7 @@
 """获取配置文件信息"""
 
 import json
-from pprint import pprint
+
 from common.util import resourcePath
 
 

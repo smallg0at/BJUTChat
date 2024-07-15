@@ -8,7 +8,7 @@ from tkinter import ttk
 from distutils import command
 from tkinter import messagebox
 from common.message import MessageType, _deserialize_any
-from pprint import pprint
+
 import client.memory
 from tkinter import *
 from client.components.vertical_scrolled_frame import VerticalScrolledFrame
@@ -23,6 +23,8 @@ from client.components.announcement_entry import AnnouncementEntry
 from client.forms.announcements_form import AnnouncementApp
 from client.components.HyperlinkManager import HyperlinkManager
 from common.util import resourcePath
+import logging
+logger = logging.getLogger(__name__)
 class ContactsForm(tk.Frame):
     bundle_process_done = False
 
@@ -34,9 +36,9 @@ class ContactsForm(tk.Frame):
 
     """监听从服务端发来的反馈"""
     def socket_listener(self, data):
-        # print("Something happened...", data['type'])
+        logger.debug("Something happened...", data['type'])
         if data['type'] == MessageType.login_bundle:
-            print("Got Loginbundle!", len(data))
+            logger.info("Got Loginbundle! Length is %s", len(data))
             bundle = data['parameters']
             friends = bundle['friends']
             rooms = bundle['rooms']
@@ -93,7 +95,7 @@ class ContactsForm(tk.Frame):
         data['last_timestamp'] = 0
         data['last_message'] = '(没有消息)'
         self.contacts.insert(0, data)
-        print("Now has contact count: ", len(self.contacts))
+        logger.debug("Now has contact count: ", len(self.contacts))
         self.refresh_contacts()
 
     """处理删除好友的操作后"""
@@ -143,7 +145,6 @@ class ContactsForm(tk.Frame):
         if (not result):
             return
         self.sc.send(MessageType.del_friend, result)
-        #print(MessageType.del_friend)
 
     """ 查看用户信息 """
     def on_user_information(self):
@@ -187,7 +188,6 @@ class ContactsForm(tk.Frame):
 
     """更新列表界面"""
     def refresh_contacts(self):
-        #print("self.contacts是一个列表，里面很多用户字典")
         if not self.bundle_process_done:
             return
 

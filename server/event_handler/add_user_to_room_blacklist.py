@@ -1,7 +1,7 @@
 # #!/usr/bin/env python
 # # -*- coding:utf-8 -*-
 
-from pprint import pprint
+
 from common.message import MessageType
 
 import server.memory

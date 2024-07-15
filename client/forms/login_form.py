@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from common.message import MessageType
-from pprint import pprint
+
 import client.memory
 from client.forms.contacts_form import ContactsForm
 from tkinter import *
@@ -14,7 +14,8 @@ from tkinter import Toplevel
 import client.util.socket_listener
 from common.config import get_config
 import re
-
+import logging
+logger = logging.getLogger(__name__)
 
 """登录界面"""
 
@@ -41,7 +42,7 @@ class LoginForm(tk.Frame):
         if data["type"] == MessageType.login_successful:
             client.memory.current_user = data["parameters"]
             self.remove_socket_listener_and_close()
-            print("Login Successful!")
+            logger.info("Login Successful!")
             contacts = Toplevel(client.memory.tk_root, takefocus=True)
             ContactsForm(contacts)
             return
@@ -249,24 +250,16 @@ class LoginForm(tk.Frame):
     def do_register(self):
 
         username = self.var_reg_user_name.get()
-       # print(type(username).__name__)
         password = self.reg_var_user_pwd.get()
-        #print(type(password).__name__)
         password_confirmation = self.var_confirm_pwd.get()
         school_id = self.var_user_school_id.get()
-        #print(type(school_id).__name__)
         sex = self.var_user_sex.get()
-        #print(type(sex).__name__)
-        # age = self.var_user_age.get()
-        #print(type(age).__name__)
         if self.entry_user_role.get() == "学生":
             role=0
         else:
             role=1
-        #print(type(ip).__name__)
         config = get_config()
         port = str((config['client']['client_port']))
-        #print(type(port).__name__)
 
         if not username:
             messagebox.showerror("Error", "用户名不能为空")

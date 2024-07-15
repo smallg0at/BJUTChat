@@ -24,6 +24,8 @@ from client.components.HyperlinkManager import HyperlinkManager
 from functools import partial
 import subprocess, os, platform
 from common.util import resourcePath
+import logging
+logger = logging.getLogger(__name__)
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -123,17 +125,17 @@ class ChatForm(tk.Frame):
                     f.close()
                 full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}")))
                 client.memory.tk_img_ref.append(full_size_image)
-                print(len(response.content))
+                logger.info("received image length %s", len(response.content))
                 if(not os.path.exists(f"userdata/image_attachments")):
                     os.makedirs(f"userdata/image_attachments")
                 # self.chat_box.image_create(index, image=None)
                             # self.chat_box.image_create(index, image=None)
                 self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
 
-                print("success")
+                logger.info("success")
 
             else:
-                print("Error loading full-sized image")
+                logger.warning("Error loading full-sized image")
                 self.append_to_chat_box('\n', '')
 
     def shrink_image_by_ratio(self, image, longest=1600):
@@ -141,13 +143,11 @@ class ChatForm(tk.Frame):
         width = image.width
         if height > width:
             if height > longest:
-                # print((int(longest*width/height), longest))
                 return image.resize((int(longest*width/height), longest))
             else:
                 return image
         else: 
             if width > longest:
-                # print(longest, int(longest*height/width))
                 return image.resize((longest, int(longest*height/width)))
             else:
                 return image
@@ -454,20 +454,26 @@ class ChatForm(tk.Frame):
             files = {'file': imageFile}
             data = {'user_id': client.memory.current_user['id']}
             server_url = get_config()['file_server']
-            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            try: 
+                response = requests.post(f'{server_url}/upload', files=files, data=data)
+            except Exception as e:
+                messagebox.showerror("提示", f"发送失败，无法连接文件服务器。")
+                logging.error("Error sending image: %s", e)
+                return
             if(response.status_code == 200):
                 file_id = response.json().get('file_id')
 
                 f = fp.read()
                 b = base64.b64encode(f).decode('ascii')
-                print("Sendsize", len(b))
+                logger.debug("Sendsize %s", len(b))
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
                               'message': {'type': 1, 'data': b, 'uuid': file_id, 'basename': basename}})
-                print('send image success!')
+                logger.info('send image success!')
                 messagebox.showinfo("提示", "图片发送成功")
             else:
                 messagebox.showerror("提示", f"图片发送失败。错误码：{response.status_code}")
+
     def send_file(self):
         filename = filedialog.askopenfilename()
         
@@ -478,13 +484,18 @@ class ChatForm(tk.Frame):
             files = {'file': imageFile}
             data = {'user_id': client.memory.current_user['id']}
             server_url = get_config()['file_server']
-            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            try:
+                response = requests.post(f'{server_url}/upload', files=files, data=data)
+            except Exception as e:
+                messagebox.showerror("提示", f"发送失败，无法连接文件服务器。")
+                logging.error("Error sending file: %s", e)
+                return
             if(response.status_code == 200):
                 file_id = response.json().get('file_id')
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
                               'message': {'type': 2, 'uuid': file_id, 'basename': basename}})
-                print('send file success!')
+                logger.info('send file success!')
                 messagebox.showinfo("提示", "文件发送成功")
             else:
                 messagebox.showerror("提示", f"文件发送失败。错误码：{response.status_code}")

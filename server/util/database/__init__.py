@@ -37,7 +37,6 @@ def get_pending_friend_request(user_id):
     rows = c.execute('SELECT from_user_id FROM friends WHERE to_user_id=? AND NOT accepted', [user_id]).fetchall()
     for row in rows:
         uid = row[0]
-        # pprint([uid, type(uid)])
         users.append(get_user(uid))
     return users
 
@@ -48,7 +47,6 @@ def get_friends(user_id):
     rows = c.execute('SELECT to_user_id FROM friends WHERE from_user_id=? AND accepted', [user_id]).fetchall()
     for row in rows:
         uid = row[0]
-        # pprint([uid, type(uid)])
         users.append(get_user(uid))
     return users
 

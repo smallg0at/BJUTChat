@@ -10,3 +10,6 @@ userdata
 build
 dist
 installer
+log
+client.log
+server.log
