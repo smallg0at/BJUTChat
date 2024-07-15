@@ -202,8 +202,9 @@ def is_room_manager(user_id,room_id):
 def is_room_creator(user_id,room_id):
     c = get_cursor()
     r = c.execute('SELECT * FROM rooms WHERE (id=?) AND (room_creator=?)',[room_id,user_id]).fetchone()
-    if (len(r)>0): return True
-    else: return False
+
+    if (r == None): return False
+    else: return True
 
 def is_in_room_blacklist(user_id,room_id):
     c = get_cursor()
