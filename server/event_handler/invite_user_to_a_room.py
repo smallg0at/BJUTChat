@@ -107,18 +107,37 @@ def run(sc, parameters):
     if room is None:
         sc.send(MessageType.general_failure, '群不存在')
         return
+    #老师能强制添加用户入群，如果被邀请用户在黑名单中，则自动将其移出黑名单
     if (database.is_teacher(inviter_id)):
+        if(database.is_in_room_blacklist(user_id,room_id)):
+            database.remove_user_from_room_blacklist(user_id,room_id)
         database.add_to_room(user_id, room_id)
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
         sc.send(MessageType.query_room_users_result, [database.get_room_members(room_id), room_id])
         sc.send(MessageType.general_msg, f'强制添加成功：{school_id}')
     else:
-        if (not(database.is_friend_with(inviter_id,uid))):
-            sc.send(MessageType.general_failure, '您不能邀请非好友入群')
-            return
+        #若被邀请用户在黑名单内，则只有管理员或老师能邀请入群，并自动解除黑名单，管理员只能邀请自己的好友入群
+        if(database.is_in_room_blacklist(user_id,room_id)):
+            if (database.is_room_manager(inviter_id)):
+                if (not(database.is_friend_with(inviter_id,uid))):
+                    sc.send(MessageType.general_failure, '您不能邀请非好友入群')
+                    return
+                else:
+                    database.add_to_room(user_id, room_id)
+                    database.remove_user_from_room_blacklist(user_id,room_id)
+                    #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
+                    sc.send(MessageType.contact_info, add_target_type(room, 1))
+                    sc.send(MessageType.general_msg, f'添加成功：{school_id}')
+            else:
+                sc.send(MessageType.general_failure, '只有管理员能邀请被加入黑名单的用户入群')
+        #若不在黑名单内，则普通用户可邀请自己好友入群
         else:
-            database.add_to_room(user_id, room_id)
-            #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-            sc.send(MessageType.contact_info, add_target_type(room, 1))
-            sc.send(MessageType.general_msg, f'添加成功：{school_id}')
-
+            if (not(database.is_friend_with(inviter_id,uid))):
+                sc.send(MessageType.general_failure, '您不能邀请非好友入群')
+                return
+            else:
+                database.add_to_room(user_id, room_id)
+                #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
+                sc.send(MessageType.contact_info, add_target_type(room, 1))
+                sc.send(MessageType.general_msg, f'添加成功：{school_id}')
+            
