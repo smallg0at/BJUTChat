@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext
-
+import datetime, time
 class AnnouncementApp:
     def __init__(self, root, announcements = [
             {"title": "Announcement 1", "content": "Content of announcement 1", "send_time": "2024-07-12 10:00 AM"},
@@ -23,8 +23,11 @@ class AnnouncementApp:
             self.display_announcement(announcement)
 
     def display_announcement(self, announcement):
+        timestr = datetime.datetime.fromtimestamp(
+            int(announcement['send_time'])
+        ).strftime('%Y-%m-%d %H:%M')
         self.scroll_text.insert(tk.END, f"» {announcement['title']}\n", 'title')
-        self.scroll_text.insert(tk.END, f"{announcement['send_time']}\n", 'time')
+        self.scroll_text.insert(tk.END, f"{timestr}\n", 'time')
         self.scroll_text.insert(tk.END, f"{announcement['content']}\n", 'content')
         self.scroll_text.insert(tk.END, "\n\n")
 
