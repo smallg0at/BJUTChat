@@ -21,8 +21,17 @@ def run(sc, parameters):
             database.remove_user_from_room(user_id, room_id)
             sc.send(MessageType.remove_user_from_room_result, [True, user_id, room_id])
         else: sc.send(MessageType.general_failure, '该用户必须在群内才能被移出群聊')
+    #非管理员能将自己踢出群聊
     else: 
-        sc.send(MessageType.general_failure, '只有管理员才能将用户移出群聊')
+        if(user_id!=operator_id):
+            sc.send(MessageType.general_failure, '只有管理员才能将用户移出群聊')
+        else:
+            if(database.in_room(operator_id, room_id)):    
+                database.remove_user_from_room(operator_id, room_id)
+                sc.send(MessageType.remove_user_from_room_result, [True, operator_id, room_id])
+            else:sc.send(MessageType.general_failure, '你必须在群内才能退出群聊')
+    
+    
 
     
 

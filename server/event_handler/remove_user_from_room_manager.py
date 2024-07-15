@@ -22,7 +22,7 @@ def run(sc, parameters):
             sc.send(MessageType.remove_user_from_room_manager_result, [True, user_id, room_id])
         else: sc.send(MessageType.general_failure, '该用户必须是管理员才能被剥夺管理员权限')
     else: 
-        sc.send(MessageType.general_failure, '只有群出才能剥夺管理员权限')
+        sc.send(MessageType.general_failure, '只有群主才能剥夺管理员权限')
 
     
 
