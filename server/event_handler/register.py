@@ -5,10 +5,8 @@
     服务器控制数据库注册，删除了空白字符并将英文字符小写。
 """
 
-from pprint import pprint
 from common.message import MessageType
-from server.broadcast import broadcast
-import server.memory
+
 from common.util import md5
 
 from server.util import database

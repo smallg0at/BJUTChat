@@ -7,10 +7,9 @@ friends表中插入一条信息且accept = 0表示未接受。接着发送操作
 和前端显示
 """
 
-import server.memory
 from pprint import pprint
 from common.message import MessageType
-from server.broadcast import broadcast
+
 from common.util import md5
 from server.util import database
 from server.memory import *
