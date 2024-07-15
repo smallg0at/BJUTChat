@@ -52,6 +52,7 @@ class ChatForm(tk.Frame):
         if dir_flag == False:
             os.mkdir(dirname)
         if data['type'] == MessageType.query_room_users_result:
+            print('q...', data['parameters'])
             if data['parameters'][1] != self.target['id']:
                 return
             self.user_list = data['parameters'][0]
@@ -63,8 +64,12 @@ class ChatForm(tk.Frame):
         self.user_listbox.delete(0, END)
         self.user_list.sort(key=lambda x: x[0])
         for user in self.user_list:
-            self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
-            self.user_listbox.itemconfig(0, {'fg': "#000000"})
+            if user[3] == 1:
+                self.user_listbox.insert(0, f"【管理员】{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#009688"})
+            else:
+                self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#000000"})
 
     """处理消息并将其展示出来"""
     def digest_message(self, data):
