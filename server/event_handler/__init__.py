@@ -24,7 +24,6 @@ import server.event_handler.query_room_users
 import server.event_handler.invite_user_to_a_room
 import server.event_handler.alter_username
 import server.event_handler.add_user_to_room_blacklist
-import server.event_handler.remove_user_from_room_blacklist
 import server.event_handler.remove_user_from_room
 import server.event_handler.add_user_to_room_manager
 import server.event_handler.remove_user_from_room_manager
@@ -35,7 +34,6 @@ event_handler_map = {
     MessageType.send_message: send_message,
     MessageType.register: register,
     MessageType.resolve_friend_request: resolve_friend_request,
-    # MessageType.resolve_invite_request: resolve_invite_request,
     MessageType.client_echo: client_echo,
     MessageType.add_friend: add_friend,
     MessageType.del_friend: del_friend,
@@ -45,8 +43,6 @@ event_handler_map = {
     MessageType.invite_user_to_a_room: invite_user_to_a_room,
     MessageType.alter_username: alter_username,
     MessageType.add_user_to_room_blacklist: add_user_to_room_blacklist,
-    #管理员将被加入黑名单的用户拉回群中自动解除黑名单状态，不需要独立的事件处理器
-    # MessageType.remove_user_from_room_blacklist: remove_user_from_room_blacklist,
     MessageType.remove_user_from_room: remove_user_from_room,
     MessageType.add_user_to_room_manager: add_user_to_room_manager,
     MessageType.remove_user_from_room_manager: remove_user_from_room_manager
