@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="grid-container">
@@ -28,10 +28,10 @@
                 <div id="searchResults" class="search-results"></div>
             </div>
             <div class="header-right">
-                <a href="email.html" target="_blank">
+                <a href="{{ url_for('email') }}" target="_blank">
                     <span class="material-icons-outlined">email</span>
                 </a>
-                <a href="login.html" target="_blank"><span class="material-icons-outlined">account_circle</span>
+                <a href="{{ url_for('login') }}" target="_blank"><span class="material-icons-outlined">account_circle</span>
                 </a>
             </div>
         </header>
@@ -48,13 +48,13 @@
 
             <ul class="sidebar-list">
                 <li class="sidebar-list-item">
-                    <a href="#" target="_blank">
+                    <a href="{{ url_for('index') }}" target="_blank">
                         <span class="material-icons-outlined">dashboard</span> Dashboard
                         <span class="tooltip">Back to main page</span>
                     </a>
                 </li>
                 <li class="sidebar-list-item">
-                    <a href="email.html" target="_blank">
+                    <a href="{{ url_for('email') }}" target="_blank">
                         <span class="material-icons-outlined">mail</span> Announcements
                     </a>
                 </li>
@@ -63,9 +63,9 @@
                         <span class="material-icons-outlined">groups</span> User Management
                     </a>
                     <ul class="submenu" id="userManagementSubMenu">
-                        <li><a href="banning_user.html" target="_blank">Banning User</a></li>
-                        <li><a href="altering_password.html" target="_blank">Altering Password</a></li>
-                        <li><a href="altering_user_info.html" target="_blank">Altering User Info</a></li>
+                        <li><a href="{{ url_for('banning_user') }}" target="_blank">Banning User</a></li>
+                        <li><a href="{{ url_for('altering_password') }}" target="_blank">Altering Password</a></li>
+                        <li><a href="{{ url_for('altering_user_info') }}" target="_blank">Altering User Info</a></li>
                     </ul>
                 </li>
             </ul>
@@ -117,7 +117,7 @@
             </div>
             <div class="container">
             <div class="right">
-                <h2><span>&nbsp</span>&nbsp <a href="email.html" target="_blank"><span class="material-icons-outlined">assignment</span>Bulletin Board</a></h2>
+                <h2><span>&nbsp</span>&nbsp <a href="{{ url_for('email') }}" target="_blank"><span class="material-icons-outlined">assignment</span>Bulletin Board</a></h2>
                 <div id="announcementHistory"></div>
             </div>
         </div>
@@ -146,6 +146,6 @@
     <!-- ApexCharts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.3/apexcharts.min.js"></script>
     <!-- Custom JS -->
-    <script src="../static/js/scripts.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
