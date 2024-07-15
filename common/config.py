@@ -5,7 +5,6 @@
 
 import json
 from pprint import pprint
-import sys, os
 from common.util import resourcePath
 
 

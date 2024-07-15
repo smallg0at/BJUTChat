@@ -6,7 +6,6 @@
 """
 
 import sqlite3
-from pprint import pprint
 from server.memory import *
 
 conn = sqlite3.connect('server/database.db', isolation_level=None)

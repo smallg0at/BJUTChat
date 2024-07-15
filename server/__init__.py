@@ -14,11 +14,8 @@ from common.config import get_config
 import common.transmission.secure_channel
 from server.event_handler import handle_event
 from server.memory import *
-import server.memory
-from common.message import MessageType
-from server.broadcast import broadcast
+
 import select
-from server.util import database
 from pprint import pprint
 import struct
 import sys
@@ -83,9 +80,6 @@ def run():
 
                 if not conn_ok:
                     sc.close()
-
-
-
                     # 把他的连接信息移除
                     remove_sc_from_socket_mapping(sc)
 

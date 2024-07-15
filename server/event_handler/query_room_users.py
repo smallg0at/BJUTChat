@@ -6,13 +6,10 @@
 根据target_type为1判断为群聊，刷新群聊窗口
 """
 
-from pprint import pprint
 from common.message import MessageType
-from server.broadcast import broadcast
+
 import server.memory
-from common.util import md5
 from server.util import database
-from server.util import add_target_type
 
 
 def run(sc, parameters):

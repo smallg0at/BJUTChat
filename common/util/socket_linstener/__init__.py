@@ -5,8 +5,6 @@ import struct
 import sys
 import traceback
 import select
-import datetime
-import time
 from pprint import pprint
 from tkinter import messagebox
 from common.message import MessageType
