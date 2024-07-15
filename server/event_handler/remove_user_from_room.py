@@ -17,9 +17,14 @@ def run(sc, parameters):
     operator_id = server.memory.sc_to_user_id[sc]
     #身份检查,操作者必须为管理员,被踢出的用户必须在群内
     if(database.is_room_manager(operator_id, room_id) or database.is_room_creator(operator_id, room_id)):
-        if(database.in_room(user_id, room_id)):    
-            database.remove_user_from_room(user_id, room_id)
-            sc.send(MessageType.remove_user_from_room_result, [True, user_id, room_id])
+        if(database.in_room(user_id, room_id)):
+            if(database.is_room_creator(operator_id, room_id)):
+                if(user_id==operator_id):
+                    sc.send(MessageType.general_failure, '群主不能将自己移出群聊')
+                    return       
+            else:
+                database.remove_user_from_room(user_id, room_id)
+                sc.send(MessageType.remove_user_from_room_result, [True, user_id, room_id])
         else: 
             sc.send(MessageType.general_failure, '该用户必须在群内才能被移出群聊')
             return
@@ -29,10 +34,6 @@ def run(sc, parameters):
             sc.send(MessageType.general_failure, '只有管理员才能将用户移出群聊')
             return
         else:
-            if(database.is_room_creator(operator_id, room_id)):
-                if(user_id==operator_id):
-                    sc.send(MessageType.general_failure, '群主不能将自己移出群聊')
-                    return
             if(database.in_room(operator_id, room_id)):    
                 database.remove_user_from_room(operator_id, room_id)
                 sc.send(MessageType.remove_user_from_room_result, [True, operator_id, room_id])
