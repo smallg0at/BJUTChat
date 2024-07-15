@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "UnivChat"
-#define MyAppVersion "1.5"
+#define MyAppVersion "0.9.0"
 #define MyAppPublisher ""
 #define MyAppURL ""
 #define MyAppExeName "run_client.exe"
@@ -28,22 +28,15 @@ ArchitecturesAllowed=x64compatible
 ; the 64-bit view of the registry.
 ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
-LicenseFile=D:\Code\BJUTChat\LICENSE
+LicenseFile=.\LICENSE
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-OutputDir=D:\Code\BJUTChat\installer
+OutputDir=.\installer
 OutputBaseFilename=univchat_setup
-Compression=lzma
+Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run
-; on anything but x64 and Windows 11 on Arm.
-ArchitecturesAllowed=x64compatible
-; "ArchitecturesInstallIn64BitMode=x64compatible" requests that the
-; install be done in "64-bit mode" on x64 or Windows 11 on Arm,
-; meaning it should use the native 64-bit Program Files directory and
-; the 64-bit view of the registry.
-ArchitecturesInstallIn64BitMode=x64compatible
+
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
