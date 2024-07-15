@@ -18,7 +18,7 @@ def run(sc, parameters):
     #身份检查,操作者必须为管理员,被加入黑名单的用户必须在群内
     if(database.is_room_manager(operator_id, room_id) or database.is_room_creator(operator_id, room_id)):
         if(database.in_room(user_id, room_id)):
-            if(database.is_room_creator(operator_id,room_id)):
+            if((user_id==operator_id)and(database.is_room_creator(operator_id,room_id))):
                sc.send(MessageType.general_failure, '群主不能把自己加入黑名单并移出群聊')
                return
             else:     
