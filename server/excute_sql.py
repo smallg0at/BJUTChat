@@ -33,7 +33,6 @@ cur.execute('''CREATE TABLE "rooms" (
 "room_name"  TEXT,
 "created_time" DATE,
 "room_creator" TEXT,
-"manager", TEXT,
 PRIMARY KEY ("id")
 )''')
 conn.commit() 
@@ -42,6 +41,7 @@ cur.execute('''CREATE TABLE "room_user" (
 "id"  INTEGER NOT NULL,
 "room_id"  INTEGER,
 "user_id"  INTEGER,
+"is_admin"  INTEGER,
 PRIMARY KEY ("id")
 )''')
 conn.commit() 
