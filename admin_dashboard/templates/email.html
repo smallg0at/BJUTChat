@@ -102,7 +102,7 @@
 
         async function deleteAllAnnouncements() {
             try {
-                const response = await fetch('http://127.0.0.1:5001/delete_all_announcements', {
+                const response = await fetch('/delete_all_announcements', {
                     method: 'DELETE',
                 });
 
@@ -131,7 +131,7 @@
 
         async function saveAnnouncementToDatabase(content) {
             try {
-                const response = await fetch('http://127.0.0.1:5001/create_announcement', {
+                const response = await fetch('/create_announcement', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
