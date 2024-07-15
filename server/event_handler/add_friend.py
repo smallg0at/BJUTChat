@@ -14,6 +14,7 @@ from server.broadcast import broadcast
 from common.util import md5
 from server.util import database
 from server.memory import *
+from server.util import add_target_type
 
 
 def run(sc, parameters):
@@ -50,10 +51,20 @@ def run(sc, parameters):
         #上面这个列表为到了contact_form.py的parameters[0],[1]
         return
 
+    
     c = database.get_cursor()
-    c.execute('insert into friends (from_user_id,to_user_id,accepted) values (?,?,0)', [user_id, uid]).fetchall()
-
-    sc.send(MessageType.add_friend_result, [True, ''])
-    if uid in user_id_to_sc:
-        user_id_to_sc[uid].send(MessageType.incoming_friend_request, database.get_user(user_id))
+    if database.is_teacher(user_id) and not database.is_teacher(uid):
+        c.execute('insert into friends (from_user_id,to_user_id,accepted) values (?,?,1)', [user_id, uid]).fetchall()
+        c.execute('insert into friends (to_user_id,from_user_id,accepted) values (?,?,1)', [user_id, uid])
+        #给请求方发送contact_info创建好友列表
+        sc.send(MessageType.contact_info, add_target_type(database.get_user(uid), 0))
+        #被请求方创建好友列表
+        if uid in user_id_to_sc:
+            user_id_to_sc[uid].send(MessageType.contact_info, add_target_type(database.get_user(user_id), 0))
+        sc.send(MessageType.add_friend_result, [True, 'force'])
+    else:
+        c.execute('insert into friends (from_user_id,to_user_id,accepted) values (?,?,0)', [user_id, uid]).fetchall()
+        sc.send(MessageType.add_friend_result, [True, ''])
+        if uid in user_id_to_sc:
+            user_id_to_sc[uid].send(MessageType.incoming_friend_request, database.get_user(user_id))
         
