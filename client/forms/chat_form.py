@@ -63,8 +63,15 @@ class ChatForm(tk.Frame):
         self.user_listbox.delete(0, END)
         self.user_list.sort(key=lambda x: x[0])
         for user in self.user_list:
-            self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
-            self.user_listbox.itemconfig(0, {'fg': "#000000"})
+            if user[0] == int(self.target['room_creator']):
+                self.user_listbox.insert(0, f"【群主】{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#b00020"})
+            elif user[3] == 1:
+                self.user_listbox.insert(0, f"【管理员】{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#009688"})
+            else:
+                self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#000000"})
 
     """处理消息并将其展示出来"""
     def digest_message(self, data):
@@ -98,7 +105,8 @@ class ChatForm(tk.Frame):
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
         server_url = get_config()['file_server']
-
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if(os.path.exists(f"userdata/image_attachments/{file_id}")):
             full_size_image = self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}"))
             shrunk_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(full_size_image))
@@ -145,6 +153,8 @@ class ChatForm(tk.Frame):
                 return image
 
     def save_specific_image(self, uuid, defaultname):
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if not os.path.exists(f"userdata/image_attachments/{uuid}"):
             messagebox.showerror("错误", "图片未能成功获取，无法保存")
             return
@@ -230,12 +240,39 @@ class ChatForm(tk.Frame):
         self.sc.send(MessageType.invite_user_to_a_room, {'school_id': target_schoolid, 'room_name': self.target['room_name']})
 
     def do_adminify_user(self):
+        
         if len(self.user_listbox.curselection()) == 0:
             return None
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
         selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
-        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 设为群管理员，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.add_user_to_room_manager, [selected_user_id, self.target['room_id']])
+    def do_deadminify_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 取消群管理员，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.remove_user_from_room_manager, [selected_user_id, self.target['room_id']])
+    
+    def do_room_blacklist_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 拉入群黑名单，请确认操作。黑名单仅能通过群管理员重新拉入此用户来解除。")
+        if confirm:
+            self.sc.send(MessageType.add_user_to_room_blacklist, [selected_user_id, self.target['room_id']])
+            
+        
 
     def do_remove_user(self):
         if len(self.user_listbox.curselection()) == 0:
@@ -243,7 +280,10 @@ class ChatForm(tk.Frame):
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
         selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
-        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 从群里移出，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.remove_user_from_room, [selected_user_id, self.target['room_id']])
 
     def __init__(self, target, master=None):
         super().__init__(master)
@@ -264,10 +304,6 @@ class ChatForm(tk.Frame):
         self.commands_pane.pack(side=TOP, fill=X, pady=5)
         self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员", command=self.do_send_group_invite)
         self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
-        self.adminify_btn = ttk.Button(self.commands_pane, text="将选定成员设置为管理员", command=self.do_adminify_user)
-        self.adminify_btn.pack(side='left', fill=X, padx=5)
-        self.remove_user_btn = ttk.Button(self.commands_pane, text="移出选定成员", command=self.do_remove_user)
-        self.remove_user_btn.pack(side=LEFT, fill=X, padx=5)
         self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
         self.user_listbox.bind('<Button-3>', self.do_userlist_popup)
@@ -275,7 +311,9 @@ class ChatForm(tk.Frame):
 
         self.userlist_menu = tk.Menu(self.user_listbox, tearoff=0)
         self.userlist_menu.add_command(label="设为管理员", command=self.do_adminify_user)
-        self.userlist_menu.add_command(label="踢出群聊", command=self.do_remove_user)
+        self.userlist_menu.add_command(label="取消管理员", command=self.do_deadminify_user)
+        self.userlist_menu.add_command(label="移出群聊", command=self.do_remove_user)
+        self.userlist_menu.add_command(label="设置黑名单并移出群聊", command=self.do_room_blacklist_user)
         
         # Chat Screen
         
