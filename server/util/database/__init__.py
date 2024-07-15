@@ -83,12 +83,13 @@ def is_friend_with(from_user_id, to_user_id):
 
 def get_room(room_id):
     c = get_cursor()
-    fields = ['id', 'room_name']
+    fields = ['id', 'room_name', "room_creator"]
     row = c.execute('SELECT ' + ','.join(fields) + ' FROM rooms WHERE id=?', [room_id]).fetchall()
     if len(row) == 0:
         return None
     else:
         room = dict(zip(fields, row[0]))
+        room['room_id'] = room_id
         return room
 
 
@@ -99,10 +100,10 @@ def in_room(user_id, room_id):
     return len(r) > 0
 
 
-def add_to_room(user_id, room_id):
+def add_to_room(user_id, room_id, is_admin=0):
     c = get_cursor()
-    r = c.execute('INSERT INTO room_user (user_id,room_id) VALUES (?,?) ',
-                  [user_id, room_id])
+    r = c.execute('INSERT INTO room_user (user_id,room_id,is_admin) VALUES (?,?,?) ',
+                  [user_id, room_id, is_admin])
     commit()
 
 
@@ -113,8 +114,8 @@ def get_room_members_id(room_id):
 
 def get_room_members(room_id):
     # [id,  online, username]
-    return list(map(lambda x: [x[0], x[1], x[2]], get_cursor().execute(
-        'SELECT user_id,username,school_id FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
+    return list(map(lambda x: [x[0], x[1], x[2], x[3]], get_cursor().execute(
+        'SELECT user_id,username,school_id,is_admin FROM room_user LEFT JOIN users ON users.id=user_id WHERE room_id=?',
         [room_id]).fetchall()))
 
 """将发送方向接收方发送的信息存入数据库,用于历史消息重发"""
@@ -139,8 +140,7 @@ def get_chat_history(user_id):
 def is_teacher(user_id):
     c = get_cursor()
     r = c.execute('SELECT role FROM users WHERE id=?',[user_id]).fetchone()
-    print(r[0])
-    if (r[0] == '1'): return True
+    if (r[0] == '1' or r[0] == 1): return True
     else: return False
 
 def username_to_id(username):
@@ -177,31 +177,38 @@ def remove_user_from_room(user_id,room_id):
 
 def add_user_to_room_manager(user_id,room_id):
     c = get_cursor()
-    r = c.execute('INSERT INTO rooms (id,manager) VALUES (?,?)',
+    r = c.execute('UPDATE room_user SET is_admin=1 WHERE (room_id=?) AND (user_id=?)',
                   [room_id,user_id])
     return r
 
 def remove_user_from_room_manager(user_id,room_id):
     c = get_cursor()
-    r = c.execute('DELETE FROM rooms WHERE (room_id=?) AND (user_id=?)',
+    r = c.execute('UPDATE room_user SET is_admin=0 WHERE (room_id=?) AND (user_id=?)',
                   [room_id,user_id])
     return r
 
 def is_room_manager(user_id,room_id):
     c = get_cursor()
-    r = c.execute('SELECT * FROM rooms WHERE (id=?) AND (manager=?)',[room_id,user_id]).fetchone()
-    if (len(r>0)): return True
-    else: return False
+    r = c.execute('SELECT is_admin FROM room_user WHERE (room_id=?) AND (user_id=?)',[room_id,user_id]).fetchone()
+    
+    if len(r) == 0:
+        return False
+    else:
+        if r[0] == 1:
+            return True
+        else:
+            return False
 
 def is_room_creator(user_id,room_id):
     c = get_cursor()
     r = c.execute('SELECT * FROM rooms WHERE (id=?) AND (room_creator=?)',[room_id,user_id]).fetchone()
-    if (len(r>0)): return True
-    else: return False
+
+    if (r == None): return False
+    else: return True
 
 def is_in_room_blacklist(user_id,room_id):
     c = get_cursor()
-    r = c.execute('SELECT FROM room_blacklists WHERE (user_id=?) AND (room_id=?)',
-                  [user_id, room_id])
-    if (len(r>0)): return True
+    r = c.execute('SELECT * FROM room_blacklists WHERE (user_id=?) AND (room_id=?)',
+                  [user_id, room_id]).fetchall()
+    if (len(r)>0): return True
     else: return r

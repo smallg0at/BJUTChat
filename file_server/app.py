@@ -95,7 +95,7 @@ def download_file():
 
     file_md5 = calculate_md5(file_path)
 
-    response = send_file(file_path_send, mimetype='application/octet-stream', download_name=file_id)
+    response = send_file(file_path_send, mimetype='application/octet-stream')
     response.headers['MD5'] = file_md5
     return response
 

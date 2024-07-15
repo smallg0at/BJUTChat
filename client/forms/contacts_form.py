@@ -66,10 +66,16 @@ class ContactsForm(tk.Frame):
         if data['type'] == MessageType.del_info:
             self.handle_del_contact(data['parameters'])
             return
+        if data['type'] == MessageType.del_info_group:
+            self.handle_del_group(data['parameters'])
+            return
 
         if data['type'] == MessageType.add_friend_result:
             if data['parameters'][0]:
-                messagebox.showinfo('添加好友', '好友请求已发送')
+                if data['parameters'][1] == 'force':
+                    messagebox.showinfo('添加好友', '好友已加')
+                else:
+                    messagebox.showinfo('添加好友', '好友请求已发送')
             else:
                 messagebox.showerror('添加好友失败', data['parameters'][1])
             return
@@ -94,7 +100,14 @@ class ContactsForm(tk.Frame):
     def handle_del_contact(self, data):
         id = data['id']
         for conn in self.contacts:
-            if (conn['id'] == id):
+            if (conn['id'] == id and conn['type'] == 0):
+                self.contacts.remove(conn)
+        self.refresh_contacts()
+    """处理删除好友的操作后"""
+    def handle_del_group(self, data):
+        id = data['id']
+        for conn in self.contacts:
+            if (conn['id'] == id and conn['type'] == 1):
                 self.contacts.remove(conn)
         self.refresh_contacts()
 
