@@ -1,4 +1,7 @@
-requests==2.24.0
-nacl==1.5.0
+Pillow>=7.2.0
+requests
+shellescape==3.8.1
+urllib3
+pynacl==1.5.0
 orjson>=3.10.0
 sv_ttk>=2.6.0

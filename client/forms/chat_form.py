@@ -15,7 +15,6 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import datetime
 import os
-from PIL import Image
 import requests
 from common.config import get_config
 from tempfile import TemporaryFile
