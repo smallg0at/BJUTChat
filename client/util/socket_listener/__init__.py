@@ -6,8 +6,6 @@ import select
 from pprint import pprint
 from tkinter import messagebox
 from common.message import MessageType
-import datetime
-import time
 import client.memory
 import struct
 import sys

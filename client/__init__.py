@@ -4,7 +4,6 @@
 """运行客户端"""
 import _thread
 import tkinter as tk
-from tkinter import ttk
 import sv_ttk
 import ctypes
 from tkinter import messagebox
@@ -12,7 +11,6 @@ import client.memory
 import client.util.socket_listener
 from client.forms.login_form import LoginForm
 from common.transmission.secure_channel import establish_secure_channel_to_server
-from ttkthemes import ThemedTk
 
 """运行客户端开启一个新的线程"""
 def run():

@@ -5,8 +5,12 @@
 
 import json
 from pprint import pprint
+import sys, os
+from common.util import resourcePath
 
-with open('config.json') as config_file:
+
+
+with open(resourcePath('config.json')) as config_file:
     config = json.load(config_file)
 
 

@@ -4,8 +4,7 @@
 """联系人列表 UI"""
 from tkinter import *
 from tkinter import ttk
-from pprint import pprint
-
+from common.util import resourcePath
 """"联系人界面"""
 class AnnouncementEntry(Frame):
 
@@ -24,7 +23,7 @@ class AnnouncementEntry(Frame):
         Frame.config(self, borderwidth=2, relief=FLAT, background="#ffffff")
         self.divider = ttk.Separator(self, orient='vertical')
         self.divider.pack(side='left', fill='y')
-        self.menuicn = PhotoImage(file = "./client/forms/assets/announce.png").subsample(32)
+        self.menuicn = PhotoImage(file = resourcePath("./client/forms/assets/announce.png")).subsample(32)
         self.announce_content = ttk.Label(self,image=self.menuicn, text=f" {title}", compound=LEFT, justify='left', background="#ffffff", font=("微软雅黑", 10), foreground="#a0a0a0")
         self.announce_content.pack(side='left', fill='none', pady=10)
         self.announce_content.bind('<Button>', handle_on_click)

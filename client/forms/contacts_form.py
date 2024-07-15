@@ -10,8 +10,6 @@ from tkinter import messagebox
 from common.message import MessageType, _deserialize_any
 from pprint import pprint
 import client.memory
-import select
-import _thread
 from tkinter import *
 from client.components.vertical_scrolled_frame import VerticalScrolledFrame
 from client.components.contact_item import ContactItem
@@ -19,12 +17,12 @@ from client.forms.chat_form import ChatForm
 from tkinter import Toplevel
 import datetime
 import client.util.socket_listener
-import time
 from tkinter import simpledialog
 import orjson
 from client.components.announcement_entry import AnnouncementEntry
 from client.forms.announcements_form import AnnouncementApp
 from client.components.HyperlinkManager import HyperlinkManager
+from common.util import resourcePath
 class ContactsForm(tk.Frame):
     bundle_process_done = False
 
@@ -241,7 +239,7 @@ class ContactsForm(tk.Frame):
 
         self.top_layout = Frame(self, relief='flat')
         self.top_layout.pack(side=TOP, fill='both')
-        self.menuicn = PhotoImage(file = "./client/forms/assets/globnav.png").subsample(18) 
+        self.menuicn = PhotoImage(file = resourcePath("./client/forms/assets/globnav.png")).subsample(18) 
         self.menu_btn = ttk.Menubutton(self.top_layout, image=self.menuicn, text=" 菜单", compound=LEFT, width=5)
         self.menu = Menu(self.menu_btn, font=("微软雅黑", 12), background="#ffffff", relief=FLAT)
         self.menu_btn['menu'] = self.menu
