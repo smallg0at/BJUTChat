@@ -83,7 +83,7 @@ def is_friend_with(from_user_id, to_user_id):
 
 def get_room(room_id):
     c = get_cursor()
-    fields = ['id', 'room_name']
+    fields = ['id', 'room_name', "room_creator"]
     row = c.execute('SELECT ' + ','.join(fields) + ' FROM rooms WHERE id=?', [room_id]).fetchall()
     if len(row) == 0:
         return None
