@@ -105,7 +105,8 @@ class ChatForm(tk.Frame):
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
         server_url = get_config()['file_server']
-
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if(os.path.exists(f"userdata/image_attachments/{file_id}")):
             full_size_image = self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}"))
             shrunk_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(full_size_image))
@@ -152,6 +153,8 @@ class ChatForm(tk.Frame):
                 return image
 
     def save_specific_image(self, uuid, defaultname):
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if not os.path.exists(f"userdata/image_attachments/{uuid}"):
             messagebox.showerror("错误", "图片未能成功获取，无法保存")
             return
