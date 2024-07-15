@@ -101,6 +101,7 @@ class ChatForm(tk.Frame):
             self.chat_box.insert(END, " ", "")
             self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, "\n", "")
+            threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -164,6 +165,19 @@ class ChatForm(tk.Frame):
                 f.close()
                 ffrom.close()
 
+    def file_autosave(self, uuid):
+        server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+    
     def save_specific_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
         if(not os.path.exists(f"userdata/file_attachments")):
