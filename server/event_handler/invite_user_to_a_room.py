@@ -120,7 +120,7 @@ def run(sc, parameters):
     else:
         #若被邀请用户在黑名单内，则只有管理员或老师能邀请入群，并自动解除黑名单，管理员只能邀请自己的好友入群
         if(database.is_in_room_blacklist(user_id,room_id)):
-            if (database.is_room_manager(inviter_id, room_id)):
+            if (database.is_room_manager(inviter_id, room_id) or database.is_room_creator(inviter_id, room_id)):
                 if (not(database.is_friend_with(inviter_id,uid))):
                     sc.send(MessageType.general_failure, '您不能邀请非好友入群')
                     return

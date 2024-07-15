@@ -16,7 +16,7 @@ def run(sc, parameters):
     room_id = parameters[1]
     operator_id = server.memory.sc_to_user_id[sc]
     #身份检查,操作者必须为管理员,被踢出的用户必须在群内
-    if(database.is_room_manager(operator_id, room_id)):
+    if(database.is_room_manager(operator_id, room_id) or database.is_room_creator(operator_id, room_id)):
         if(database.in_room(user_id, room_id)):    
             database.remove_user_from_room(user_id, room_id)
             sc.send(MessageType.remove_user_from_room_result, [True, user_id, room_id])
