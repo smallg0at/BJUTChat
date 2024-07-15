@@ -9,6 +9,7 @@
     while循环中会不断刷新在线信息
 """
 
+from pprint import pprint
 import socket
 from common.config import get_config
 import common.transmission.secure_channel
@@ -16,13 +17,13 @@ from server.event_handler import handle_event
 from server.memory import *
 
 import select
-from pprint import pprint
+
 import struct
 import sys
 import traceback
 from common.cryptography import crypt
 import logging
-
+logger = logging.getLogger(__name__)
 """生成证书"""
 def gen_cert():
     crypt.gen_secret()
@@ -36,10 +37,11 @@ def run():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((config['server']['bind_ip'], config['server']['bind_port']))
     s.listen(1)
+    i
+    logging.basicConfig(filename='./server.log', level=logging.INFO)
 
     print("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
     logging.info("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
-
     bytes_to_receive = {}
     bytes_received = {}
     data_buffer = {}
@@ -86,7 +88,7 @@ def run():
                 else:
                     data_buffer[sc] = bytes()
                     bytes_to_receive[sc] = struct.unpack('!i', first_4_bytes)[0]
-                    print(f"Incoming a packet of length {bytes_to_receive[sc]}")
+                    logger.debug(f"Incoming a packet of length {bytes_to_receive[sc]}")
 
             buffer = sc.socket.recv(bytes_to_receive[sc] - bytes_received[sc])
             data_buffer[sc] += buffer
@@ -98,10 +100,10 @@ def run():
                 bytes_received[sc] = 0
                 try:
                     data = sc.on_data(data_buffer[sc])
-                    print(data['type'])
+                    logger.debug(data['type'])
                     handle_event(sc, data['type'], data['parameters'])
                 except:
-                    pprint(sys.exc_info())
+                    logger.debug(sys.exc_info())
                     traceback.print_exc(file=sys.stdout)
                     pass
                 data_buffer[sc] = bytes()

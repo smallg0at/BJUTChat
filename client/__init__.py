@@ -11,7 +11,8 @@ import client.memory
 import client.util.socket_listener
 from client.forms.login_form import LoginForm
 from common.transmission.secure_channel import establish_secure_channel_to_server
-
+import logging
+logger = logging.getLogger(__name__)
 """运行客户端开启一个新的线程"""
 def run():
     
@@ -28,7 +29,7 @@ def run():
     client.memory.tk_root.tk.call('tk', 'scaling', ScaleFactor/75)
     
     sv_ttk.set_theme('light')
-    
+    logging.basicConfig(filename='./client.log', level=logging.INFO)
     try:
         client.memory.sc = establish_secure_channel_to_server()
     except ConnectionError:

@@ -7,7 +7,7 @@ friends表中插入一条信息且accept = 0表示未接受。接着发送操作
 和前端显示
 """
 
-from pprint import pprint
+
 from common.message import MessageType
 
 from common.util import md5

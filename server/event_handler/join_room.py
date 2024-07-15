@@ -3,7 +3,7 @@
 
 """数据库操作，将用户加入到指定房间的操作"""
 
-from pprint import pprint
+
 from common.message import MessageType
 
 import server.memory

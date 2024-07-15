@@ -10,7 +10,7 @@
 event_type = 1 = login,则会执行login.run(sc,parameters).
 """
 
-from pprint import pprint
+
 import server.event_handler.login
 import server.event_handler.send_message
 import server.event_handler.register
