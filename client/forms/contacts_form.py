@@ -49,7 +49,7 @@ class ContactsForm(tk.Frame):
                 sent = item[1]
                 message = orjson.loads(item[0])
                 client.util.socket_listener.digest_message(message, not sent)
-
+            self.handle_announcements(bundle['announcements'])
             self.bundle_process_done = True
             self.refresh_contacts()
 
@@ -111,6 +111,11 @@ class ContactsForm(tk.Frame):
                 self.contacts.remove(conn)
         self.refresh_contacts()
 
+    def handle_announcements(self, data):
+        if len(data) == 0:
+            return
+        self.announcement_entry.announce_content.config(text=f' {data[0]["title"]}')
+        self.announcement_list = data
 
     def on_frame_click(self, e):
         item_id = e.widget.item['id']
@@ -122,7 +127,7 @@ class ContactsForm(tk.Frame):
 
     def on_ann_click(self, e):
         form = Toplevel(client.memory.tk_root, takefocus=True)
-        AnnouncementApp(form)
+        AnnouncementApp(form, self.announcement_list)
 
 
     """ 添加好友 """
@@ -268,7 +273,7 @@ class ContactsForm(tk.Frame):
         
         self.announcement_entry = AnnouncementEntry(self.top_layout, self.on_ann_click)
         self.announcement_entry.pack(side=TOP, fill=BOTH, expand=True)
-
+        self.announcement_list = []
         # 滚动条＋消息列表画布
         self.scroll = VerticalScrolledFrame(self, bg="#d9d9d9")
         self.scroll.pack(side=TOP, fill=BOTH, expand=True)
