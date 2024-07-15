@@ -1,5 +1,6 @@
 import requests
 import os
+import time
 
 # 配置
 BASE_URL = 'http://127.0.0.1:5000'
@@ -29,6 +30,8 @@ except requests.exceptions.JSONDecodeError:
 
 if response.status_code == 200:
     file_id = upload_response_json.get('file_id')
+
+    time.sleep(1)
 
     # 测试文件下载
     params1 = {'user_id': USER_ID, 'file_id': file_id}

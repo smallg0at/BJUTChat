@@ -9,6 +9,11 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# sqlite 实例
+if not os.path.exists('file_server/database.db'):
+    print("You're probably on the wrong working directory!")
+
+
 
 # 确保上传文件夹存在
 if not os.path.exists(f'file_server/{UPLOAD_FOLDER}'):
@@ -27,6 +32,7 @@ def calculate_md5(file_path):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print("Request files:", request.files)
     
     if len(request.files) <= 0:   #确保文件名不为空
         return jsonify({'error': 'no file'}), 400
@@ -42,7 +48,9 @@ def upload_file():
         file_id = str(uuid.uuid4())
         filename = file_id
         file_path = os.path.join(f"file_server/{app.config['UPLOAD_FOLDER']}", filename)
+        print("Saving file to:", file_path)
         file.save(file_path)
+        print("File saved successfully.")
 
         # 获取上传时间戳
         upload_time = int(time.time())
@@ -56,6 +64,7 @@ def upload_file():
 
         # 存数据的函数
         insert_into_database(file_info)
+        print("File info inserted into database.")
 
         return jsonify({'file_id': file_id}), 200
 
@@ -63,13 +72,48 @@ def upload_file():
 
 def insert_into_database(file_info):
     conn = sqlite3.connect('file_server/database.db')
+    print("Database connection established.")
     c = conn.cursor()
+    print("Cursor created.")
     c.execute('''
         INSERT INTO files (id, upload_time, is_deleted) 
         VALUES (?, ?, ?)
     ''', (file_info['id'], file_info['upload_time'], file_info['is_deleted']))
     conn.commit()
+    print("Database commit successful.")
     conn.close()
+    print("Database connection closed.")
+    print("Inserted file info into database:", file_info)
+
+def insert_upload_log(file_id, user_id, timestamp):
+    conn = sqlite3.connect('file_server/database.db')
+    print("Database connection established.")
+    c = conn.cursor()
+    print("Cursor created.")
+    c.execute('''
+        INSERT INTO upload_logs (file_id, user_id, timestamp)
+        VALUES (?, ?, ?)
+    ''',(file_id, user_id, timestamp))
+    conn.commit()
+    print("Database commit successful.")
+    conn.close()
+    print("Database connection closed.")
+    print("Upload log recorded:", file_id, user_id, timestamp)
+
+
+def insert_download_log(file_id, user_id, timestamp):
+    conn = sqlite3.connect('file_server/database.db')
+    print("Database connection established.")
+    c = conn.cursor()
+    print("Cursor created.")
+    c.execute('''
+        INSERT INTO download_logs (file_id, user_id, timestamp)
+        VALUES (?, ?, ?)
+    ''', (file_id, user_id, timestamp))
+    conn.commit()
+    conn.close()
+    print("Download log recorded:", file_id, user_id, timestamp)
+
 
 @app.route('/download', methods=['GET'])
 def download_file():
@@ -78,6 +122,8 @@ def download_file():
     
     if not user_id or not file_id:
         return jsonify({'error': 'missing user_id or file_id'}), 400
+    
+    print("Fetching file with ID:", file_id, "for user:", user_id)
 
     conn = sqlite3.connect('file_server/database.db')
     c = conn.cursor()
@@ -91,11 +137,16 @@ def download_file():
     file_path = os.path.join(f"file_server/{app.config['UPLOAD_FOLDER']}", file_id)
     file_path_send = os.path.join(app.config['UPLOAD_FOLDER'], file_id)
     if not os.path.exists(file_path):
+        print("File not found on server.")
         return jsonify({'error': 'file not found on server'}), 404
 
     file_md5 = calculate_md5(file_path)
+    download_time = int(time.time())
+    insert_download_log(file_id, user_id, download_time)
 
-    response = send_file(file_path_send, mimetype='application/octet-stream', download_name=file_id)
+    print("File found, sending to user:", user_id)
+
+    response = send_file(file_path_send, mimetype='application/octet-stream')
     response.headers['MD5'] = file_md5
     return response
 
