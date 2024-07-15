@@ -4,7 +4,6 @@
 """联系人列表 UI"""
 from tkinter import *
 from tkinter import ttk 
-from pprint import pprint
 
 """"联系人界面"""
 class ContactItem(ttk.Frame):

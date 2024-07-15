@@ -10,17 +10,10 @@ import os
 import socket
 import struct
 
-import nacl.encoding
 from common.config import get_config
 from common.cryptography import crypt
-from common.message import serialize_message, deserialize_message, ByteArrayReader
-from common.util import long_to_bytes
-from pprint import pprint
-from server.util import database
 import logging
-import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
-import nacl
 from nacl.encoding import Base64Encoder
 import uuid
 import orjson
@@ -127,13 +120,14 @@ def accept_client_to_secure_channel(socket):
 
     # 首次连接，客户端会发送公钥
     try:
-        uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {uuid.decode()}")
+        uuid_recv = conn.recv(1024)
+        print(f"Incoming user with uuid {uuid_recv.decode()}")
+        uuid.UUID(uuid_recv.decode())
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + uuid.decode() + "_cert.pem"
+    certname = "cert/" + uuid_recv.decode() + "_cert.pem"
 
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:

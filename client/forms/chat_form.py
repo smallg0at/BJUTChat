@@ -13,11 +13,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
-from io import BytesIO
-from client.util import socket_listener
-import binascii
-import time
-import filetype
+import datetime
 import os
 from PIL import Image
 import requests
@@ -28,6 +24,7 @@ import threading
 from client.components.HyperlinkManager import HyperlinkManager
 from functools import partial
 import subprocess, os, platform
+from common.util import resourcePath
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -300,13 +297,13 @@ class ChatForm(tk.Frame):
         self.input_frame = ttk.Frame(self.chat_frame)
         self.input_textbox = ScrolledText(self.chat_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
-        self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
+        self.sndtext_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendtext.png")).subsample(24)
         self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
-        self.image_btn_icon = PhotoImage(file = "./client/forms/assets/sendimage.png").subsample(24) 
+        self.image_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendimage.png")).subsample(24) 
         self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
         self.image_btn.pack(side=LEFT, expand=False)
-        self.file_btn_icon = PhotoImage(file = "./client/forms/assets/sendfile.png").subsample(24) 
+        self.file_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendfile.png")).subsample(24) 
         self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
         self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.chat_frame)
