@@ -29,6 +29,7 @@ def gen_cert():
     crypt.gen_secret()
 
 def run():
+    logging.basicConfig(filename='./server.log', level=logging.INFO)
     logging.info('Server Launched. ')
     gen_cert()
 
@@ -37,8 +38,8 @@ def run():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((config['server']['bind_ip'], config['server']['bind_port']))
     s.listen(1)
-    i
-    logging.basicConfig(filename='./server.log', level=logging.INFO)
+  
+    
 
     print("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
     logging.info("Server listening on " + config['server']['bind_ip'] + ":" + str(config['server']['bind_port']))
