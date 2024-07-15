@@ -75,7 +75,7 @@ import server.memory
 from common.util import md5
 from server.util import database
 from server.util import add_target_type
-
+from server.memory import *
 
 def run(sc, parameters):
     #parameters = [username,room_name]
@@ -115,10 +115,12 @@ def run(sc, parameters):
         #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
         sc.send(MessageType.query_room_users_result, [database.get_room_members(room_id), room_id])
         sc.send(MessageType.general_msg, f'强制添加成功：{school_id}')
+        if user_id in user_id_to_sc:
+            user_id_to_sc[user_id].send(MessageType.contact_info, add_target_type(room, 1))
     else:
         #若被邀请用户在黑名单内，则只有管理员或老师能邀请入群，并自动解除黑名单，管理员只能邀请自己的好友入群
         if(database.is_in_room_blacklist(user_id,room_id)):
-            if (database.is_room_manager(inviter_id)):
+            if (database.is_room_manager(inviter_id, room_id)):
                 if (not(database.is_friend_with(inviter_id,uid))):
                     sc.send(MessageType.general_failure, '您不能邀请非好友入群')
                     return
@@ -126,10 +128,12 @@ def run(sc, parameters):
                     database.add_to_room(user_id, room_id)
                     database.remove_user_from_room_blacklist(user_id,room_id)
                     #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-                    sc.send(MessageType.contact_info, add_target_type(room, 1))
+                    if user_id in user_id_to_sc:
+                        user_id_to_sc[user_id].send(MessageType.contact_info, add_target_type(room, 1))
                     sc.send(MessageType.general_msg, f'添加成功：{school_id}')
             else:
                 sc.send(MessageType.general_failure, '只有管理员能邀请被加入黑名单的用户入群')
+                return
         #若不在黑名单内，则普通用户可邀请自己好友入群
         else:
             if (not(database.is_friend_with(inviter_id,uid))):
@@ -138,6 +142,11 @@ def run(sc, parameters):
             else:
                 database.add_to_room(user_id, room_id)
                 #contact_info操作码控制handle_contact函数，做前端添加聊天框操作
-                sc.send(MessageType.contact_info, add_target_type(room, 1))
+                if user_id in user_id_to_sc:
+                    user_id_to_sc[user_id].send(MessageType.contact_info, add_target_type(room, 1))
                 sc.send(MessageType.general_msg, f'添加成功：{school_id}')
-            
+    
+        room_members = database.get_room_members(room_id)
+        for member in room_members:
+            if member[0] in user_id_to_sc:
+                server.memory.user_id_to_sc[member[0]].send(MessageType.query_room_users_result, [room_members, room_id])
