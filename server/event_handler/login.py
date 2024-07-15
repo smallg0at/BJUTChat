@@ -69,5 +69,4 @@ def run(sc, parameters):
     login_bundle['announcements'] = database.get_announcements()
 
     print('Bundle sent.')
-    print(database.get_announcements())
     sc.send(MessageType.login_bundle, login_bundle)
