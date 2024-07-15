@@ -65,5 +65,9 @@ def run(sc, parameters):
 
 
     login_bundle['messages'] = database.get_chat_history(user_id)
+
+    login_bundle['announcements'] = database.get_announcements()
+
     print('Bundle sent.')
+    print(database.get_announcements())
     sc.send(MessageType.login_bundle, login_bundle)

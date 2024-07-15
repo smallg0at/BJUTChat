@@ -212,3 +212,15 @@ def is_in_room_blacklist(user_id,room_id):
                   [user_id, room_id]).fetchall()
     if (len(r)>0): return True
     else: return r
+
+def get_announcements():
+    c= get_cursor()
+    fields = ['title', 'content', "send_time"]
+    row = c.execute('SELECT ' + ','.join(fields) + ' FROM announcements').fetchall()
+    if len(row) == 0:
+        return []
+    else:
+        annlist = []
+        for i in row:
+            annlist.append(dict(zip(fields, i)))
+        return annlist
