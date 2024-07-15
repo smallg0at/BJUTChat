@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime, timedelta
+from hashlib import md5 as _md5
 
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 
 def get_db_connection():
     conn = sqlite3.connect('server/database.db')
@@ -63,19 +64,25 @@ def ban_user():
     finally:
         conn.close()
 
+def md5(text):
+    """计算md5值"""
+    m = _md5()
+    m.update(text.encode('utf-8'))
+    return m.hexdigest()
+
 @app.route('/change_password', methods=['POST'])
 def change_password():
     try:
         data = request.get_json()
-        username = data.get('username')
+        school_id = data.get('school_id')
         new_password = data.get('newPassword')
 
-        if not username or not new_password:
+        if not school_id or not new_password:
             return jsonify({'success': False, 'message': 'Username and new password are required'}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        cursor.execute("UPDATE users SET password = ? WHERE school_id = ?", (md5(new_password), school_id))
         conn.commit()
 
         if cursor.rowcount == 0:
@@ -158,6 +165,3 @@ def delete_all_announcements():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'success': False, 'message': 'Internal Server Error'}), 500
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
