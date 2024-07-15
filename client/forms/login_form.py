@@ -280,7 +280,7 @@ class LoginForm(tk.Frame):
         if password != password_confirmation:
             messagebox.showerror("Error", "两次密码输入不一致")
             return
-        if not re.match(r'^[0-9]{0,8}$',school_id):
-            messagebox.showerror("Error", "学工/号格式错误")
-            return
+        # if not re.match(r'^[0-9]{0,8}$',school_id):
+        #     messagebox.showerror("Error", "学工/号格式错误")
+        #     return
         self.sc.send(MessageType.register, [username, password, school_id, sex, role])

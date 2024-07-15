@@ -78,6 +78,7 @@ class MessageType(enum.IntEnum):
     remove_user_from_room_result = 127
     add_user_to_room_manager_result = 128
     remove_user_from_room_manager_result = 129
+    del_info_group = 130
     # === Failure 201-300
     login_failed = 201
     school_id_taken = 202
