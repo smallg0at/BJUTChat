@@ -57,11 +57,6 @@ const barChartOptions = {
   },
 };
 
-const barChart = new ApexCharts(
-  document.querySelector('#bar-chart'),
-  barChartOptions
-);
-barChart.render();
 
 // AREA CHART
 const areaChartOptions = {

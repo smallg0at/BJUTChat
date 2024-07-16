@@ -19,7 +19,7 @@
 
         <!-- Header -->
         <header class="header">
-            <div class="menu-icon" onclick="showLoginAlert()">
+            <div class="menu-icon">
                 <span class="material-icons-outlined">menu</span>
             </div>
             <div class="header-left">
@@ -28,10 +28,8 @@
                 <div id="searchResults" class="search-results"></div>
             </div>
             <div class="header-right">
-                <a href="#" onclick="showLoginAlert()">
-                    <span class="material-icons-outlined">email</span>
-                </a>
-                <a href="{{ url_for('login') }}" target="_blank"><span class="material-icons-outlined">account_circle</span>
+
+                <a onclick="logout()"><span class="material-icons-outlined">account_circle</span>
                 </a>
             </div>
         </header>
@@ -43,23 +41,28 @@
                 <div class="sidebar-brand">
                     <span class="material-icons-outlined">home</span> MENU
                 </div>
-                <span class="material-icons-outlined" onclick="showLoginAlert()">close</span>
+                <span class="material-icons-outlined" >close</span>
             </div>
 
             <ul class="sidebar-list">
-                <li class="sidebar-list-item" onclick="showLoginAlert()">
-                    <a href="#">
-                        <span class="material-icons-outlined">dashboard</span> Dashboard
-                    </a>
-                </li>
-                <li class="sidebar-list-item" onclick="showLoginAlert()">
-                    <a href="#">
+                <li class="sidebar-list-item" >
+                    <a href="/announcements">
                         <span class="material-icons-outlined">mail</span> Announcements
                     </a>
                 </li>
-                <li class="sidebar-list-item" onclick="showLoginAlert()">
-                    <a href="#">
-                        <span class="material-icons-outlined">groups</span> User Management
+                <li class="sidebar-list-item">
+                    <a href="/banning_user">
+                        <span class="material-icons-outlined">groups</span> Ban User
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="/altering_password">
+                        <span class="material-icons-outlined">groups</span> Change User Password
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="/altering_user_info">
+                        <span class="material-icons-outlined">groups</span> Change User Info
                     </a>
                 </li>
             </ul>
@@ -75,7 +78,7 @@
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT OVERALL USERS(STUDENTS)</p>
+                        <p class="text-primary">CURRENT OVERALL USERS (STUDENTS)</p>
                         <span class="material-icons-outlined text-blue">person</span>
                     </div>
                     <span class="text-primary font-weight-bold"></span>
@@ -83,7 +86,7 @@
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT OVERALL GROUP(S)</p>
+                        <p class="text-primary">CURRENT OVERALL GROUPS</p>
                         <span class="material-icons-outlined text-orange">groups</span>
                     </div>
                     <span class="text-primary font-weight-bold"></span>
@@ -91,7 +94,7 @@
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT USER(TEACHERS)</p>
+                        <p class="text-primary">CURRENT USER (TEACHERS)</p>
                         <span class="material-icons-outlined text-green">attribution</span>
                     </div>
                     <span class="text-primary font-weight-bold"></span>
@@ -106,23 +109,12 @@
                 </div>
 
             </div>
-            <div class="container">
-                <div class="right">
-                    <h2><span>&nbsp</span>&nbsp <a href="#" onclick="showLoginAlert()"><span class="material-icons-outlined">assignment</span>Bulletin Board</a></h2>
-                    <div id="announcementHistory"></div>
-                </div>
-            </div>
         
             <div class="charts">
 
                 <div class="charts-card">
                     <p class="chart-title">Active User & Chat Group </p>
                     <div id="area-chart"></div>
-                </div>
-                <div class="charts-card">
-                    <p class="chart-title">Top 5 Concerns For BJUT-CHAT Admin</p>
-                    <p class="chart-subtitle">"why we want to accomplish this platform"</p>
-                    <div id="bar-chart"></div>
                 </div>
 
             </div>
@@ -142,7 +134,11 @@
             alert('You need to login first');
             setTimeout(function() {
                 window.location.href = "{{ url_for('login') }}";
-            }, 1000);  // 1秒钟后跳转
+            }, 1000);
+        }
+
+        async function logout(){
+            window.open('/logout', '_self')
         }
 
         document.addEventListener('DOMContentLoaded', () => {

@@ -3,6 +3,7 @@ from flask_cors import CORS
 import sqlite3
 from datetime import datetime, timedelta
 from hashlib import md5 as _md5
+import orjson
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -66,23 +67,21 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
-@app.route('/signup')
-def signup():
-    if 'logged_in' in session and session['logged_in']:
-        return render_template('signup.html')
 
 @app.route('/announcements')
 def email():
     if 'logged_in' in session and session['logged_in']:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        row = cursor.execute("SELECT title,content,send_time FROM announcements").fetchall()
-        conn.close()
-        ann_list = []
-        for i in row:
-            ann_list.append(dict(zip(['title', 'content', 'send_time'], row[i])))
-        
+        # conn = get_db_connection()
+        # cursor = conn.cursor()
+        # rows = cursor.execute("SELECT title,content,send_time FROM announcements").fetchall()
+        # conn.close()
+        # ann_list = list()
+        # for i in rows:
+        #     ann_list.append({'title': rows[i][0], 'content': rows[i][1], 'send_time': rows[i][2]})
+        # alist = orjson.dumps(ann_list)
         return render_template('announcements.html')
+    else:
+        return render_template('403.html')
 
 @app.route('/banning_user')
 def banning_user():
