@@ -2,7 +2,7 @@ import requests
 import os
 
 # 配置
-BASE_URL = 'http://127.0.0.1:5000'
+BASE_URL = 'http://127.0.0.1:23337'
 UPLOAD_URL = f'{BASE_URL}/upload'
 DOWNLOAD_URL = f'{BASE_URL}/download'
 TEST_FILE_PATH = 'test_upload.txt'
