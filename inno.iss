@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BJUTChat"
-#define MyAppVersion "0.9.3"
+#define MyAppVersion "0.9.6"
 #define MyAppPublisher ""
 #define MyAppURL ""
 #define MyAppExeName "run_client.exe"
@@ -10,7 +10,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{8D005592-7AED-4C18-B8C7-2FCE5CFA8401}
+AppId={{8D005592-7AED-4C18-B8C7-2FCE5CFA8401}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}

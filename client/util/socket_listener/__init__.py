@@ -21,13 +21,13 @@ def gen_last_message(obj):
     prefix = ''
     # type 0 - 文字消息 1 - 图片消息
     if obj['target_type'] == 1:
-        prefix = obj['sender_name'] + ':'
+        prefix = obj['sender_name'] + ': '
     if obj['message']['type'] == 0:
         return prefix + obj['message']['data'].replace('\n', ' ')
     if obj['message']['type'] == 1:
-        return prefix + '[图片消息]'
+        return prefix + '[图片]'
     if obj['message']['type'] == 2:
-        return prefix + '[文件消息]'
+        return prefix + '[文件]'
 
 
 def socket_listener_thread(sc, tk_root):
