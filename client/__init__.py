@@ -49,7 +49,7 @@ def run():
     sv_ttk.set_theme('light')
     logging.info(ScaleFactor)
     style = ttk.Style()
-    style.configure(".", font=("微软雅黑", int(4*(ScaleFactor/72))))
+    style.configure(".", font=("微软雅黑", 12))
     style.configure("Contact.TSeparator", background="#000000")
     style.configure("Contact.TFrame", background="#f0f0f0") 
     style.configure("White.TFrame", background="#fafafa") 
