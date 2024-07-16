@@ -61,6 +61,10 @@ def run():
     except ConnectionError:
         messagebox.showerror("出错了", "无法连接到服务器")
         exit(1)
+    except OSError:
+        messagebox.showerror("出错了", "无法连接到服务器")
+        exit(1)
+
 
     _thread.start_new_thread(client.util.socket_listener.socket_listener_thread, (client.memory.sc, root))
     login = tk.Toplevel()

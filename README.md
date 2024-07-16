@@ -38,6 +38,26 @@ python3 -m venv bjutchat_env
 source bjutchat_env/bin/activate
 pip install -r ./requirements.txt
 pip install -r ./requirements_extra.txt
-python3 ./file_server/init_db.py
+python3 ./file_server/init_db.py # Initializes & cleans database
 python3 ./run_file_server.py
+```
+## Running Chat Server
+
+With python3 native venv, on bash:
+
+```bash
+python3 -m venv bjutchat_env
+source bjutchat_env/bin/activate
+pip install -r ./requirements.txt
+pip install -r ./requirements_extra.txt
+python3 ./server/excute_sql.py # Initializes & cleans database
+python3 ./run_server.py
+```
+
+## Running dashboard
+
+Must perform after starting chat server. Not safe, dont use unless required.
+
+```bash
+python3 ./run_dashboard.py
 ```

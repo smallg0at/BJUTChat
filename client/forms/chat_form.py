@@ -9,7 +9,7 @@ import client.memory
 from client.util.socket_listener import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import colorchooser
-from tkinter import simpledialog
+import client.components.simpledialog as simpledialog
 from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
@@ -95,14 +95,14 @@ class ChatForm(tk.Frame):
             image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
-            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.entry_save_specific_image, data['message']['uuid'], data['message']['basename'])))
         if data['message']['type'] == 2:
             self.chat_box.insert(END, f"【文件】{data['message']['basename']} ", "message")
-            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.open_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.entry_open_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, " ", "")
-            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.entry_save_specific_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, "\n", "")
-            threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
+            # threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -152,6 +152,8 @@ class ChatForm(tk.Frame):
             else:
                 return image
 
+    def entry_save_specific_image(self, uuid, defaultname):
+        threading.Thread(target=self.save_specific_image, args=[uuid, defaultname]).start()
     def save_specific_image(self, uuid, defaultname):
         if(not os.path.exists(f"userdata/image_attachments")):
             os.makedirs(f"userdata/image_attachments")
@@ -177,6 +179,9 @@ class ChatForm(tk.Frame):
                     f.write(response.content)
                     f.close()
     
+    def entry_save_specific_file(self, uuid, defaultname):
+        threading.Thread(target=self.save_specific_file, args=[uuid, defaultname]).start()
+
     def save_specific_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
         if(not os.path.exists(f"userdata/file_attachments")):
@@ -198,6 +203,9 @@ class ChatForm(tk.Frame):
                 f.write(ffrom.read())
                 f.close()
                 ffrom.close()
+
+    def entry_open_file(self, uuid, defaultname):
+        threading.Thread(target=self.open_file, args=[uuid, defaultname]).start()
 
     def open_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
@@ -352,10 +360,10 @@ class ChatForm(tk.Frame):
         self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
         self.image_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendimage.png")).subsample(24) 
-        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
+        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.entry_send_image)
         self.image_btn.pack(side=LEFT, expand=False)
         self.file_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendfile.png")).subsample(24) 
-        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
+        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.entry_send_file)
         self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.chat_frame)
         self.chat_box.pack(side=TOP, fill=BOTH, expand=True)
@@ -436,6 +444,8 @@ class ChatForm(tk.Frame):
             pass
 
     """" 发送图片 """
+    def entry_send_image(self):
+        threading.Thread(target=self.send_image).start()
     def send_image(self):
         filename = filedialog.askopenfilename(filetypes=[("Image Files",
                                                           ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
@@ -473,6 +483,9 @@ class ChatForm(tk.Frame):
                 messagebox.showinfo("提示", "图片发送成功")
             else:
                 messagebox.showerror("提示", f"图片发送失败。错误码：{response.status_code}")
+
+    def entry_send_file(self):
+        threading.Thread(target=self.send_file).start()
 
     def send_file(self):
         filename = filedialog.askopenfilename()

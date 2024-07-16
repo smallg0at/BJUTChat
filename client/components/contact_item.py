@@ -25,8 +25,8 @@ class ContactItem(ttk.Frame):
 
         # last_message
         self.message_frame.pack(side=BOTTOM, fill=BOTH, expand=True, pady=(0, 5), padx=3)
-        self.last_message = Label(self.message_frame, text="recent message", font=('微软雅黑', 13), fg='black', bg="#f0f0f0")
-        self.last_message.pack(side=LEFT, fill=X, expand=True, anchor=W)
+        self.last_message = Label(self.message_frame, text="recent message", font=('微软雅黑', 13), fg='black', bg="#f0f0f0", justify='left')
+        self.last_message.pack(side=LEFT, anchor=W)
 
         # title
         self.title_frame.pack(side=LEFT, fill=BOTH, expand=True, anchor=W, pady=(1, 1), padx=3)
