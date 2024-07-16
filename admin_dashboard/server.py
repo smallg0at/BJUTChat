@@ -13,9 +13,15 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.before_first_request
+first_request = True
+
+@app.before_request
 def reset_login_info():
-    session.clear()
+    global first_request
+    if first_request:
+        session.clear()
+        first_request = False
+
 
 @app.route('/')
 def index():
