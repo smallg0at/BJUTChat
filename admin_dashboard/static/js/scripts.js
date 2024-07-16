@@ -155,6 +155,7 @@ function search() {
 
     results.style.display = matches.length > 0 ? 'block' : 'none';
 }
+
 function showUserManagementSubMenu() {
     document.getElementById('userManagementSubMenu').style.display = 'block';
 }
@@ -162,6 +163,7 @@ function showUserManagementSubMenu() {
 function hideUserManagementSubMenu() {
     document.getElementById('userManagementSubMenu').style.display = 'none';
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     var announcements = JSON.parse(localStorage.getItem('announcements')) || [];
     var announcementHistory = document.getElementById('announcementHistory');
@@ -216,6 +218,7 @@ function search() {
 
     results.style.display = matches.length > 0 ? 'block' : 'none';
 }
+
 // 更新公告数量
 function updateAnnouncementCount() {
     var announcements = JSON.parse(localStorage.getItem('announcements')) || [];
