@@ -46,6 +46,7 @@ def run(sc, parameters):
 
     # 发送群列表
     rms = database.get_user_rooms(user_id)
+    login_bundle = dict()
     login_bundle['rooms'] = list(map(lambda x: add_target_type(x, 1), rms))
 
     # 发送好友请求
