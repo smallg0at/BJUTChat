@@ -1,24 +1,64 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime, timedelta
 from hashlib import md5 as _md5
 
 app = Flask(__name__)
-# CORS(app)
+app.secret_key = 'your_secret_key'
+#CORS(app)
 
 def get_db_connection():
     conn = sqlite3.connect('server/database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
+@app.before_first_request
+def reset_login_info():
+    session.clear()
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'logged_in' not in session or not session['logged_in']:
+        return render_template('main.html')
+    logged_in = session.get('logged_in', False)
+    username = session.get('username', '')
+    return render_template('index.html', logged_in=logged_in, username=username)
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+
+        # 检查用户凭据（这里是硬编码的用户名和密码检查）
+        valid_users = [
+            { 'username': 'lty', 'password': '12345678' },
+            { 'username': 'lyc', 'password': '87654321' },
+            { 'username': 'lcb', 'password': '00000000' },
+            { 'username': 'yyb', 'password': '11111111' },
+            { 'username': 'flh', 'password': '21933122' },
+            { 'username': 'gjy', 'password': '92138121' },
+            # 你可以在这里添加更多的硬编码用户
+        ]
+
+        is_valid_user = any(user for user in valid_users if user['username'] == username and user['password'] == password)
+
+        if is_valid_user:
+            session['logged_in'] = True
+            session['username'] = username
+            return jsonify({'success': True, 'message': 'Login successful'})
+        else:
+            return jsonify({'success': False, 'message': 'Login failed. Please check your username and password.'}), 401
+
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
 @app.route('/signup')
 def signup():
