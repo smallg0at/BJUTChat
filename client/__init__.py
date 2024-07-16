@@ -12,21 +12,24 @@ import client.util.socket_listener
 from client.forms.login_form import LoginForm
 from common.transmission.secure_channel import establish_secure_channel_to_server
 import logging
+import platform
 logger = logging.getLogger(__name__)
 """运行客户端开启一个新的线程"""
 def run():
     
     root = tk.Tk()
     client.memory.tk_root = root
-    # 告诉操作系统使用程序自身的dpi适配
-    try:  # >= win 8.1
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)
-    except:  # win 8.0 or less
-        ctypes.windll.user32.SetProcessDPIAware()
-    #获取屏幕的缩放因子
-    ScaleFactor=ctypes.windll.shcore.GetScaleFactorForDevice(0)
-    # 设置程序缩放
-    client.memory.tk_root.tk.call('tk', 'scaling', ScaleFactor/75)
+
+    if platform.system() == 'Windows': 
+        # 告诉操作系统使用程序自身的dpi适配
+        try:  # >= win 8.1
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        except:  # win 8.0 or less
+            ctypes.windll.user32.SetProcessDPIAware()
+        #获取屏幕的缩放因子
+        ScaleFactor=ctypes.windll.shcore.GetScaleFactorForDevice(0)
+        # 设置程序缩放
+        client.memory.tk_root.tk.call('tk', 'scaling', ScaleFactor/75)
     
     sv_ttk.set_theme('light')
     logging.basicConfig(filename='./client.log', level=logging.INFO)
