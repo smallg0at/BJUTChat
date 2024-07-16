@@ -6,6 +6,12 @@ This app can be bundled with PyInstaller. It is advised to create a new env to b
 
 Note: server options (`config.json`) should be tweaked before building.
 
+### Dependencies outside Python packages
+
+- tkinter
+
+### Examples
+
 An example using conda's env feature:
 
 ```bash
@@ -15,4 +21,23 @@ pip install -r ./requirements.txt
 pyinstaller run_client.spec
 ```
 
-## 
+With python3 native venv, on bash:
+
+```bash
+python3 -m venv bjutchat_env
+source bjutchat_enc/bin/activate
+pip install -r ./requirements.txt
+pyinstaller run_client.spec
+```
+## Running File Server
+
+With python3 native venv, on bash:
+
+```bash
+python3 -m venv bjutchat_env
+source bjutchat_env/bin/activate
+pip install -r ./requirements.txt
+pip install -r ./requirements_extra.txt
+python3 ./file_server/init_db.py
+python3 ./run_file_server.py
+```
