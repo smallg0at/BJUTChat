@@ -181,43 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function toggleSearch() {
-    var searchInput = document.getElementById('searchInput');
-    var searchResults = document.getElementById('searchResults');
-    if (searchInput.style.display === 'none' || searchInput.style.display === '') {
-        searchInput.style.display = 'inline-block';
-        searchInput.focus(); // 聚焦输入框
-    } else {
-        searchInput.style.display = 'none';
-        searchResults.style.display = 'none';
-    }
-}
-
-function search() {
-    var input = document.getElementById('searchInput').value.toLowerCase();
-    var results = document.getElementById('searchResults');
-    results.innerHTML = '';
-
-    if (input === '') {
-        results.style.display = 'none';
-        return;
-    }
-
-    var texts = Array.from(document.querySelectorAll('.main-container, .main-cards, .charts, .charts-card'));
-    var matches = texts.filter(el => el.textContent.toLowerCase().includes(input)).slice(0, 10);
-
-    matches.forEach((match, index) => {
-        var div = document.createElement('div');
-        div.className = 'result-item';
-        div.textContent = match.textContent.substring(0, 100); // 限制显示长度
-        div.onclick = () => {
-            match.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-        results.appendChild(div);
-    });
-
-    results.style.display = matches.length > 0 ? 'block' : 'none';
-}
 
 // 更新公告数量
 function updateAnnouncementCount() {

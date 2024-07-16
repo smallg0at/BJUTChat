@@ -26,10 +26,6 @@
       <button type="submit">LOGIN</button>
       <p class="message" id="message"></p>
     </form>
-
-    <form class="login-form">
-      <button type="button" onclick="window.location.href='{{ url_for('signup') }}'">SIGN UP</button>
-    </form>
   </div>
 </div>
 
@@ -63,7 +59,7 @@
           message.style.color = 'green';
           message.textContent = 'Login successful';
           setTimeout(() => {
-            window.location.href = "/";
+            window.open('/', '_self')
           }, 2000); // 显示2秒钟后跳转
         } else {
           message.style.color = 'red';
