@@ -101,4 +101,4 @@ def download_file():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=23337)
+    app.run(port=23337)
