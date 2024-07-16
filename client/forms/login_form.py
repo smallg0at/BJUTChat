@@ -60,13 +60,7 @@ class LoginForm(tk.Frame):
         """创建主窗口用来容纳其他组件"""
         super().__init__(master)
         # sv_ttk.set_theme('dark')
-        style = ttk.Style()
-        style.configure(".", font=("微软雅黑", 12))
-        style.configure("Contact.TSeparator", background="#000000")
-        style.configure("Contact.TFrame", background="#f0f0f0") 
-        style.configure("White.TFrame", background="#fafafa") 
-        style.configure("White.TLabel", background="#fafafa") 
-        style.configure("Contact1.TFrame", background="#f0f0f0")
+        
         
         self.master = master
         self.master.title("BJUTChat")
