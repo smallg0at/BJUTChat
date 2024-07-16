@@ -53,6 +53,7 @@ def run():
     style.configure("Contact.TSeparator", background="#000000")
     style.configure("Contact.TFrame", background="#f0f0f0") 
     style.configure("White.TFrame", background="#fafafa") 
+    style.configure("VC1.TLabel", background="fafafa", font=('微软雅黑', 9)) 
     style.configure("White.TLabel", background="#fafafa") 
     style.configure("Contact1.TFrame", background="#f0f0f0")
     logging.basicConfig(filename='./client.log', level=logging.INFO)

@@ -221,7 +221,7 @@ class ContactsForm(tk.Frame):
                 contact.title.config(fg='#000000')
             if (item['type'] == 1):
                 # 群
-                contact.title.config(text='[群:' + str(item['id']) + '] ' + item['room_name'])
+                contact.title.config(text=f'[群] {item["room_name"]} ({str(item["id"])})')
                 contact.title.config(fg='green')
 
             self.pack_objs.append(contact)
@@ -261,12 +261,16 @@ class ContactsForm(tk.Frame):
         self.menu_btn = ttk.Menubutton(self.top_layout, image=self.menuicn, text=" 菜单", compound=LEFT, width=5)
         self.menu = Menu(self.menu_btn, font=("微软雅黑", 12), background="#ffffff", relief=FLAT)
         self.menu_btn['menu'] = self.menu
-
+        self.menu.add
         self.menu.add_command(label="添加好友", command=self.on_add_friend)
         self.menu.add_command(label="删除好友", command=self.on_del_friend)
+        self.menu.add_separator()
         self.menu.add_command(label="新建群聊", command=self.on_create_room)
         self.menu.add_command(label="加入群聊", command=self.on_add_room)
+        self.menu.add_separator()
         self.menu.add_command(label="更改用户名", command=self.on_alter_username)
+        self.menu.add_command(label="退出", command=self.remove_socket_listener_and_close)
+
 
 
         self.menu_btn.pack(side=LEFT)

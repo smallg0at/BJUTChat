@@ -110,6 +110,7 @@ class LoginForm(tk.Frame):
             width=25,
             style="Accent.TButton",
         )
+        self.version_label = ttk.Label(self.login_frame, text=f"BJUTChat {get_config()['version']}", style="White.TLabel", font=('微软雅黑', 9))
 
         # self.pack(expand=True, fill=BOTH)
         # 位置定位
@@ -138,6 +139,7 @@ class LoginForm(tk.Frame):
         self.login_user_pwd.grid(row=3, column=0, columnspan=1, sticky=N)
         self.login_entry_user_pwd.grid(row=4, column=0, columnspan=1, sticky=N)
         self.login_btn.grid(row=6, column=0, columnspan=1, sticky=N)
+        self.version_label.grid(row=7, column=0, sticky=N)
         # self.register_btn.grid(row=7, column=0, columnspan=2, sticky=N)
         # self.quit_btn.grid(row=8, column=0, columnspan=2, sticky=N)
 
