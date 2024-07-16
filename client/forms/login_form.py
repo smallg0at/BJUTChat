@@ -261,7 +261,7 @@ class LoginForm(tk.Frame):
             messagebox.showerror("Error", "用户名不能为空")
             return
         if not school_id:
-            messagebox.showerror("Error", "学/工号不能为空")
+            messagebox.showerror("Error", "学工号不能为空")
             return
         if not password:
             messagebox.showerror("Error", "密码不能为空")
@@ -269,7 +269,7 @@ class LoginForm(tk.Frame):
         if password != password_confirmation:
             messagebox.showerror("Error", "两次密码输入不一致")
             return
-        # if not re.match(r'^[0-9]{0,8}$',school_id):
-        #     messagebox.showerror("Error", "学工/号格式错误")
-        #     return
+        if not re.match(r'^[0-9]{1,8}$',school_id):
+            messagebox.showerror("Error", "学工号格式错误")
+            return
         self.sc.send(MessageType.register, [username, password, school_id, sex, role])

@@ -258,6 +258,8 @@ class ChatForm(tk.Frame):
     
     def do_send_group_invite(self):
         target_schoolid = simpledialog.askstring("提示","请输入要邀请的人的学工号")
+        if (not target_schoolid):
+            return
         self.sc.send(MessageType.invite_user_to_a_room, {'school_id': target_schoolid, 'room_name': self.target['room_name']})
 
     def do_adminify_user(self):
