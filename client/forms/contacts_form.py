@@ -17,7 +17,7 @@ from client.forms.chat_form import ChatForm
 from tkinter import Toplevel
 import datetime
 import client.util.socket_listener
-from tkinter import simpledialog
+import client.components.simpledialog as simpledialog
 import orjson
 from client.components.announcement_entry import AnnouncementEntry
 from client.forms.announcements_form import AnnouncementApp
