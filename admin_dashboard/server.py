@@ -87,21 +87,27 @@ def email():
 def banning_user():
     if 'logged_in' in session and session['logged_in']:
         return render_template('banning_user.html')
+    else:
+        return render_template('403.html')
 
 @app.route('/altering_password')
 def altering_password():
     if 'logged_in' in session and session['logged_in']:
         return render_template('altering_password.html')
+    else:
+        return render_template('403.html')
 
 @app.route('/altering_user_info')
 def altering_user_info():
     if 'logged_in' in session and session['logged_in']:
         return render_template('altering_user_info.html')
+    else:
+        return render_template('403.html')
 
 @app.route('/ban_user', methods=['POST'])
 def ban_user():
     if 'logged_in' not in session or not session['logged_in']:
-        return
+        return render_template('403.html')
     try:
         data = request.get_json()
         user_id = data.get('user_id')
@@ -111,7 +117,7 @@ def ban_user():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET is_banned = 1 WHERE id = ?", (user_id,))
+        cursor.execute("UPDATE users SET is_banned = 1 WHERE school_id = ?", (user_id,))
         conn.commit()
 
         if cursor.rowcount == 0:
@@ -133,7 +139,7 @@ def md5(text):
 @app.route('/change_password', methods=['POST'])
 def change_password():
     if 'logged_in' not in session or not session['logged_in']:
-        return
+        return render_template('403.html')
     try:
         data = request.get_json()
         school_id = data.get('school_id')
@@ -160,7 +166,7 @@ def change_password():
 @app.route('/update_user_info', methods=['POST'])
 def update_user_info():
     if 'logged_in' not in session or not session['logged_in']:
-        return
+        return render_template('403.html')
     try:
         data = request.get_json()
         username = data.get('username')
@@ -193,7 +199,7 @@ def update_user_info():
 @app.route('/create_announcement', methods=['POST'])
 def create_announcement():
     if 'logged_in' not in session or not session['logged_in']:
-        return
+        return render_template('403.html')
     try:
         data = request.get_json()
         content = data.get('content')
@@ -221,7 +227,7 @@ def create_announcement():
 @app.route('/delete_all_announcements', methods=['DELETE'])
 def delete_all_announcements():
     if 'logged_in' not in session or not session['logged_in']:
-        return
+        return render_template('403.html')
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
