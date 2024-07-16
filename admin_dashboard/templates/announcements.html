@@ -12,12 +12,13 @@
     <div class="container">
         <div class="left">
             <h2><span class="material-icons-outlined">edit</span>&nbsp Write Announcement</h2>
+            <input type="text" id="announcementTitle" />
             <textarea id="announcementText" maxlength="500" placeholder="Write your announcement here..." onkeydown="handleKeyDown(event)"></textarea>
             <button onclick="addAnnouncement()">Submit</button>
             <a href="{{ url_for('index') }}" target="_blank"><button>Return</button></a>
         </div>
         <div class="right">
-            <h2><span class="material-icons-outlined">history_edu</span>&nbsp History Announcements
+            <h2><span class="material-icons-outlined">history_edu</span>&nbsp Announcements
                 <button class="delete-all-btn" onclick="deleteAllAnnouncements()">Delete All</button>
             </h2>
             <div id="announcementHistory"></div>
@@ -25,6 +26,8 @@
     </div>
 
     <script>
+
+
         function handleKeyDown(event) {
             if (event.key === 'Enter') {
                 event.preventDefault(); // 阻止默认的回车换行行为
@@ -84,7 +87,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            var announcements = JSON.parse(localStorage.getItem('announcements')) || [];
+            var announcements = {{ann_list}};
             var announcementHistory = document.getElementById('announcementHistory');
             
             announcements.forEach(text => {
