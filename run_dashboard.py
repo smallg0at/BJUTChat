@@ -3,4 +3,4 @@
 
 from admin_dashboard.server import *
 
-app.run(host='0.0.0.0', port=23338, debug=True)
+app.run(host='0.0.0.0', port=23338)
