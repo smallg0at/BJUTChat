@@ -3,7 +3,7 @@ import os
 import time
 
 # 配置
-BASE_URL = 'http://127.0.0.1:5000'
+BASE_URL = 'http://127.0.0.1:23337'
 UPLOAD_URL = f'{BASE_URL}/upload'
 DOWNLOAD_URL = f'{BASE_URL}/download'
 DOWNLOAD_BATCH_URL = f'{BASE_URL}/download_batch'

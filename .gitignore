@@ -7,3 +7,9 @@ uuid
 venv
 file_server/uploads
 userdata
+build
+dist
+installer
+log
+client.log
+server.log

@@ -2,25 +2,20 @@
 # -*- coding:utf-8 -*-
 
 """登录界面"""
-import _tkinter
-import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from common.message import MessageType
-from pprint import pprint
+
 import client.memory
 from client.forms.contacts_form import ContactsForm
-import select
-import _thread
-import os
 from tkinter import *
 from tkinter import Toplevel
 import client.util.socket_listener
-import sv_ttk
 from common.config import get_config
 import re
-
+import logging
+logger = logging.getLogger(__name__)
 
 """登录界面"""
 
@@ -47,7 +42,7 @@ class LoginForm(tk.Frame):
         if data["type"] == MessageType.login_successful:
             client.memory.current_user = data["parameters"]
             self.remove_socket_listener_and_close()
-            print("Login Successful!")
+            logger.info("Login Successful!")
             contacts = Toplevel(client.memory.tk_root, takefocus=True)
             ContactsForm(contacts)
             return
@@ -65,13 +60,7 @@ class LoginForm(tk.Frame):
         """创建主窗口用来容纳其他组件"""
         super().__init__(master)
         # sv_ttk.set_theme('dark')
-        style = ttk.Style()
-        style.configure(".", font=("微软雅黑", 12))
-        style.configure("Contact.TSeparator", background="#000000")
-        style.configure("Contact.TFrame", background="#f0f0f0") 
-        style.configure("White.TFrame", background="#fafafa") 
-        style.configure("White.TLabel", background="#fafafa") 
-        style.configure("Contact1.TFrame", background="#f0f0f0")
+        
         
         self.master = master
         self.master.title("BJUTChat")
@@ -121,6 +110,7 @@ class LoginForm(tk.Frame):
             width=25,
             style="Accent.TButton",
         )
+        self.version_label = ttk.Label(self.login_frame, text=f"BJUTChat {get_config()['version']}", style="White.TLabel", font=('微软雅黑', 9))
 
         # self.pack(expand=True, fill=BOTH)
         # 位置定位
@@ -149,6 +139,7 @@ class LoginForm(tk.Frame):
         self.login_user_pwd.grid(row=3, column=0, columnspan=1, sticky=N)
         self.login_entry_user_pwd.grid(row=4, column=0, columnspan=1, sticky=N)
         self.login_btn.grid(row=6, column=0, columnspan=1, sticky=N)
+        self.version_label.grid(row=7, column=0, sticky=N)
         # self.register_btn.grid(row=7, column=0, columnspan=2, sticky=N)
         # self.quit_btn.grid(row=8, column=0, columnspan=2, sticky=N)
 
@@ -255,30 +246,22 @@ class LoginForm(tk.Frame):
     def do_register(self):
 
         username = self.var_reg_user_name.get()
-       # print(type(username).__name__)
         password = self.reg_var_user_pwd.get()
-        #print(type(password).__name__)
         password_confirmation = self.var_confirm_pwd.get()
         school_id = self.var_user_school_id.get()
-        #print(type(school_id).__name__)
         sex = self.var_user_sex.get()
-        #print(type(sex).__name__)
-        # age = self.var_user_age.get()
-        #print(type(age).__name__)
         if self.entry_user_role.get() == "学生":
             role=0
         else:
             role=1
-        #print(type(ip).__name__)
         config = get_config()
         port = str((config['client']['client_port']))
-        #print(type(port).__name__)
 
         if not username:
             messagebox.showerror("Error", "用户名不能为空")
             return
         if not school_id:
-            messagebox.showerror("Error", "学/工号不能为空")
+            messagebox.showerror("Error", "学工号不能为空")
             return
         if not password:
             messagebox.showerror("Error", "密码不能为空")
@@ -286,7 +269,7 @@ class LoginForm(tk.Frame):
         if password != password_confirmation:
             messagebox.showerror("Error", "两次密码输入不一致")
             return
-        if not re.match(r'^[0-9]{0,8}$',school_id):
-            messagebox.showerror("Error", "学工/号格式错误")
+        if not re.match(r'^[0-9]{1,8}$',school_id):
+            messagebox.showerror("Error", "学工号格式错误")
             return
         self.sc.send(MessageType.register, [username, password, school_id, sex, role])

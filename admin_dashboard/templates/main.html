@@ -12,14 +12,14 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="grid-container">
 
         <!-- Header -->
         <header class="header">
-            <div class="menu-icon" onclick="openSidebar()">
+            <div class="menu-icon">
                 <span class="material-icons-outlined">menu</span>
             </div>
             <div class="header-left">
@@ -28,10 +28,8 @@
                 <div id="searchResults" class="search-results"></div>
             </div>
             <div class="header-right">
-                <a href="email.html" target="_blank">
-                    <span class="material-icons-outlined">email</span>
-                </a>
-                <a href="login.html" target="_blank"><span class="material-icons-outlined">account_circle</span>
+
+                <a onclick="logout()"><span class="material-icons-outlined">account_circle</span>
                 </a>
             </div>
         </header>
@@ -43,30 +41,29 @@
                 <div class="sidebar-brand">
                     <span class="material-icons-outlined">home</span> MENU
                 </div>
-                <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+                <span class="material-icons-outlined" >close</span>
             </div>
 
             <ul class="sidebar-list">
-                <li class="sidebar-list-item">
-                    <a href="#" target="_blank">
-                        <span class="material-icons-outlined">dashboard</span> Dashboard
-                        <span class="tooltip">Back to main page</span>
-                    </a>
-                </li>
-                <li class="sidebar-list-item">
-                    <a href="email.html" target="_blank">
+                <li class="sidebar-list-item" >
+                    <a href="/announcements">
                         <span class="material-icons-outlined">mail</span> Announcements
                     </a>
                 </li>
-                <li class="sidebar-list-item" onmouseover="showUserManagementSubMenu()" onmouseout="hideUserManagementSubMenu()">
-                    <a href="#">
-                        <span class="material-icons-outlined">groups</span> User Management
+                <li class="sidebar-list-item">
+                    <a href="/banning_user">
+                        <span class="material-icons-outlined">groups</span> Ban User
                     </a>
-                    <ul class="submenu" id="userManagementSubMenu">
-                        <li><a href="banning_user.html" target="_blank">Banning User</a></li>
-                        <li><a href="altering_password.html" target="_blank">Altering Password</a></li>
-                        <li><a href="altering_user_info.html" target="_blank">Altering User Info</a></li>
-                    </ul>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="/altering_password">
+                        <span class="material-icons-outlined">groups</span> Change User Password
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="/altering_user_info">
+                        <span class="material-icons-outlined">groups</span> Change User Info
+                    </a>
                 </li>
             </ul>
         </aside>
@@ -75,35 +72,32 @@
         <!-- Main -->
         <main class="main-container">
             <div class="main-title">
-                <p class="font-weight-bold"><span class="material-icons-outlined">manage_accounts</span>&nbsp ADMIN DASHBOARD For BJUT-CHAT</p>
-            </div>
-            <div id="loginMessage" class="login-message" style="display: none;">
-                You have officially logged in
+                <p class="font-weight-bold"><span class="material-icons-outlined">manage_accounts</span>&nbsp Admin Dashboard For BJUT-CHAT</p>
             </div>
             <div class="main-cards">
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT OVERALL USERS(STUDENTS)</p>
+                        <p class="text-primary">CURRENT OVERALL USERS (STUDENTS)</p>
                         <span class="material-icons-outlined text-blue">person</span>
                     </div>
-                    <span class="text-primary font-weight-bold">0</span>
+                    <span class="text-primary font-weight-bold"></span>
                 </div>
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT OVERALL GROUP(S)</p>
+                        <p class="text-primary">CURRENT OVERALL GROUPS</p>
                         <span class="material-icons-outlined text-orange">groups</span>
                     </div>
-                    <span class="text-primary font-weight-bold">0</span>
+                    <span class="text-primary font-weight-bold"></span>
                 </div>
 
                 <div class="card">
                     <div class="card-inner">
-                        <p class="text-primary">CURRENT USER(TEACHERS)</p>
+                        <p class="text-primary">CURRENT USER (TEACHERS)</p>
                         <span class="material-icons-outlined text-green">attribution</span>
                     </div>
-                    <span class="text-primary font-weight-bold">0</span>
+                    <span class="text-primary font-weight-bold"></span>
                 </div>
 
                 <div class="card">
@@ -115,12 +109,6 @@
                 </div>
 
             </div>
-            <div class="container">
-            <div class="right">
-                <h2><span>&nbsp</span>&nbsp <a href="email.html" target="_blank"><span class="material-icons-outlined">assignment</span>Bulletin Board</a></h2>
-                <div id="announcementHistory"></div>
-            </div>
-        </div>
         
             <div class="charts">
 
@@ -128,13 +116,6 @@
                     <p class="chart-title">Active User & Chat Group </p>
                     <div id="area-chart"></div>
                 </div>
-                <div class="charts-card">
-                    <p class="chart-title">Top 5 Concerns For BJUT-CHAT Admin</p>
-                    <p class="chart-subtitle">"why we want to accomplish this platform"</p>
-                    <div id="bar-chart"></div>
-                </div>
-
-                
 
             </div>
         </main>
@@ -146,6 +127,49 @@
     <!-- ApexCharts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.3/apexcharts.min.js"></script>
     <!-- Custom JS -->
-    <script src="../static/js/scripts.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+    <script>
+        function showLoginAlert() {
+            alert('You need to login first');
+            setTimeout(function() {
+                window.location.href = "{{ url_for('login') }}";
+            }, 1000);
+        }
+
+        async function logout(){
+            window.open('/logout', '_self')
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查登录状态并显示登录成功信息
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginMessage').style.display = 'block';
+                localStorage.removeItem('isLoggedIn'); // 显示完之后清除状态
+            }
+
+            // 初始化公告历史记录
+            var announcements = JSON.parse(localStorage.getItem('announcements')) || [];
+            var announcementHistory = document.getElementById('announcementHistory');
+            
+            // 清空现有公告，避免重复
+            announcementHistory.innerHTML = '';
+
+            announcements.forEach(text => {
+                var announcementDiv = document.createElement('div');
+                announcementDiv.className = 'announcement';
+                announcementDiv.setAttribute('data-fulltext', text);
+                if (text.length > 100) {
+                    announcementDiv.textContent = text.substring(0, 100) + '...';
+                } else {
+                    announcementDiv.textContent = text;
+                }
+                announcementHistory.appendChild(announcementDiv); // 添加到公告历史记录中
+            });
+
+            // 更新公告计数
+            updateAnnouncementCount();
+        });
+    </script>
 </body>
 </html>

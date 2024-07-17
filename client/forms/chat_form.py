@@ -9,17 +9,12 @@ import client.memory
 from client.util.socket_listener import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import colorchooser
-from tkinter import simpledialog
+import client.components.simpledialog as simpledialog
 from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
-from io import BytesIO
-from client.util import socket_listener
-import binascii
-import time
-import filetype
+import datetime
 import os
-from PIL import Image
 import requests
 from common.config import get_config
 from tempfile import TemporaryFile
@@ -28,6 +23,9 @@ import threading
 from client.components.HyperlinkManager import HyperlinkManager
 from functools import partial
 import subprocess, os, platform
+from common.util import resourcePath
+import logging
+logger = logging.getLogger(__name__)
 """创建聊天框"""
 class ChatForm(tk.Frame):
 
@@ -35,6 +33,7 @@ class ChatForm(tk.Frame):
     font_size = 16
     user_list = []
     tag_i = 0
+    file_list = []
 
     """将监听事件移除并关闭该窗口"""
     def remove_listener_and_close(self):
@@ -66,8 +65,15 @@ class ChatForm(tk.Frame):
         self.user_listbox.delete(0, END)
         self.user_list.sort(key=lambda x: x[0])
         for user in self.user_list:
-            self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
-            self.user_listbox.itemconfig(0, {'fg': "#000000"})
+            if user[0] == int(self.target['room_creator']):
+                self.user_listbox.insert(0, f"【群主】{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#b00020"})
+            elif user[3] == 1:
+                self.user_listbox.insert(0, f"【管理员】{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#009688"})
+            else:
+                self.user_listbox.insert(0, f"{user[1]} ({user[2]})")
+                self.user_listbox.itemconfig(0, {'fg': "#000000"})
 
     """处理消息并将其展示出来"""
     def digest_message(self, data):
@@ -90,18 +96,22 @@ class ChatForm(tk.Frame):
             image_index = self.chat_box.image_create(END, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
             threading.Thread(target=self.load_full_size_image, args=(image_index, data['message']['uuid'])).start()
             self.append_to_chat_box('\n', '')
-            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.save_specific_image, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "另存为\n", self.hyperlink_mgr.add(partial(self.entry_save_specific_image, data['message']['uuid'], data['message']['basename'])))
         if data['message']['type'] == 2:
             self.chat_box.insert(END, f"【文件】{data['message']['basename']} ", "message")
-            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.open_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "打开", self.hyperlink_mgr.add(partial(self.entry_open_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, " ", "")
-            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.save_specific_file, data['message']['uuid'], data['message']['basename'])))
+            self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.entry_save_specific_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, "\n", "")
+            self.file_list.append(data['message']['uuid'])
+            if self.auto_download_enabled.get():
+                threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
         server_url = get_config()['file_server']
-
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if(os.path.exists(f"userdata/image_attachments/{file_id}")):
             full_size_image = self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}"))
             shrunk_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(full_size_image))
@@ -118,17 +128,17 @@ class ChatForm(tk.Frame):
                     f.close()
                 full_size_image = ImageTk.PhotoImage(self.shrink_image_by_ratio(Image.open(f"userdata/image_attachments/{file_id}")))
                 client.memory.tk_img_ref.append(full_size_image)
-                print(len(response.content))
+                logger.info("received image length %s", len(response.content))
                 if(not os.path.exists(f"userdata/image_attachments")):
                     os.makedirs(f"userdata/image_attachments")
                 # self.chat_box.image_create(index, image=None)
                             # self.chat_box.image_create(index, image=None)
                 self.chat_box.image_configure(index, image=client.memory.tk_img_ref[-1], padx=16, pady=5)
 
-                print("success")
+                logger.info("success")
 
             else:
-                print("Error loading full-sized image")
+                logger.warning("Error loading full-sized image")
                 self.append_to_chat_box('\n', '')
 
     def shrink_image_by_ratio(self, image, longest=1600):
@@ -136,18 +146,20 @@ class ChatForm(tk.Frame):
         width = image.width
         if height > width:
             if height > longest:
-                # print((int(longest*width/height), longest))
                 return image.resize((int(longest*width/height), longest))
             else:
                 return image
         else: 
             if width > longest:
-                # print(longest, int(longest*height/width))
                 return image.resize((longest, int(longest*height/width)))
             else:
                 return image
 
+    def entry_save_specific_image(self, uuid, defaultname):
+        threading.Thread(target=self.save_specific_image, args=[uuid, defaultname]).start()
     def save_specific_image(self, uuid, defaultname):
+        if(not os.path.exists(f"userdata/image_attachments")):
+            os.makedirs(f"userdata/image_attachments")
         if not os.path.exists(f"userdata/image_attachments/{uuid}"):
             messagebox.showerror("错误", "图片未能成功获取，无法保存")
             return
@@ -156,6 +168,22 @@ class ChatForm(tk.Frame):
                 f.write(ffrom.read())
                 f.close()
                 ffrom.close()
+
+    def file_autosave(self, uuid):
+        server_url = get_config()['file_server']
+        if(not os.path.exists(f"userdata/file_attachments")):
+            os.makedirs(f"userdata/file_attachments")
+        if not os.path.exists(f"userdata/file_attachments/{uuid}"):
+            params1 = {'user_id': client.memory.current_user['id'], 'file_id': uuid}
+            response = requests.get(f'{server_url}/download', params=params1)
+
+            if response.status_code == 200:
+                with open(file=f"userdata/file_attachments/{uuid}", mode='wb') as f:
+                    f.write(response.content)
+                    f.close()
+    
+    def entry_save_specific_file(self, uuid, defaultname):
+        threading.Thread(target=self.save_specific_file, args=[uuid, defaultname]).start()
 
     def save_specific_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
@@ -178,6 +206,9 @@ class ChatForm(tk.Frame):
                 f.write(ffrom.read())
                 f.close()
                 ffrom.close()
+
+    def entry_open_file(self, uuid, defaultname):
+        threading.Thread(target=self.open_file, args=[uuid, defaultname]).start()
 
     def open_file(self, uuid, defaultname):
         server_url = get_config()['file_server']
@@ -230,15 +261,44 @@ class ChatForm(tk.Frame):
     
     def do_send_group_invite(self):
         target_schoolid = simpledialog.askstring("提示","请输入要邀请的人的学工号")
+        if (not target_schoolid):
+            return
         self.sc.send(MessageType.invite_user_to_a_room, {'school_id': target_schoolid, 'room_name': self.target['room_name']})
 
     def do_adminify_user(self):
+        
         if len(self.user_listbox.curselection()) == 0:
             return None
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
         selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
-        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 设为群管理员，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.add_user_to_room_manager, [selected_user_id, self.target['room_id']])
+    def do_deadminify_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 取消群管理员，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.remove_user_from_room_manager, [selected_user_id, self.target['room_id']])
+    
+    def do_room_blacklist_user(self):
+        if len(self.user_listbox.curselection()) == 0:
+            return None
+        index = self.user_listbox.curselection()[0]
+        selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
+        selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 拉入群黑名单，请确认操作。黑名单仅能通过群管理员重新拉入此用户来解除。")
+        if confirm:
+            self.sc.send(MessageType.add_user_to_room_blacklist, [selected_user_id, self.target['room_id']])
+            
+        
 
     def do_remove_user(self):
         if len(self.user_listbox.curselection()) == 0:
@@ -246,7 +306,17 @@ class ChatForm(tk.Frame):
         index = self.user_listbox.curselection()[0]
         selected_user_id = self.user_list[len(self.user_list) - 1 - index][0]
         selected_user_username = self.user_list[len(self.user_list) - 1 - index][1]
-        print(f"Simulating adminifying user: {selected_user_id}, {selected_user_username}")
+        selected_user_schoolid = self.user_list[len(self.user_list) - 1 - index][2]
+        confirm = messagebox.askyesno("操作提示", f"将会把 {selected_user_username} ({selected_user_schoolid}) 从群里移出，请确认操作。")
+        if confirm:
+            self.sc.send(MessageType.remove_user_from_room, [selected_user_id, self.target['room_id']])
+
+    def do_tick_autosave(self):
+        if self.auto_download_enabled.get():
+            will_batch_download = messagebox.askyesno("提示", "是否自动下载聊天中已有文件？点击“是”后，将会在后台自动进行下载。")
+            if will_batch_download:
+                for file in self.file_list:
+                    threading.Thread(target=self.file_autosave, args=[file]).start()
 
     def __init__(self, target, master=None):
         super().__init__(master)
@@ -267,10 +337,9 @@ class ChatForm(tk.Frame):
         self.commands_pane.pack(side=TOP, fill=X, pady=5)
         self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员", command=self.do_send_group_invite)
         self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
-        self.adminify_btn = ttk.Button(self.commands_pane, text="将选定成员设置为管理员", command=self.do_adminify_user)
-        self.adminify_btn.pack(side='left', fill=X, padx=5)
-        self.remove_user_btn = ttk.Button(self.commands_pane, text="移出选定成员", command=self.do_remove_user)
-        self.remove_user_btn.pack(side=LEFT, fill=X, padx=5)
+        self.auto_download_enabled = tk.BooleanVar()
+        self.auto_download_checkbox = ttk.Checkbutton(self.commands_pane, text='启用自动下载',variable=self.auto_download_enabled, onvalue=1, offvalue=0, command=self.do_tick_autosave)
+        self.auto_download_checkbox.pack(side=LEFT, fill=X, padx=5)
         self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
         self.user_listbox.bind('<Button-3>', self.do_userlist_popup)
@@ -278,7 +347,9 @@ class ChatForm(tk.Frame):
 
         self.userlist_menu = tk.Menu(self.user_listbox, tearoff=0)
         self.userlist_menu.add_command(label="设为管理员", command=self.do_adminify_user)
-        self.userlist_menu.add_command(label="踢出群聊", command=self.do_remove_user)
+        self.userlist_menu.add_command(label="取消管理员", command=self.do_deadminify_user)
+        self.userlist_menu.add_command(label="移出群聊", command=self.do_remove_user)
+        self.userlist_menu.add_command(label="设置黑名单并移出群聊", command=self.do_room_blacklist_user)
         
         # Chat Screen
         
@@ -300,14 +371,14 @@ class ChatForm(tk.Frame):
         self.input_frame = ttk.Frame(self.chat_frame)
         self.input_textbox = ScrolledText(self.chat_frame, font=("微软雅黑", 16), height=5, background="#f0f0f0")
         self.input_textbox.bind("<Control-Return>", self.send_message)
-        self.sndtext_btn_icon = PhotoImage(file = "./client/forms/assets/sendtext.png").subsample(24)
+        self.sndtext_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendtext.png")).subsample(24)
         self.send_btn = ttk.Button(self.input_frame, text=' 发送',image=self.sndtext_btn_icon, compound=LEFT,command=self.send_message)
         self.send_btn.pack(side=RIGHT, expand=False)
-        self.image_btn_icon = PhotoImage(file = "./client/forms/assets/sendimage.png").subsample(24) 
-        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.send_image)
+        self.image_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendimage.png")).subsample(24) 
+        self.image_btn = ttk.Button(self.input_frame, text=' 图片',image=self.image_btn_icon, compound=LEFT, command=self.entry_send_image)
         self.image_btn.pack(side=LEFT, expand=False)
-        self.file_btn_icon = PhotoImage(file = "./client/forms/assets/sendfile.png").subsample(24) 
-        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.send_file)
+        self.file_btn_icon = PhotoImage(file = resourcePath("./client/forms/assets/sendfile.png")).subsample(24) 
+        self.file_btn = ttk.Button(self.input_frame, text=' 文件', image=self.file_btn_icon, compound=LEFT,command=self.entry_send_file)
         self.file_btn.pack(side=LEFT, expand=False)
         self.chat_box = ScrolledText(self.chat_frame)
         self.chat_box.pack(side=TOP, fill=BOTH, expand=True)
@@ -388,6 +459,8 @@ class ChatForm(tk.Frame):
             pass
 
     """" 发送图片 """
+    def entry_send_image(self):
+        threading.Thread(target=self.send_image).start()
     def send_image(self):
         filename = filedialog.askopenfilename(filetypes=[("Image Files",
                                                           ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.JPG", "*.JPEG",
@@ -395,6 +468,9 @@ class ChatForm(tk.Frame):
                                                          ("All Files", ["*.*"])])
         
         if filename is None or filename == '':
+            return
+        if os.path.getsize(filename) > 10*1024576:
+            messagebox.showwarning("提示","图片大于 10MB，无法发送。")
             return
         basename = os.path.basename(filename)
         image = Image.open(filename)
@@ -406,37 +482,54 @@ class ChatForm(tk.Frame):
             files = {'file': imageFile}
             data = {'user_id': client.memory.current_user['id']}
             server_url = get_config()['file_server']
-            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            try: 
+                response = requests.post(f'{server_url}/upload', files=files, data=data)
+            except Exception as e:
+                messagebox.showerror("提示", f"发送失败，无法连接文件服务器。")
+                logging.error("Error sending image: %s", e)
+                return
             if(response.status_code == 200):
                 file_id = response.json().get('file_id')
 
                 f = fp.read()
                 b = base64.b64encode(f).decode('ascii')
-                print("Sendsize", len(b))
+                logger.debug("Sendsize %s", len(b))
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
                               'message': {'type': 1, 'data': b, 'uuid': file_id, 'basename': basename}})
-                print('send image success!')
+                logger.info('send image success!')
                 messagebox.showinfo("提示", "图片发送成功")
             else:
                 messagebox.showerror("提示", f"图片发送失败。错误码：{response.status_code}")
+
+    def entry_send_file(self):
+        threading.Thread(target=self.send_file).start()
+
     def send_file(self):
         filename = filedialog.askopenfilename()
         
         if filename is None or filename == '':
+            return
+        if os.path.getsize(filename) > 200*1024576:
+            messagebox.showwarning("提示","文件大于 200MB，无法发送。")
             return
         basename = os.path.basename(filename)
         with open(filename, "rb") as imageFile:
             files = {'file': imageFile}
             data = {'user_id': client.memory.current_user['id']}
             server_url = get_config()['file_server']
-            response = requests.post(f'{server_url}/upload', files=files, data=data)
+            try:
+                response = requests.post(f'{server_url}/upload', files=files, data=data)
+            except Exception as e:
+                messagebox.showerror("提示", f"发送失败，无法连接文件服务器。")
+                logging.error("Error sending file: %s", e)
+                return
             if(response.status_code == 200):
                 file_id = response.json().get('file_id')
                 self.sc.send(MessageType.send_message,
                              {'target_type': self.target['type'], 'target_id': self.target['id'],
                               'message': {'type': 2, 'uuid': file_id, 'basename': basename}})
-                print('send file success!')
+                logger.info('send file success!')
                 messagebox.showinfo("提示", "文件发送成功")
             else:
                 messagebox.showerror("提示", f"文件发送失败。错误码：{response.status_code}")

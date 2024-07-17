@@ -11,25 +11,52 @@
     <div class="container">
         <h2>Altering User Info</h2>
         <div class="form-container">
-            <form>
+            <form id="updateUserInfoForm">
                 <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="Enter new email (The old one will automatically be covered)">
+                    <label for="school_id">School ID:</label>
+                    <input type="text" id="school_id" name="school_id" placeholder="Enter new school ID" required>
                 </div>
                 <div class="form-group">
                     <label for="role">Role:</label>
-                    <select id="role" name="role">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                    <select id="role" name="role" required>
+                        <option value="0">Student</option>
+                        <option value="1">Teacher</option>
                     </select>
                 </div>
                 <button type="submit">Update Info</button>
+                <p class="message" id="message"></p>
             </form>
         </div>
     </div>
+    <script>
+        document.getElementById('updateUserInfoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const school_id = document.getElementById('school_id').value;
+            const role = document.getElementById('role').value;
+            const message = document.getElementById('message');
+
+            fetch('/update_user_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ school_id, role })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    message.style.color = 'green';
+                    message.textContent = 'User info successfully updated.';
+                } else {
+                    message.style.color = 'red';
+                    message.textContent = 'Failed to update user info: ' + data.message;
+                }
+            })
+            .catch(error => {
+                message.style.color = 'red';
+                message.textContent = 'An error occurred. Please try again later.';
+            });
+        });
+    </script>
 </body>
 </html>

@@ -3,10 +3,9 @@
 
 """操作数据库删除好友"""
 
-from pprint import pprint
+
 from common.message import MessageType
-from server.broadcast import broadcast
-import server.memory
+
 from common.util import md5
 from server.util import database
 from server.memory import *
@@ -17,9 +16,7 @@ def run(sc, parameters):
     # parameters = username
     c = database.get_cursor()
     terget_school_id = parameters.strip().lower()
-   # print(user_id)
     r = c.execute('SELECT id from users where school_id=?', [terget_school_id]).fetchall()
-    #print(r[0][0])
     #异常条件判断
     if len(r) == 0:
         sc.send(MessageType.del_friend_result, [False, '学工号不存在'])
