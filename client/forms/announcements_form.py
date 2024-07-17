@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import datetime, time
+import logging
+logger = logging.getLogger(__name__)
 class AnnouncementApp:
     def __init__(self, root, announcements = [
             {"title": "Announcement 1", "content": "Content of announcement 1", "send_time": "2024-07-12 10:00 AM"},
@@ -20,7 +22,10 @@ class AnnouncementApp:
 
         # Display the announcements
         for announcement in announcements:
-            self.display_announcement(announcement)
+            try:
+                self.display_announcement(announcement)
+            except Exception as e:
+                logger.exception(e, exc_info=True)
 
     def display_announcement(self, announcement):
         timestr = datetime.datetime.fromtimestamp(

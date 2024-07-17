@@ -33,6 +33,7 @@ class ChatForm(tk.Frame):
     font_size = 16
     user_list = []
     tag_i = 0
+    file_list = []
 
     """将监听事件移除并关闭该窗口"""
     def remove_listener_and_close(self):
@@ -102,7 +103,9 @@ class ChatForm(tk.Frame):
             self.chat_box.insert(END, " ", "")
             self.chat_box.insert(END, "另存为", self.hyperlink_mgr.add(partial(self.entry_save_specific_file, data['message']['uuid'], data['message']['basename'])))
             self.chat_box.insert(END, "\n", "")
-            # threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
+            self.file_list.append(data['message']['uuid'])
+            if self.auto_download_enabled.get():
+                threading.Thread(target=self.file_autosave, args=[data['message']['uuid']]).start()
 
     def load_full_size_image(self, index, file_id):
         # Get the full-sized image URL from data['message']['data']
@@ -308,6 +311,13 @@ class ChatForm(tk.Frame):
         if confirm:
             self.sc.send(MessageType.remove_user_from_room, [selected_user_id, self.target['room_id']])
 
+    def do_tick_autosave(self):
+        if self.auto_download_enabled.get():
+            will_batch_download = messagebox.askyesno("提示", "是否自动下载聊天中已有文件？点击“是”后，将会在后台自动进行下载。")
+            if will_batch_download:
+                for file in self.file_list:
+                    threading.Thread(target=self.file_autosave, args=[file]).start()
+
     def __init__(self, target, master=None):
         super().__init__(master)
         self.master = master
@@ -327,6 +337,9 @@ class ChatForm(tk.Frame):
         self.commands_pane.pack(side=TOP, fill=X, pady=5)
         self.add_to_group_btn = ttk.Button(self.commands_pane, text="添加成员", command=self.do_send_group_invite)
         self.add_to_group_btn.pack(side=LEFT, fill=X, padx=5)
+        self.auto_download_enabled = tk.BooleanVar()
+        self.auto_download_checkbox = ttk.Checkbutton(self.commands_pane, text='启用自动下载',variable=self.auto_download_enabled, onvalue=1, offvalue=0, command=self.do_tick_autosave)
+        self.auto_download_checkbox.pack(side=LEFT, fill=X, padx=5)
         self.user_listbox = tk.Listbox(self.user_frame, font=("微软雅黑", 12))
         self.user_listbox.bind('<Double-Button-1>', self.user_listbox_double_click)
         self.user_listbox.bind('<Button-3>', self.do_userlist_popup)
@@ -456,6 +469,9 @@ class ChatForm(tk.Frame):
         
         if filename is None or filename == '':
             return
+        if os.path.getsize(filename) > 10*1024576:
+            messagebox.showwarning("提示","图片大于 10MB，无法发送。")
+            return
         basename = os.path.basename(filename)
         image = Image.open(filename)
         small_image = image.resize((128,128))
@@ -493,6 +509,9 @@ class ChatForm(tk.Frame):
         filename = filedialog.askopenfilename()
         
         if filename is None or filename == '':
+            return
+        if os.path.getsize(filename) > 200*1024576:
+            messagebox.showwarning("提示","文件大于 200MB，无法发送。")
             return
         basename = os.path.basename(filename)
         with open(filename, "rb") as imageFile:
