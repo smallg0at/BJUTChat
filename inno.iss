@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BJUTChat"
-#define MyAppVersion "0.9.6"
+#define MyAppVersion "0.9.7"
 #define MyAppPublisher ""
 #define MyAppURL ""
 #define MyAppExeName "run_client.exe"
