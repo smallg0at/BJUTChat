@@ -4,10 +4,13 @@ import uuid
 import sqlite3
 import time
 import hashlib
+import zipfile
+from io import BytesIO
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 设置文件大小限制为100MB
 
 # sqlite 实例
 if not os.path.exists('file_server/database.db'):
@@ -29,6 +32,9 @@ def calculate_md5(file_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({'error': 'file too large'}), 413
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -150,6 +156,42 @@ def download_file():
     response.headers['MD5'] = file_md5
     return response
 
+@app.route('/download_batch', methods=['POST'])
+def download_batch():
+    user_id = request.json.get('user_id', '')
+    file_ids = request.json.get('file_ids', [])
+
+    if not user_id or not file_ids:
+        return jsonify({'error': 'missing user_id or file_ids'}), 400
+
+    print("Fetching files with IDs:", file_ids, "for user:", user_id)
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        for file_id in file_ids:
+            conn = sqlite3.connect('file_server/database.db')
+            c = conn.cursor()
+            c.execute('SELECT * FROM files WHERE id = ?', (file_id,))
+            file_record = c.fetchone()
+            conn.close()
+
+            if file_record:
+                file_path = os.path.join(f"file_server/{app.config['UPLOAD_FOLDER']}", file_id)
+                if os.path.exists(file_path):
+                    zf.write(file_path, arcname=file_id)
+                    print(f"Added file {file_id} to ZIP archive.")
+
+                    # 记录下载日志
+                    download_time = int(time.time())
+                    insert_download_log(file_id, user_id, download_time)
+                else:
+                    print(f"File {file_id} not found on server.")
+            else:
+                print(f"File {file_id} not found in database.")
+
+    memory_file.seek(0)
+    print("Sending ZIP archive to user:", user_id)
+    return send_file(memory_file, download_name='files.zip', mimetype='application/octet-stream', as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
