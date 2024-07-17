@@ -3,4 +3,4 @@
 
 import file_server.app
 
-file_server.app.app.run(debug=True, port=5000)
+file_server.app.app.run(port=23337, host="0.0.0.0")

@@ -26,10 +26,6 @@
       <button type="submit">LOGIN</button>
       <p class="message" id="message"></p>
     </form>
-
-    <form class="login-form">
-      <button type="button" onclick="window.location.href='signup.html'">SIGN UP</button>
-    </form>
   </div>
 </div>
 
@@ -50,32 +46,33 @@
       const password = document.getElementById('password').value;
       const message = document.getElementById('message');
   
-      // 硬编码的管理员用户名和密码
-      const validUsers = [
-      { username: 'lty', password: '12345678' },
-      { username: 'lyc', password: '87654321' },
-      { username: 'lcb', password: '00000000' },
-      { username: 'yyb', password: '11111111' }
-    ];
-
-    const isValidUser = validUsers.some(user => user.username === username && user.password === password);
-
-    if (isValidUser) {
-      localStorage.setItem('isLoggedIn', 'true');
-      message.style.color = 'green';
-      message.textContent = 'Login successful';
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 2000); // 显示2秒钟后跳转
-    } else {
+      fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          message.style.color = 'green';
+          message.textContent = 'Login successful';
+          setTimeout(() => {
+            window.open('/', '_self')
+          }, 2000); // 显示2秒钟后跳转
+        } else {
+          message.style.color = 'red';
+          message.textContent = data.message;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
         message.style.color = 'red';
-        message.textContent = 'Login failed. Please check your username and password.';
-        message.style.display = 'block';
-      }
+        message.textContent = 'An error occurred. Please try again later.';
+      });
     });
-  </script>
-  
 </script>
+
 </body>
 </html>
-

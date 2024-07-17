@@ -11,10 +11,12 @@
 """
 
 import socket
-from pprint import pprint
+
 from common.util import long_to_bytes
 import enum
 from struct import pack, unpack
+import logging
+logger = logging.getLogger(__name__)
 
 """ 定义消息类型 """
 class MessageType(enum.IntEnum):
@@ -68,6 +70,17 @@ class MessageType(enum.IntEnum):
     invite_result = 117
     incoming_invite_request = 118
     rename_result = 119
+    add_user_to_room_blacklist = 120
+    remove_user_from_room_blacklist = 121
+    remove_user_from_room = 122
+    add_user_to_room_manager = 123
+    remove_user_from_room_manager = 124
+    add_user_to_room_blacklist_result = 125
+    remove_user_from_room_blacklist_result = 126
+    remove_user_from_room_result = 127
+    add_user_to_room_manager_result = 128
+    remove_user_from_room_manager_result = 129
+    del_info_group = 130
     # === Failure 201-300
     login_failed = 201
     school_id_taken = 202
@@ -219,7 +232,7 @@ def deserialize_message(data):
     ret = {}
     byte_reader = ByteArrayReader(data)
     ret['type'] = _get_message_type_from_value(byte_reader.read(1)[0])
-    print(f"Received message type {ret['type']}")
+    logger.debug(f"Received message type {ret['type']}")
     ret['parameters'] = _deserialize_any(byte_reader.read_to_end())
 
     return ret

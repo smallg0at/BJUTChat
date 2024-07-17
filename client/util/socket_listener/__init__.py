@@ -3,15 +3,14 @@
 
 """监听socket的线程"""
 import select
-from pprint import pprint
 from tkinter import messagebox
 from common.message import MessageType
-import datetime
-import time
 import client.memory
 import struct
 import sys
 import traceback
+import logging
+logger = logging.getLogger(__name__)
 
 callback_funcs = []
 message_listeners = []
@@ -22,13 +21,13 @@ def gen_last_message(obj):
     prefix = ''
     # type 0 - 文字消息 1 - 图片消息
     if obj['target_type'] == 1:
-        prefix = obj['sender_name'] + ':'
+        prefix = obj['sender_name'] + ': '
     if obj['message']['type'] == 0:
         return prefix + obj['message']['data'].replace('\n', ' ')
     if obj['message']['type'] == 1:
-        return prefix + '[图片消息]'
+        return prefix + '[图片]'
     if obj['message']['type'] == 2:
-        return prefix + '[文件消息]'
+        return prefix + '[文件]'
 
 
 def socket_listener_thread(sc, tk_root):
@@ -39,7 +38,6 @@ def socket_listener_thread(sc, tk_root):
     while True:
         rlist, wlist, xlist = select.select([sc.socket], [sc.socket], [])
         if len(rlist):
-            # print("Got Something...")
             if bytes_to_receive == 0 and bytes_received == 0:
                 # 一次新的接收
                 conn_ok = True
@@ -53,7 +51,7 @@ def socket_listener_thread(sc, tk_root):
                     conn_ok = False
 
                 if not conn_ok:
-                    print('服务器已被关闭')
+                    logger.error('服务器已被关闭')
                     # messagebox.showerror("出错了", "服务器已经被关闭")
                     tk_root.destroy()
                 else:
@@ -61,14 +59,12 @@ def socket_listener_thread(sc, tk_root):
                     bytes_to_receive = struct.unpack('!i', first_4_bytes)[0]
 
             # 接收数据、拼成块
-            # print("Packie!(before)",bytes_received,'/',bytes_to_receive)
             buffer = sc.socket.recv(bytes_to_receive - bytes_received)
             data_buffer += buffer
             bytes_received += len(buffer)
-            # print("Packie!",bytes_received,'/',bytes_to_receive)
             if bytes_received >= bytes_to_receive:
                 # 当一个数据包接收完毕
-                print("Receive finished.")
+                logger.debug("Receive finished.")
                 bytes_to_receive = 0
                 bytes_received = 0
                 try:
@@ -95,7 +91,7 @@ def socket_listener_thread(sc, tk_root):
                         client.memory.tk_root.destroy()
 
                     if data['type'] == MessageType.server_echo:
-                        pprint(['server echo', data['parameters']])
+                        logger.info(['server echo: %s', data['parameters']])
 
                     # 处理on_new_message
                     if data['type'] == MessageType.on_new_message:
@@ -104,7 +100,7 @@ def socket_listener_thread(sc, tk_root):
                     for func in callback_funcs:
                         func(data)
                 except:
-                    pprint(sys.exc_info())
+                    logger.info(sys.exc_info())
                     traceback.print_exc(file=sys.stdout)
                     pass
 

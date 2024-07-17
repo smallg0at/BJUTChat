@@ -3,8 +3,7 @@
 
 from binascii import unhexlify
 from hashlib import md5 as _md5
-from pprint import pprint
-
+import os, sys
 
 def long_to_bytes(val, endianness='big'):
     """
@@ -52,3 +51,13 @@ def md5(text):
     m = _md5()
     m.update(text.encode('utf-8'))
     return m.hexdigest()
+
+def resourcePath(relativePath):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        basePath = sys._MEIPASS
+    except Exception:
+        basePath = os.path.abspath(".")
+
+    return os.path.join(basePath, relativePath)

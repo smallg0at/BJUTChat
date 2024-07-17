@@ -5,13 +5,12 @@ import struct
 import sys
 import traceback
 import select
-import datetime
-import time
 from pprint import pprint
 from tkinter import messagebox
 from common.message import MessageType
 import client.memory
-
+import logging
+logger = logging.getLogger(__name__)
 callback_funcs = []
 
 # [{target_id,target_type,func}]
@@ -50,7 +49,7 @@ def socket_listener_thread(sc, tk_root):
                     conn_ok = False
 
                 if not conn_ok:
-                    print('服务器已被关闭')
+                    logger.error('服务器已被关闭')
                     # messagebox.showerror("出错了", "服务器已经被关闭")
                     tk_root.destroy()
                 else:
@@ -71,18 +70,21 @@ def socket_listener_thread(sc, tk_root):
                     data = sc.on_data(data_buffer)
                     # 处理general failure
                     if data['type'] == MessageType.general_failure:
+                        logging.warning(data['parameters'])
                         messagebox.showerror("出错了", data['parameters'])
 
                     # 处理general message
                     if data['type'] == MessageType.general_msg:
+                        logging.info(data['parameters'])
                         messagebox.showinfo("消息", data['parameters'])
+
 
                     if data['type'] == MessageType.server_kick:
                         messagebox.showerror("出错了", '您的账户在别处登入')
                         client.memory.tk_root.destroy()
 
                     if data['type'] == MessageType.server_echo:
-                        pprint(['server echo', data['parameters']])
+                        logger.info(['server echo: %s', data['parameters']])
 
                     # 处理on_new_message
                     if data['type'] == MessageType.on_new_message:
@@ -92,7 +94,7 @@ def socket_listener_thread(sc, tk_root):
                         func(data)
 
                 except:
-                    pprint(sys.exc_info())
+                    logger.info(sys.exc_info())
                     traceback.print_exc(file=sys.stdout)
                     pass
 
@@ -134,7 +136,6 @@ def digest_message(data, update_unread_count=True):
 
 
 def add_listener(func):
-    print("server_add_listener_fun")
     callback_funcs.append(func)
 
 

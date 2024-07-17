@@ -10,21 +10,15 @@ import os
 import socket
 import struct
 
-import nacl.encoding
 from common.config import get_config
 from common.cryptography import crypt
-from common.message import serialize_message, deserialize_message, ByteArrayReader
-from common.util import long_to_bytes
-from pprint import pprint
-from server.util import database
 import logging
-import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
-import nacl
 from nacl.encoding import Base64Encoder
 import uuid
 import orjson
-
+import logging
+logger = logging.getLogger(__name__)
 """建立安全信道"""
 class SecureChannel:
 
@@ -47,8 +41,6 @@ class SecureChannel:
     def send(self, message_type, parameters=None):
         data_to_encrypt = self.json_serialize_message(message_type, parameters)
         message = self.box.encrypt(data_to_encrypt)
-        # print("data_to_encrypt:",data_to_encrypt)
-        # print("type of it:",type(data_to_encrypt))
         length_of_encrypted_message = len(message)
         packet = struct.pack('!i', length_of_encrypted_message) + message
         length_of_packet = len(packet)
@@ -61,7 +53,7 @@ class SecureChannel:
             except BlockingIOError as e:
                 # sleep(0.05)
                 continue
-            print('sending', length_of_packet, 'Bytes, this time',sent,'Bytes')
+            logger.debug('sending', length_of_packet, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
                 logging.error("socket connection broken")
             totalsent = totalsent + sent
@@ -75,10 +67,6 @@ class SecureChannel:
 
     def on_data(self, data_array):
         decrypted_data = self.box.decrypt(data_array)
-        # print("decrypted_data:",(decrypted_data))
-        # print("type of it:",type((decrypted_data)))
-        # print("type of str():",type(str(decrypted_data)))
-        # print("json_deserialize_message:",self.json_deserialize_message((decrypted_data)))
         return self.json_deserialize_message((decrypted_data))
 
     def close(self):
@@ -127,13 +115,14 @@ def accept_client_to_secure_channel(socket):
 
     # 首次连接，客户端会发送公钥
     try:
-        uuid = conn.recv(1024)
-        print(f"Incoming user with uuid {uuid.decode()}")
+        uuid_recv = conn.recv(1024)
+        logger.info(f"Incoming user with uuid {uuid_recv.decode()}")
+        uuid.UUID(uuid_recv.decode())
     except Exception as e:
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + uuid.decode() + "_cert.pem"
+    certname = "cert/" + uuid_recv.decode() + "_cert.pem"
 
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:
@@ -148,13 +137,6 @@ def accept_client_to_secure_channel(socket):
         logging.error('SecureChannel: Failed to receive client cert!')
         return 
     
-    # try:
-    #     with open(certname, 'wb') as f:
-    #         f.write(client_cert)
-    #         f.close()
-    # except Exception as e:
-    #     print('SecureChannel: Failed to write remote key...')
-    #     return
     
     client_pub = PublicKey(Base64Encoder.decode(client_cert))
     with open('private.pem', 'rb') as f:

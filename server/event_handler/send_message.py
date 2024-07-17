@@ -7,10 +7,8 @@
     使用sent判断位判断信息是否对方接收成功。
 """
 
-from pprint import pprint
-from common.message import MessageType, _serialize_dict
-from server.broadcast import broadcast
-import server.memory
+from common.message import MessageType
+
 from common.util import md5
 from server.util import database
 from server.memory import *
@@ -21,7 +19,6 @@ import orjson
 # {target_type:int(0=私聊 1=群聊),target_id:int,message:str}
 
 def run(sc, parameters):
-    # pprint(parameters)
     user_id = sc_to_user_id[sc]
     sender = database.get_user(user_id)
 

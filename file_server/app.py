@@ -194,4 +194,5 @@ def download_batch():
     return send_file(memory_file, download_name='files.zip', mimetype='application/octet-stream', as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(port=23337)
+

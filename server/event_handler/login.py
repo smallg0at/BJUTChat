@@ -8,8 +8,8 @@ from common.util import md5
 from server.util import database
 from server.util import add_target_type
 from server.memory import *
-from pprint import pprint
-
+import logging
+logger = logging.getLogger(__name__)
 
 def run(sc, parameters):
     parameters[0] = parameters[0].strip().lower()
@@ -41,15 +41,13 @@ def run(sc, parameters):
         remove_sc_from_socket_mapping(sc)
     else:    
         sc.send(MessageType.login_successful, user)
-        print('UserLogin: ',user_id)
+        logging.info('UserLogin: %s',user_id)
         login_bundle = {}
 
     # 发送群列表
     rms = database.get_user_rooms(user_id)
+    login_bundle = dict()
     login_bundle['rooms'] = list(map(lambda x: add_target_type(x, 1), rms))
-    # print('User groups:',rms)
-    # for rm in rms:
-    #     sc.send(MessageType.contact_info, add_target_type(rm, 1))
 
     # 发送好友请求
     frs = database.get_pending_friend_request(user_id)
@@ -61,9 +59,11 @@ def run(sc, parameters):
     frs = database.get_friends(user_id)
 
     login_bundle['friends'] = list(map(lambda x: add_target_type(x, 0), frs))
-    print('User friends:',frs)
 
 
     login_bundle['messages'] = database.get_chat_history(user_id)
-    print('Bundle sent.')
+
+    login_bundle['announcements'] = database.get_announcements()
+
+    logging.info('Bundle sent.')
     sc.send(MessageType.login_bundle, login_bundle)

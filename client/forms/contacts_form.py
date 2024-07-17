@@ -8,10 +8,8 @@ from tkinter import ttk
 from distutils import command
 from tkinter import messagebox
 from common.message import MessageType, _deserialize_any
-from pprint import pprint
+
 import client.memory
-import select
-import _thread
 from tkinter import *
 from client.components.vertical_scrolled_frame import VerticalScrolledFrame
 from client.components.contact_item import ContactItem
@@ -19,12 +17,14 @@ from client.forms.chat_form import ChatForm
 from tkinter import Toplevel
 import datetime
 import client.util.socket_listener
-import time
-from tkinter import simpledialog
+import client.components.simpledialog as simpledialog
 import orjson
 from client.components.announcement_entry import AnnouncementEntry
 from client.forms.announcements_form import AnnouncementApp
 from client.components.HyperlinkManager import HyperlinkManager
+from common.util import resourcePath
+import logging
+logger = logging.getLogger(__name__)
 class ContactsForm(tk.Frame):
     bundle_process_done = False
 
@@ -36,9 +36,9 @@ class ContactsForm(tk.Frame):
 
     """监听从服务端发来的反馈"""
     def socket_listener(self, data):
-        # print("Something happened...", data['type'])
+        logger.debug("Something happened...", data['type'])
         if data['type'] == MessageType.login_bundle:
-            print("Got Loginbundle!", len(data))
+            logger.info("Got Loginbundle! Length is %s", len(data))
             bundle = data['parameters']
             friends = bundle['friends']
             rooms = bundle['rooms']
@@ -51,7 +51,7 @@ class ContactsForm(tk.Frame):
                 sent = item[1]
                 message = orjson.loads(item[0])
                 client.util.socket_listener.digest_message(message, not sent)
-
+            self.handle_announcements(bundle['announcements'])
             self.bundle_process_done = True
             self.refresh_contacts()
 
@@ -68,10 +68,16 @@ class ContactsForm(tk.Frame):
         if data['type'] == MessageType.del_info:
             self.handle_del_contact(data['parameters'])
             return
+        if data['type'] == MessageType.del_info_group:
+            self.handle_del_group(data['parameters'])
+            return
 
         if data['type'] == MessageType.add_friend_result:
             if data['parameters'][0]:
-                messagebox.showinfo('添加好友', '好友请求已发送')
+                if data['parameters'][1] == 'force':
+                    messagebox.showinfo('添加好友', '好友已加')
+                else:
+                    messagebox.showinfo('添加好友', '好友请求已发送')
             else:
                 messagebox.showerror('添加好友失败', data['parameters'][1])
             return
@@ -89,17 +95,29 @@ class ContactsForm(tk.Frame):
         data['last_timestamp'] = 0
         data['last_message'] = '(没有消息)'
         self.contacts.insert(0, data)
-        print("Now has contact count: ", len(self.contacts))
+        logger.debug("Now has contact count: ", len(self.contacts))
         self.refresh_contacts()
 
     """处理删除好友的操作后"""
     def handle_del_contact(self, data):
         id = data['id']
         for conn in self.contacts:
-            if (conn['id'] == id):
+            if (conn['id'] == id and conn['type'] == 0):
+                self.contacts.remove(conn)
+        self.refresh_contacts()
+    """处理删除好友的操作后"""
+    def handle_del_group(self, data):
+        id = data['id']
+        for conn in self.contacts:
+            if (conn['id'] == id and conn['type'] == 1):
                 self.contacts.remove(conn)
         self.refresh_contacts()
 
+    def handle_announcements(self, data):
+        if len(data) == 0:
+            return
+        self.announcement_entry.announce_content.config(text=f' {data[0]["title"]}')
+        self.announcement_list = data
 
     def on_frame_click(self, e):
         item_id = e.widget.item['id']
@@ -111,7 +129,7 @@ class ContactsForm(tk.Frame):
 
     def on_ann_click(self, e):
         form = Toplevel(client.memory.tk_root, takefocus=True)
-        AnnouncementApp(form)
+        AnnouncementApp(form, self.announcement_list)
 
 
     """ 添加好友 """
@@ -127,7 +145,6 @@ class ContactsForm(tk.Frame):
         if (not result):
             return
         self.sc.send(MessageType.del_friend, result)
-        #print(MessageType.del_friend)
 
     """ 查看用户信息 """
     def on_user_information(self):
@@ -171,7 +188,6 @@ class ContactsForm(tk.Frame):
 
     """更新列表界面"""
     def refresh_contacts(self):
-        #print("self.contacts是一个列表，里面很多用户字典")
         if not self.bundle_process_done:
             return
 
@@ -205,7 +221,7 @@ class ContactsForm(tk.Frame):
                 contact.title.config(fg='#000000')
             if (item['type'] == 1):
                 # 群
-                contact.title.config(text='[群:' + str(item['id']) + '] ' + item['room_name'])
+                contact.title.config(text=f'[群] {item["room_name"]} ({str(item["id"])})')
                 contact.title.config(fg='green')
 
             self.pack_objs.append(contact)
@@ -241,23 +257,27 @@ class ContactsForm(tk.Frame):
 
         self.top_layout = Frame(self, relief='flat')
         self.top_layout.pack(side=TOP, fill='both')
-        self.menuicn = PhotoImage(file = "./client/forms/assets/globnav.png").subsample(18) 
+        self.menuicn = PhotoImage(file = resourcePath("./client/forms/assets/globnav.png")).subsample(18) 
         self.menu_btn = ttk.Menubutton(self.top_layout, image=self.menuicn, text=" 菜单", compound=LEFT, width=5)
         self.menu = Menu(self.menu_btn, font=("微软雅黑", 12), background="#ffffff", relief=FLAT)
         self.menu_btn['menu'] = self.menu
-
+        self.menu.add
         self.menu.add_command(label="添加好友", command=self.on_add_friend)
         self.menu.add_command(label="删除好友", command=self.on_del_friend)
+        self.menu.add_separator()
         self.menu.add_command(label="新建群聊", command=self.on_create_room)
         self.menu.add_command(label="加入群聊", command=self.on_add_room)
+        self.menu.add_separator()
         self.menu.add_command(label="更改用户名", command=self.on_alter_username)
+        self.menu.add_command(label="退出", command=self.remove_socket_listener_and_close)
+
 
 
         self.menu_btn.pack(side=LEFT)
         
         self.announcement_entry = AnnouncementEntry(self.top_layout, self.on_ann_click)
         self.announcement_entry.pack(side=TOP, fill=BOTH, expand=True)
-
+        self.announcement_list = []
         # 滚动条＋消息列表画布
         self.scroll = VerticalScrolledFrame(self, bg="#d9d9d9")
         self.scroll.pack(side=TOP, fill=BOTH, expand=True)

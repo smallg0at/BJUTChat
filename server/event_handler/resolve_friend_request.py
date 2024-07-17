@@ -4,8 +4,6 @@
 """服务器处理好友请求操作码，会给被加方发送好友申请"""
 
 from common.message import MessageType
-from common.util import md5
-from pprint import pprint
 from server.memory import *
 from server.util import database
 from common.message import MessageType
