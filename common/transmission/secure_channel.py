@@ -48,17 +48,18 @@ class SecureChannel:
 
         totalsent=0
         while totalsent < length_of_packet:
+            sent = 0
             try:
                 sent = self.socket.send(packet[totalsent:totalsent+1024])
             except BlockingIOError as e:
                 # sleep(0.05)
                 continue
+            except BrokenPipeError as e:
+                logger.exception("Pipe is broken, restart required: %s", e, exc_info=True)
             logger.debug('sending', length_of_packet, 'Bytes, this time',sent,'Bytes')
             if sent == 0:
                 logging.error("socket connection broken")
             totalsent = totalsent + sent
-            
-        
         return
 
     def json_deserialize_message(self,data):
@@ -81,7 +82,6 @@ def establish_secure_channel_to_server():
     s.settimeout(5)
     s.connect((config['client']['server_ip'], int(config['client']['server_port'])))
 
-            
     uuid = spawn_uuid()
     s.send(uuid.encode())
 
@@ -122,8 +122,6 @@ def accept_client_to_secure_channel(socket):
         logging.error('SecureChannel: Failed to receive client uuid!')
         return 
     
-    certname = "cert/" + uuid_recv.decode() + "_cert.pem"
-
     # 把服务器的证书发送给客户端
     with open("public.pem", 'rb') as f:
         server_cert = f.read()

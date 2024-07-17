@@ -34,7 +34,7 @@ pyinstaller run_client.spec
 With python3 native venv, on bash:
 
 ```bash
-python3 -m venv bjutchat_env
+python3 -m venv bjutchat_env # Watch out for dependencies!
 source bjutchat_env/bin/activate
 pip install -r ./requirements.txt
 pip install -r ./requirements_extra.txt
