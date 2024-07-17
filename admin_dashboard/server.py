@@ -201,6 +201,7 @@ def create_announcement():
     try:
         data = request.get_json()
         content = data.get('content')
+        title = data.get('title')
 
         if not content:
             return jsonify({'success': False, 'message': 'Content is required'}), 400
@@ -211,9 +212,9 @@ def create_announcement():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO announcements (title, content, send_time, expiry_time, visible_to_students, visible_to_teachers)
-            VALUES (?, ?, ?, ?, 1, 1)
-        """, ("公告", content, send_time, expiry_time))
+            INSERT INTO announcements (title, content, send_time)
+            VALUES (?, ?, ?)
+        """, (title, content, send_time))
         conn.commit()
         conn.close()
 
