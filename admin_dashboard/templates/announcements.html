@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Email Announcements</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="../static/css/email.css">
 </head>
+
 <body>
     <div class="container">
         <div class="left">
             <h2><span class="material-icons-outlined">edit</span>&nbsp Write Announcement</h2>
             <input type="text" id="announcementTitle" />
-            <textarea id="announcementText" maxlength="500" placeholder="Write your announcement here..." onkeydown="handleKeyDown(event)"></textarea>
+            <textarea id="announcementText" maxlength="500" placeholder="Write your announcement here..."
+                onkeydown="handleKeyDown(event)"></textarea>
             <button onclick="addAnnouncement()">Submit</button>
             <a href="{{ url_for('index') }}" target="_blank"><button>Return</button></a>
         </div>
@@ -36,7 +41,8 @@
 
         async function addAnnouncement() {
             var text = document.getElementById('announcementText').value;
-            if (text.length === 0) return;
+            var title = document.getElementById('announcementitle').value;
+            if (text.length === 0 || title.length === 0) return;
 
             var announcementHistory = document.getElementById('announcementHistory');
             var announcementDiv = document.createElement('div');
@@ -46,12 +52,12 @@
             if (text.length > 100) {
                 text = text.substring(0, 100) + '...';
             }
-            announcementDiv.textContent = text;
+            announcementDiv.textContent = title;
             // 删除键
             var deleteButton = document.createElement('button');
             deleteButton.className = 'delete-btn';
             deleteButton.innerHTML = '&times;';
-            deleteButton.onclick = function() {
+            deleteButton.onclick = function () {
                 deleteAnnouncement(announcementDiv);
             };
             announcementDiv.appendChild(deleteButton);
@@ -65,7 +71,7 @@
             document.getElementById('announcementText').value = '';
 
             // 调用后端API保存到数据库
-            await saveAnnouncementToDatabase(text);
+            await saveAnnouncementToDatabase(title, text);
         }
 
         function deleteAnnouncement(element) {
@@ -88,7 +94,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             var announcements = [];
             var announcementHistory = document.getElementById('announcementHistory');
-            
+
             announcements.forEach(text => {
                 var announcementDiv = document.createElement('div');
                 announcementDiv.className = 'announcement';
@@ -131,14 +137,14 @@
             }
         }
 
-        async function saveAnnouncementToDatabase(content) {
+        async function saveAnnouncementToDatabase(title, content) {
             try {
                 const response = await fetch('/create_announcement', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ content: content })
+                    body: JSON.stringify({ title: title, content: content })
                 });
 
                 if (!response.ok) {
@@ -158,4 +164,5 @@
         }
     </script>
 </body>
+
 </html>
