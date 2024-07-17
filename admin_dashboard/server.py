@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from hashlib import md5 as _md5
 import orjson
+import time
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -206,8 +207,7 @@ def create_announcement():
         if not content:
             return jsonify({'success': False, 'message': 'Content is required'}), 400
 
-        send_time = datetime.now()
-        expiry_time = send_time + timedelta(days=1)
+        send_time = int(round(time.time()))
 
         conn = get_db_connection()
         cursor = conn.cursor()
