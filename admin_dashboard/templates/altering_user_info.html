@@ -13,22 +13,14 @@
         <div class="form-container">
             <form id="updateUserInfoForm">
                 <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
                     <label for="school_id">School ID:</label>
                     <input type="text" id="school_id" name="school_id" placeholder="Enter new school ID" required>
                 </div>
                 <div class="form-group">
-                    <label for="nickname">Nickname:</label>
-                    <input type="text" id="nickname" name="nickname" placeholder="Enter new nickname" required>
-                </div>
-                <div class="form-group">
                     <label for="role">Role:</label>
                     <select id="role" name="role" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="0">Student</option>
+                        <option value="1">Teacher</option>
                     </select>
                 </div>
                 <button type="submit">Update Info</button>
@@ -39,9 +31,7 @@
     <script>
         document.getElementById('updateUserInfoForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value;
             const school_id = document.getElementById('school_id').value;
-            const nickname = document.getElementById('nickname').value;
             const role = document.getElementById('role').value;
             const message = document.getElementById('message');
 
@@ -50,7 +40,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, school_id, nickname, role })
+                body: JSON.stringify({ school_id, role })
             })
             .then(response => response.json())
             .then(data => {

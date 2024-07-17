@@ -169,21 +169,19 @@ def update_user_info():
         return render_template('403.html')
     try:
         data = request.get_json()
-        username = data.get('username')
         school_id = data.get('school_id')
-        nickname = data.get('nickname')
         role = data.get('role')
 
-        if not username or not school_id or not nickname or not role:
+        if not school_id or not role:
             return jsonify({'success': False, 'message': 'All fields are required'}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE users
-            SET school_id = ?, nickname = ?, role = ?
-            WHERE username = ?
-        """, (school_id, nickname, role, username))
+            SET role = ?
+            WHERE school_id = ?
+        """, (school_id, role))
         conn.commit()
 
         if cursor.rowcount == 0:
@@ -213,9 +211,9 @@ def create_announcement():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO announcements (content, send_time, expiry_time, visible_to_students, visible_to_teachers)
-            VALUES (?, ?, ?, 1, 1)
-        """, (content, send_time, expiry_time))
+            INSERT INTO announcements (title, content, send_time, expiry_time, visible_to_students, visible_to_teachers)
+            VALUES (?, ?, ?, ?, 1, 1)
+        """, ("公告", content, send_time, expiry_time))
         conn.commit()
         conn.close()
 
