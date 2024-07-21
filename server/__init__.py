@@ -103,8 +103,7 @@ def run():
                     data = sc.on_data(data_buffer[sc])
                     logger.debug(data['type'])
                     handle_event(sc, data['type'], data['parameters'])
-                except:
-                    logger.debug(sys.exc_info())
-                    traceback.print_exc(file=sys.stdout)
+                except Exception as e:
+                    logger.exception(e, exc_info=True)
                     pass
                 data_buffer[sc] = bytes()
