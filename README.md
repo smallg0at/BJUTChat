@@ -1,6 +1,6 @@
 # BJUTChat
 
-A simple chat application tailiored for university uses, mainly Python-based, with Curve25519 encryption support. 
+A simple & experimental chat application tailored for university uses, mainly Python-based, with Curve25519 encryption support. 
 
 Project is no longer maintained, and you are free to clone in compliance to the license.
 
