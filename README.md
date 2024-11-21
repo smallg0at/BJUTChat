@@ -2,7 +2,7 @@
 
 A simple & experimental chat application tailored for university uses, mainly Python-based, with Curve25519 encryption support. 
 
-Project is no longer maintained, and you are free to clone in compliance to the license.
+Project is no longer maintained, and you are free to clone & modify in compliance to the license.
 
 ## Features
 
@@ -99,3 +99,7 @@ Must perform after starting chat server. Not safe, dont use unless required.
 ```bash
 python3 ./run_dashboard.py
 ```
+
+## Acknowledgement
+
+This project is based on and would not be possible without [Uchat](https://github.com/Leeyuxun/UChat). 
